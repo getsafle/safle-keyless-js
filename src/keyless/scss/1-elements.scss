@@ -1,0 +1,34 @@
+@import './3-mixins.scss';
+// BUTTONS
+.btn {
+    &__tp {
+        &--1 {
+            @include button(
+                $c--blue,
+                none,
+                $c--white,
+                $ff--primary,
+                16px,
+                600,
+                20px,
+                100%,
+                50px,
+                4px
+            );
+        }
+        &--2 {
+            @include button(
+                $c--background,
+                none,
+                $c--white,
+                $ff--primary,
+                16px,
+                600,
+                10px,
+                100%,
+                50px,
+                0px
+            );
+        }
+    }
+}

@@ -1,0 +1,82 @@
+
+@import "../3-mixins.scss";
+// LOGIN
+.login {
+    @include container(-330px, -40px, 360px, 450px);
+    &__header {
+        @include header(18px);
+    }
+    form {
+        .icon-inside {
+            position: relative;
+            .icon-left {
+                position: absolute;
+                top: 15px;
+                left: 15px;
+                width: 18px;
+            }
+            .icon-right {
+                cursor: pointer;
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                width: 20px;
+            }
+        }
+        .input-id,
+        .input-pass {
+            color: $c--white;
+            font-size: 16px;
+            background-color: $c--background;
+            border: solid 1px $c--blue--dark;
+            margin-bottom: 14px;
+            border-radius: 10px;
+            width: 84%;
+            padding: 15px 10px 15px 47px;
+            &::placeholder {
+                color: $c--gray--second;
+                font-family: $ff--primary;
+                font-size: 16px;
+            }
+            &:focus {
+                outline: none;
+                border: solid 1px $c--blue;
+            }
+        }
+        .input-pass {
+            &::placeholder {
+                color: $c--gray--second;
+                font-size: 40px;
+                position: relative;
+                top: 7px;
+            }
+        }
+    }
+    &__footer {
+        text-align: center;
+        h4 {
+            margin: 30px 0px;
+            color: $c--gray--second;
+            font-size: 12px;
+            font-weight: 500;
+            a {
+                margin-left: 10px;
+                color: $c--blue;
+                text-decoration: none;
+            }
+            svg {
+                color: $c--blue;
+                width: 6px;
+            }
+        }
+        .forgot-pass {
+            margin-top: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: $c--gray--second;
+            text-decoration: none;
+            border-bottom: 1px solid $c--gray--second;
+            padding-bottom: 6px;
+        }
+    }
+}

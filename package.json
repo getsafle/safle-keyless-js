@@ -1,0 +1,46 @@
+{
+  "name": "safle-keyless-skeleton",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "engines": {
+    "node": ">=12.22.9"
+  },
+  "eslintConfig": {
+    "env": {
+      "browser": true
+    }
+  },
+  "scripts": {
+    "dev": "webpack serve --open --config-name webbuild",
+    "build": "webpack --config-name webbuild",
+    "build:lib": "webpack --config-name library"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^6.5.1",
+    "dotenv": "^14.3.2",
+    "sass": "^1.49.0",
+    "sass-loader": "^12.4.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.2",
+    "webpack-dev-server": "^4.7.3"
+  },
+  "dependencies": {
+    "assert": "^2.0.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "html-webpack-plugin": "^5.5.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "url": "^0.11.0",
+    "web3": "^1.7.0"
+  }
+}
