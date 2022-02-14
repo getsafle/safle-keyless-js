@@ -2,22 +2,23 @@
 
 // MOBILE OR
 .mobile-or {
-    @include container(-280px, -10px, 360px, 486px);
+    @include container(160px, 100px, 360px, 486px);
     &__header {
-        @include header(12px);
+        @include header;
         h3 {
+            @include font-size(12px);
             margin-top: 20px;
         }
     }
     &__code {
         background-color: $c--white;
         border-radius: 10px;
-        margin: 20px auto 0px auto;
+        margin: 10px auto 0px auto;
+        padding: 16px;
         width: 314px;
         height: 314px;
-        .bitmap {
-            width: 294px;
-            height: 293px;
+        img {
+            width: 100%;
         }
     }
 }

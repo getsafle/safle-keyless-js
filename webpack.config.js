@@ -28,6 +28,7 @@ module.exports = [
       }),
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
+        process: ['process']
       }),
       new webpack.DefinePlugin({
         'process.env': JSON.stringify(process.env)
@@ -47,7 +48,7 @@ module.exports = [
           ],
         },
         {
-          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
           type: 'asset/inline',
         },
       ],

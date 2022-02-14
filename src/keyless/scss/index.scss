@@ -1,7 +1,38 @@
-
+@import '../../../node_modules/rfs/scss.scss';
 @import "0-variables.scss";
 @import "0-typo.scss";
 @import "1-elements.scss";
 @import "2-items.scss";
 
+// GLOBAL
+body {
+    @include font-size(16px);
+}
+input {
+    -moz-appearance:textfield;
+}
+* {
+    box-sizing: border-box;
+}
 
+.transaction__account__address:hover > .hover-info--1,
+.transaction__account__user:hover > .hover-info--1,
+.connected:hover~.hover-info--1,
+.disconnected:hover~.hover-info--1 {
+    visibility: visible;
+    opacity: 1;
+    z-index: 10;
+}
+
+.connected~.hover-info--1 {
+    position: absolute;
+    left: 2px;
+    width: 114px;
+}
+.disconnected~.hover-info--1 {
+    position: absolute;
+    left: -14px;
+}
+.transaction__account__user > .hover-info--1 {
+    width: 114px;
+}

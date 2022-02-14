@@ -1,12 +1,13 @@
 
-.connected {
+.disconnected {
     background-color: $c--background;
-    color: $c--green--neon;
+    color: $c--red;
     cursor: pointer;
-    border: 1px solid $c--green--neon;
+    border: 1px solid $c--red;
     border-radius: 20px;
     padding: 5px 10px;
     @include font-size(10px);
     font-weight: 600;
-    width: 80px;
+    width: 110px;
+    text-align: center;
 }

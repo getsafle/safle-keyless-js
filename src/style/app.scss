@@ -22,4 +22,9 @@ html,body {
     &:hover {
         background-color:rgb(38, 165, 238);
     }
+
+    &.disabled {
+        opacity: 0.7;
+        cursor: default;
+    }
 }

@@ -36,7 +36,7 @@ class LoginScreen {
             <input class="input-pass" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
           </div>
       
-          <button class="btn__tp--1" type="submit">Sign In</button>
+          <button class="btn__tp--1 signin-btn" type="submit">Sign In</button>
   
         </form>
   

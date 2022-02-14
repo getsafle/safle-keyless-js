@@ -1,0 +1,13 @@
+
+.chain {
+    @include container(-500px, -40px, 360px, 372px);
+    @include header;
+    .logo {
+        img {
+            margin: 20px 0px;
+        }
+    }
+    h3 {
+        @include font-size(16px);
+    }
+}
