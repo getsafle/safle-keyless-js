@@ -1,95 +1,116 @@
-const { Keyless, getNetworks } = require('./keyless');
+const { KeylessWeb3, getNetworks } = require('./keyless');
 import './style/app.scss';
 const Web3 = require('web3');
+import blockchainInfo from './keyless/helpers/blockchains';
 
 window.onload = async() => {
-    
+
+    let activeAddress = null;
+
+     // helper methods
+     const $ = ( sel ) => {
+        return document.querySelector( sel );
+    }
+    const $$ = ( sel ) => {
+        return document.querySelectorAll( sel );
+    }
+    const each = ( collection, fn ) => {
+        Array.from( collection ).forEach( fn );
+    }
 
     // get the list of all networks
     const networks = await getNetworks();
 
-    const chain = 1;
-    const network = 'mainnet';
-    const env = 'dev';
+    const chosenBlockchains = networks;
+    console.log( chosenBlockchains );
+    const env = process.env.ENV;
 
-    try {
+
+    try { 
         // initialize keyless with the supported chains and networks in an array objects
-        const keyless = new Keyless({ blockchain: [{ chain, network }], env });
+        const keyless = new KeylessWeb3({ blockchain: chosenBlockchains, env });
 
         // initialize web3 using keyless as a provider
         const w3 = new Web3( keyless.provider ); //new Web3.providers.HttpProvider('https://mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b') );
 
-        // event handling from web3 provider
-        w3.currentProvider.on('connected', function( ){
-            console.log('conncted');
-            document.querySelectorAll('#balance-btn, #nw-switch, #send, #sign').forEach( e => e.classList.remove('disabled') );
-        });
-        w3.currentProvider.on('disconnect', function( ){
-            console.log('disconncted');
-            document.querySelectorAll('#balance-btn, #nw-switch, #send, #sign').forEach( e => e.classList.add('disabled') );
-            document.querySelector('#balance').innerHTML = '';
-        });
-        w3.currentProvider.on('switchChain', function( e ) {
-            document.querySelector('#chain').innerHTML = '> '+ e.payload.chainId;
-        });
-        document.querySelectorAll('#balance-btn, #nw-switch, #send, #sign').forEach( e => e.classList.add('disabled') );
+        add_events();
+        add_ui_events();
+        update_loggedin();
 
+        
+        
+        function add_ui_events(){
+            $('#login-btn').addEventListener('click', () => { keyless.login(); });
+            $('#disconnect_btn').addEventListener('click', () => { keyless.disconnect(); });
+            $('#balance-btn').addEventListener('click', async () => { 
+                const bal = await w3.eth.getBalance( activeAddress );
 
-
-
-        async function login() {
-            const { error } = await keyless.login();
-    
-            if (error) {
-                return { error };
-            }
-    
-            return 'Login successful'
-            //emit login successful event
-        }
-
-        function disconnect(){
-            keyless.disconnect();
-        }
-        function get_balance(){
-            w3.eth.getBalance('0x5b5fa92a800c6bd94346c08ffe586aa211bc889c').then( function( resp ){
-                console.log('response from web3: ', resp );
-                document.querySelector('#balance').innerHTML = 'Balance: '+ parseFloat( w3.utils.fromWei( resp.toString(), 'ether' ) ).toFixed(2) +' ETH';
-            }).catch( e => {
-                console.error( e )
-                document.querySelector('#balance').innerHTML = 'Error connecting';
+                console.log( bal );
             });
+            $('#dash-btn').addEventListener('click', ( e ) => {
+                keyless.openDashboard();
+            });
+            $('#nw-switch').addEventListener('click', ( e ) => {
+                keyless.selectChain();
+            })
         }
 
-        function switch_chain(){
-            keyless.choose_network();
+        function add_events(){
+            w3.currentProvider.on('connected', connected_handler );
+            w3.currentProvider.on('disconnect', disconnect_handler );
+            w3.currentProvider.on('login successful', update_loggedin );
+
+            w3.currentProvider.on('chainChanged', ( ch ) => {
+                console.log('chain changed: ', ch);
+                update_chain( ch.chainId );
+            } );
+            w3.currentProvider.on('accountsChanged', ( wallet ) => {
+                console.log('accounts changed: ', wallet );
+                activeAddress = wallet.address;
+            });
+
         }
 
-        function send_transaction(){
-            w3.eth.sendSignedTransaction( w3.eth.signTransaction( {
-                from: '0x5b5fa92a800c6bd94346c08ffe586aa211bc889c',
-                to: '0x5b5fa92a800346d94346c08ffe586aa211bc5356',
-                value: '1000000000000',
-                gas: '0x20'
-            } ), '0x0010520135023052306023603260');
+        function connected_handler( connectionInfo ){
+            console.log( connectionInfo);
+            update_loggedin();
+            update_chain( connectionInfo.chainId );
+        }
+        function disconnect_handler(){
+            update_loggedin();
+            update_chain( 0 );   
         }
 
-        async function sign_message(){
-            const res = w3.eth.accounts.sign( 'hello', 'efc95aac4db655328284160147b77318df12cb055c9012d3ba5a54098b37289b');
+        function update_loggedin(){
+            each( $$('.active_when_logged'), ( el ) => {
+                if( keyless.isLoggedIn() ){
+                    el.classList.remove('disabled');
+                } else {
+                    el.classList.add('disabled');
+                }
+            });
+            w3.eth.personal.getAccounts().then( ( addreses ) => {
+                activeAddress = addreses.shift();
+                console.log( activeAddress );
+            })
             
-            w3.eth.sendSignedTransaction( res );
         }
-    
-        document.querySelector('#login-btn').addEventListener('click', login );
-        document.querySelector('#disconnect_btn').addEventListener('click', disconnect );
-        document.querySelector('#balance-btn').addEventListener('click', get_balance );
-        document.querySelector('#nw-switch').addEventListener('click', switch_chain );
-        document.querySelector('#send').addEventListener('click', send_transaction );
-        document.querySelector('#sign').addEventListener('click', sign_message );
+        function update_chain( chainId ){
+            if( keyless.isConnected() ){
+                $('.status .online-stat').classList.add('online');
+                $('.status .online-stat .label').innerHTML = 'CONNECTED';
+                $('.status .chain').innerHTML = blockchainInfo[ chainId ].name;
+            } else {
+                $('.status .online-stat').classList.remove('online');
+                $('.status .online-stat .label').innerHTML = 'DISCONNECTED';
+                $('.status .online-stat').classList.remove('offline');
+                $('.status .chain').innerHTML = '-';
+            }
+            
+        }
 
     } catch( e ){
         console.error( 'an error has occuried', e.message );
     }    
-
    
 }

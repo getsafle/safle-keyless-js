@@ -44,13 +44,19 @@ module.exports = [
             // Translates CSS into CommonJS
             "css-loader",
             // Compiles Sass to CSS
-            "sass-loader",
+            {
+              loader: "sass-loader",
+              options: {
+                additionalData: "$keyless_ui_class: " + process.env.KEYLESS_UI_CLASSNAME + ";",
+              },
+            }
+            
           ],
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
           type: 'asset/inline',
-        },
+        }
       ],
     },
     resolve: {
