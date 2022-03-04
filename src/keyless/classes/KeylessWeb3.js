@@ -52,6 +52,40 @@ class KeylessWeb3 {
         }
         this._showUI('dashboard');
     }
+    sendTransaction(){
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('send');
+    }
+    txnSuccess(){
+        console.log('to be removed');
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('txnSuccess');
+    }
+    txnFailed(){
+        console.log('to be removed');
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('txnFailed');
+    } 
+    enterPin(){
+        console.log('to be removed');
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('pin');
+    }
+    scanQR(){
+        console.log('to be removed');
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('scanQR');
+    }
     selectChain(){
         if( !this._loggedin ){
             throw new Error('Please login first!');
