@@ -124,7 +124,7 @@ class PinScreen extends UIScreen {
             <div class='pin_code_container'>
                 <div class="pin-codes">
                     <div class="input-pin">
-                        <input type="text" name="pin" autocomplete='off' value="" maxlength="6" />
+                        <input type="number" name="pin" autocomplete='off' value="" maxlength="6" />
                         <div class="input-areas">
                             <div class="input-cell"></div>
                             <div class="input-cell"></div>

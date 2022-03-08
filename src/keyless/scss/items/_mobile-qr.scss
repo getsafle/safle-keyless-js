@@ -7,13 +7,14 @@
             @include header;
             h3 {
                 @include font-size(12px);
-                margin-top: 20px;
+                margin-top: 30px;
+                margin-bottom:2px;
             }
         }
         &__code {
             background-color: $c--white;
             border-radius: 10px;
-            margin: 10px auto 0px auto;
+            margin: 0px auto 0px auto;
             padding: 16px;
             width: 314px;
             height: 314px;

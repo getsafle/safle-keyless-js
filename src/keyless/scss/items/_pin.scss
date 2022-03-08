@@ -93,7 +93,7 @@ $pin-start-delay: 0.5s;
                         font-weight: 600;
                         line-height: 58px;
                         border: 0px solid rgba(255, 255, 255, 0);
-                        color: transparent;
+                        color: rgba(255,255,255,0);
                         text-align: left;
                         letter-spacing: 34.5px;
                         background: transparent;
@@ -101,10 +101,29 @@ $pin-start-delay: 0.5s;
                         text-indent: -999999px;
                         // font-size: 0;
                         // opacity: 0;
+                        -webkit-user-select: none; 
+                        -ms-user-select: none; 
+                        user-select: none; 
+                        &::selection{
+                          background: rgba(255,255,255,0);
+                        }
 
+                        &::-moz-selection{
+                          background: rgba(255,255,255,0);
+                        }
+                        &::-webkit-outer-spin-button,
+                        &::-webkit-inner-spin-button {
+                            -webkit-appearance: none;
+                            margin: 0; 
+                        }
+
+                        &[type=number] {
+                            -moz-appearance:textfield; /* Firefox */
+                        }
                         &:hover,
                         &:focus {
                             outline: 0;
+                            color:transparent;
                         }
                     }
 

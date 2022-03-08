@@ -90,6 +90,7 @@
                                 font-weight: 500;
                                 color: $c--gray--second;
                                 margin-left: 6px;
+                                line-height:18px;
                                 :first-child {
                                     @include font-size(12px);
                                 }

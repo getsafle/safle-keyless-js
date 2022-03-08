@@ -91,6 +91,9 @@
                 color: $c--gray--third;
                 margin: 8px 0px 8px 0px;
             }
+            input[type='number']{
+                font-family:$ff--primary;
+            }
             &__flex {
                 display: flex;
                 align-items: center;
@@ -168,6 +171,7 @@
                     margin: 12px 0px;
                     color: $c--gray--second;
                     font-weight: 600;
+                    @include font-size(16px);
                     span {
                         font-weight: 500;
                         color: $c--gray;
@@ -192,6 +196,10 @@
                 font-weight: 500;
                 color: $c--gray--third;
                 margin: 0px;
+                span{
+                    font-weight:600;
+
+                }
             }
             &__line {
                 width: 100%;
@@ -216,6 +224,7 @@
                     @include font-size(16px);
                     color: $c--gray--second;
                     margin-bottom: 12px;
+                    font-weight:600;
                     span {
                         color: $c--gray;
                         font-weight: 500;
@@ -237,7 +246,8 @@
         }
         &__pop-up {
             &--overlay {
-                background-color: rgba(6, 4, 24, 0.493);
+                // background-color: rgba(6, 4, 24, 0.493);
+                background-color: rgba(19, 21, 36, 0.9);
                 position: absolute;
                 top: 0px;
                 left: 0px;
@@ -352,7 +362,7 @@
             &__ctn {
                 position: relative;
                 input {
-                    color: #fff;
+                    color: $c--gray;
                     background-color: $c--background;
                     border: 1px solid $c--blue--dark;
                     border-radius: 10px;
@@ -360,9 +370,12 @@
                     justify-content: space-between;
                     width: 240px;
                     height: 44px;
+                    font-weight:500;
                     padding: 0px 16px;
                     cursor: pointer;
                     margin-bottom: 15px;
+                    @include font-size(16px);
+                    font-family:$ff--primary;
                 }
                 input:focus{
                     outline: none;
@@ -394,6 +407,52 @@
                     color: $c--gray;
                     margin: 0px 6px 0px 0px;
                 }
+                &_tooltip{
+                    position: relative;
+                    display: inline;
+                    .transaction__select__label_tooltiptext{
+                    
+                        visibility: hidden;
+                        width: 120px;
+                        text-align: center;
+                        padding: 5px 0;
+                        z-index: 1;
+                        top:calc(100% + 20px);
+                        left: 50%;
+                        margin-left: -60px;
+                        margin-top:-20px;
+                        display: flex;
+                        align-items: center;
+                        background-color: #cbd7e9;
+                        position: absolute;
+                        font-size: 0.75rem;
+                        padding: 6px;
+                        border-radius: 6px;
+                        font-weight: 600;
+                        color: #090A1A;
+                        &:before {
+                            content:'';
+                            background-color: #cbd7e9;
+                            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+                            width: 12px;
+                            height: 8px;
+                            position: absolute;
+                            top: -5px;
+                            left: calc(50% - 6px);
+                        }
+                    }
+                    &.active {
+                        .transaction__select__label_tooltiptext {
+                            visibility: visible;
+                        }
+                    }
+                    &:hover {
+                        .transaction__select__label_tooltiptext {
+                            visibility: visible;
+                        }
+                    }
+
+                }
                 svg {
                     color: $c--gray--third;
                     cursor: pointer;
@@ -408,7 +467,24 @@
                 width: 20px;
                 position: absolute;
                 right: 0px;
-                top: 10px;
+                top: 0px;
+                height:100%;
+                .input_up {
+                    cursor: pointer;
+                    width: 100%;
+                    display: flex;
+                    align-items: flex-end;
+                    justify-content: center;
+                    height: 100%;
+                }
+                .input_down {
+                    cursor: pointer;
+                    width: 100%;
+                    display: flex;
+                    align-items: flex-start;
+                    justify-content: center;
+                    height: 100%;
+                }
                 svg {
                     cursor: pointer;
                     color: $c--gray;
@@ -424,7 +500,12 @@
             height: 40px;
         }
     }
-
+    .tips_btn {
+        font-weight:500;
+    }
+    .inactive .transaction__select__arrow {
+        pointer-events:none;
+    }
     .inactive .transaction__select__label h3 {
         color: $c--blue--dark;
     }
@@ -646,7 +727,9 @@
     .b-contain:first-child .b-input::before {
     	visibility: hidden;
     }
-
+    .adv_option-btn {
+        font-weight:600;
+    }
     .hover-info {
         &--1 {
             display: flex;
@@ -670,7 +753,7 @@
                 width: 12px;
                 height: 8px;
                 position: absolute;
-                top: -8px;
+                top: -7px;
                 left: 47%;
             }
         }

@@ -109,7 +109,7 @@ class SendScreen extends UIScreen {
               adv_options_btn.classList.remove('dropdown-open');
               // save your options
         });
-        this.el.querySelector('.cancel_popup_btn').addEventListener('click', (e) => {
+        this.el.querySelector('.cancel_popup_btn, .transaction__pop-up__close').addEventListener('click', (e) => {
               e.preventDefault();
               console.log('clicked cancel popup btn');
               // close popup 
@@ -151,6 +151,62 @@ class SendScreen extends UIScreen {
               e.preventDefault();
               console.log('clicked reject_btn');
         });
+
+        // inputs values up and down
+        const inputs_arrow_gas = document.querySelectorAll('.gas_limit_wrp');
+        // .transaction__select__arrow
+
+        inputs_arrow_gas.forEach(up_down => {
+
+            // find if up click or down click do stuff
+            let down_arrow = up_down.querySelector('.input_down');
+            let up_arrow = up_down.querySelector('.input_up');
+            let input_val = up_down.querySelector('input[type="number"]');
+            let input_val_total;
+
+            down_arrow.addEventListener('click', function (event) {
+                event.preventDefault();
+                input_val_total = parseInt(input_val.value);
+                // remove 10 points to this value
+                input_val_total -= 10;
+                input_val.value = Math.max(input_val_total, 0 )
+            });
+            up_arrow.addEventListener('click', function (event) {
+                event.preventDefault();
+                input_val_total = parseInt(input_val.value);
+                input_val_total += 10;
+                // add 10 points to this value                
+                input_val.value = Math.max(input_val_total, 0 )
+            });
+        });
+        // inputs values up and down
+        const inputs_arrow_fee = document.querySelectorAll('.priority_fee_wrp');
+        // .transaction__select__arrow
+
+        inputs_arrow_fee.forEach(up_down => {
+
+            // find if up click or down click do stuff
+            let down_arrow = up_down.querySelector('.input_down');
+            let up_arrow = up_down.querySelector('.input_up');
+            let input_val = up_down.querySelector('input[type="number"]');
+            let input_val_total;
+
+            down_arrow.addEventListener('click', function (event) {
+                event.preventDefault();
+                input_val_total = parseFloat(input_val.value);
+                // remove 10 points to this value
+                input_val_total -= 1;
+                input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+            });
+            up_arrow.addEventListener('click', function (event) {
+                event.preventDefault();
+                input_val_total = parseFloat(input_val.value);
+                input_val_total += 1;
+                // add 10 points to this value                
+                input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+            });
+        });
+
     }
 
     render(){
@@ -225,7 +281,7 @@ class SendScreen extends UIScreen {
                     <img src="${editPenIcon}" alt="Edit Pen Icon">
                 </div>
             </div>
-            <h4>Max Fee: 0.000823</h4>
+            <h4><span>Max Fee:</span> 0.000823</h4>
             <div class="transaction__checkout__line"></div>
             <div class="transaction__checkout__total">
                 <h2>Total</h2>
@@ -263,7 +319,10 @@ class SendScreen extends UIScreen {
                                 <!-- dropdown-open -->
                                 <div class="dropdown__tp--4 adv_option-btn">
                                     Advanced Options
-                                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg>
+                                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14 9">
+                                        <path d="m7 9 .77-.759L14 2.084 12.46 0 7 5.398 1.54 0 0 2.084A254430.373 254430.373 0 0 0 7 9z" fill="#007AFF" fill-rule="nonzero"/>
+                                    </svg>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -273,14 +332,14 @@ class SendScreen extends UIScreen {
                                 <div class="checkbox--flex">
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span>Fast <br> 100</span>
+                                            <span class='light'>Fast <br><span class='bigger'>100</span></span>
                                             <input type="radio" name="fee_gwei" value='fast' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
                                     </div>
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span>Standard <br> 50.5</span>
+                                            <span class='light'>Standard <br><span class='bigger'>50.5</span></span>
                                             <input type="radio" name="fee_gwei" value='standard' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
@@ -289,14 +348,14 @@ class SendScreen extends UIScreen {
                                 <div class="checkbox--flex">
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span>Slow <br> 46</span>
+                                            <span class='light'>Slow <br><span class='bigger'>46</span></span>
                                             <input type="radio" name="fee_gwei" value='slow' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
                                     </div>
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span>Custom</span>
+                                            <span class='light'>Custom</span>
                                             <input type="radio" name="fee_gwei" value='custom' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
@@ -307,13 +366,22 @@ class SendScreen extends UIScreen {
                             <div class="transaction__select__ctn inactive">
                                 <div class="transaction__select__label">
                                     <h3>Gas limit</h3>
-                                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="info-circle" class="svg-inline--fa fa-info-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path></svg>
+                                    <div class='transaction__select__label_tooltip'>
+                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="info-circle" class="svg-inline--fa fa-info-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path></svg>
+                                        <div class='transaction__select__label_tooltiptext'>
+                                            Lorem Ipsum is not simply random text
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="transaction__select">
+                                <div class="transaction__select gas_limit_wrp">
                                     <input type="number" value='21000' class='gas_limit' disabled='disabled'>
                                     <div class="transaction__select__arrow">
-                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M240.971 130.524l194.343 194.343c9.373 9.373 9.373 24.569 0 33.941l-22.667 22.667c-9.357 9.357-24.522 9.375-33.901.04L224 227.495 69.255 381.516c-9.379 9.335-24.544 9.317-33.901-.04l-22.667-22.667c-9.373-9.373-9.373-24.569 0-33.941L207.03 130.525c9.372-9.373 24.568-9.373 33.941-.001z"></path></svg>
-                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>
+                                        <div class='input_up'>
+                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M240.971 130.524l194.343 194.343c9.373 9.373 9.373 24.569 0 33.941l-22.667 22.667c-9.357 9.357-24.522 9.375-33.901.04L224 227.495 69.255 381.516c-9.379 9.335-24.544 9.317-33.901-.04l-22.667-22.667c-9.373-9.373-9.373-24.569 0-33.941L207.03 130.525c9.372-9.373 24.568-9.373 33.941-.001z"></path></svg>
+                                        </div>
+                                        <div class='input_down'>                                        
+                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -321,13 +389,22 @@ class SendScreen extends UIScreen {
                             <div class="transaction__select__ctn inactive">
                                 <div class="transaction__select__label">
                                     <h3>Priority fee</h3>
-                                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="info-circle" class="svg-inline--fa fa-info-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path></svg>
+                                    <div class='transaction__select__label_tooltip'>
+                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="info-circle" class="svg-inline--fa fa-info-circle fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path></svg>
+                                        <div class='transaction__select__label_tooltiptext'>
+                                            Lorem Ipsum is not simply random text
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="transaction__select">
+                                <div class="transaction__select priority_fee_wrp">
                                     <input type="number" value='1.5' class='priority_fee' disabled='disabled'>
                                     <div class="transaction__select__arrow">
-                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M240.971 130.524l194.343 194.343c9.373 9.373 9.373 24.569 0 33.941l-22.667 22.667c-9.357 9.357-24.522 9.375-33.901.04L224 227.495 69.255 381.516c-9.379 9.335-24.544 9.317-33.901-.04l-22.667-22.667c-9.373-9.373-9.373-24.569 0-33.941L207.03 130.525c9.372-9.373 24.568-9.373 33.941-.001z"></path></svg>
-                                        <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>
+                                        <div class='input_up'>
+                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-up" class="svg-inline--fa fa-chevron-up fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M240.971 130.524l194.343 194.343c9.373 9.373 9.373 24.569 0 33.941l-22.667 22.667c-9.357 9.357-24.522 9.375-33.901.04L224 227.495 69.255 381.516c-9.379 9.335-24.544 9.317-33.901-.04l-22.667-22.667c-9.373-9.373-9.373-24.569 0-33.941L207.03 130.525c9.372-9.373 24.568-9.373 33.941-.001z"></path></svg>
+                                        </div>
+                                        <div class='input_down'>                                        
+                                            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-down" class="svg-inline--fa fa-chevron-down fa-w-14 " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M207.029 381.476L12.686 187.132c-9.373-9.373-9.373-24.569 0-33.941l22.667-22.667c9.357-9.357 24.522-9.375 33.901-.04L224 284.505l154.745-154.021c9.379-9.335 24.544-9.317 33.901.04l22.667 22.667c9.373 9.373 9.373 24.569 0 33.941L240.971 381.476c-9.373 9.372-24.569 9.372-33.942 0z"></path></svg>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
