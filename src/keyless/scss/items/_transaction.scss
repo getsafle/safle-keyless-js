@@ -758,4 +758,17 @@
             }
         }
     }
+
+    .dropdown__tp--4__content {
+        animation: hauto 0.5s 0s ease;
+    }
+
+    @keyframes hauto {
+        0% {
+            height: 0%;
+        }
+        100% {
+            height: 100%;
+        }
+    }
 }
