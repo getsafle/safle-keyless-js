@@ -13,41 +13,49 @@ class LoginScreen extends UIScreen {
   onInit(){
     this.safleField = this.el.querySelector('.input-id');
     this.saflePass = this.el.querySelector('.input-pass');
-    // this.saflePassParent = this.el.querySelector('.icon-inside');
-    this.error = this.el.querySelector('div.error_boundary');
+    this.error = this.el.querySelector('.error_boundary');
+    this.closeBtn = this.el.querySelector('.close');
+    this.forgotPassBtn = this.el.querySelector('.forgot-pass');
+    this.signinBtn  = this.el.querySelector('.signin-btn');
+    this.shPassBtn = this.el.querySelector('.icon-inside .icon-right');
+
   }
 
   onShow(){
     // on close
-    this.el.querySelector('.close').addEventListener('click', () => {
+    this.closeBtn.addEventListener('click', () => {
       this.keyless._hideUI();
-    });
-    // this.submitBtn = this.el.querySelector('.signin-btn');
-    // this.submitBtn.setAttribute('disabled', 'disabled');
-    
+    });    
   
     //forgot-pass
-    this.el.querySelector('.forgot-pass').addEventListener('click', (e) => {
-          e.preventDefault();
-          console.log('clicked forgot-pass');
-      });
+    this.forgotPassBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      console.log('clicked forgot-pass');
+    });
+
+
     // on login
-    this.el.querySelector('.signin-btn').addEventListener('click', ( e ) => {
+    this.signinBtn.addEventListener('click', async ( e ) => {
       e.preventDefault();
       console.log('click sign-in');
+      // console.log( window.grecaptcha );
+      this.error.innerHTML = '';
+
       try {
-        const resp = this.keyless.kctrl.login( this.safleField.value, this.saflePass.value );
+        await this.keyless.kctrl.login( this.safleField.value, this.saflePass.value );
         this.safleField.classList.remove('error');
         // this.submitBtn.removeAttribute('disabled');
       } catch( e ){
         console.log( 'An error has occured', e );
-        // this.error.innerHTML = e.message;
+        this.keyless.kctrl._setLoading( false );
+        this.error.innerHTML = e.hasOwnProperty('message')? e.message : e.hasOwnProperty('details')? e.details[0].message : e.info[0].message;
         this.safleField.classList.add('error');
         // this.submitBtn.setAttribute('disabled', 'disabled');
       }
     });
 
-    this.el.querySelector('.icon-inside .icon-right').addEventListener('click', ( e ) => {
+    //show/hide password
+    this.shPassBtn.addEventListener('click', ( e ) => {
       e.preventDefault();
       console.log('show hide password');
       if(this.saflePass.value == ''){
@@ -67,7 +75,6 @@ class LoginScreen extends UIScreen {
       }
       
     });
-    console.log(hiddenIcon);
   }
 
   render(){
@@ -86,6 +93,9 @@ class LoginScreen extends UIScreen {
       </div>
 
       <form class="relative" onSubmit="">
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <div class="g-recaptcha" data-sitekey="6Lf8HVIaAAAAADBeZl94tnebAST20hEZOHWzQMBD" data-size="invisible"></div>
+
         <div class="error">
           <div class="error_boundary"></div>
         </div>
@@ -100,8 +110,7 @@ class LoginScreen extends UIScreen {
           <img class="icon-right" src="${hiddenIcon}" alt="Hidden Icon">
 
           <input class="input-pass" type="password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
-        </div>
-    
+        </div>    
         <button class="btn__tp--1 signin-btn" type="submit">Sign In</button>
 
       </form>
@@ -116,7 +125,7 @@ class LoginScreen extends UIScreen {
         <a class="forgot-pass" href="#">Forgot Password</a>
 
       </div>
-
+      
     </div>`
   }
 
