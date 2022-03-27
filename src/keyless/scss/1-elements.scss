@@ -2,6 +2,7 @@
 // BUTTONS
 .#{$keyless_ui_class} {
     .btn {
+        
         &__tp {
             &--1 {
                 @include button(
@@ -15,7 +16,7 @@
                     50px,
                     4px
                 );
-                @include font-size(16px)
+                @include font-size(16px);
             }
             &--2 {
                 @include button(
@@ -32,7 +33,7 @@
                 img {
                     margin-left: 4px;
                 }
-                @include font-size(16px)
+                @include font-size(16px);
             }
             &--3 {
                 display: flex;
@@ -66,6 +67,9 @@
                     50px,
                     4px
                 );
+                &:hover {
+                    background-color:#26293a;
+                }
             }
         }
     }

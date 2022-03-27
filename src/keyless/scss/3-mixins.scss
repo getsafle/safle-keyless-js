@@ -1,6 +1,7 @@
 
 @mixin container($bgPos1, $bgPos2, $width, $height) {
-    background: url("../images/bubles-bg.svg") fixed;
+    // background: url("../images/bubles-bg.svg") fixed;
+    background: url("../images/background_planets.png");
     background-size: cover;
     background-color: $c--background;
     border-radius: 20px;
@@ -8,7 +9,7 @@
     font-family: $ff--primary;
     position: relative;
     padding: 20px;
-    background-position: $bgPos1 $bgPos2;
+    // background-position: $bgPos1 $bgPos2;
     width: $width;
     min-height: $height;
 }

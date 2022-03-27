@@ -15,6 +15,7 @@ import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
+import {copyToClipboard} from '../helpers/helpers';
 
 
 class DashboardScreen extends UIScreen {
@@ -24,6 +25,40 @@ class DashboardScreen extends UIScreen {
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
+
+
+        this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('copied to clipboard');
+            copyToClipboard('0x1deaA720C9Be705D47CB05B30E549CC9b0E5128D');
+        });
+
+        // select network
+        this.el.querySelector('.dashboard__network').addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('change network');
+            // this.keyless._hideUI();
+            this.keyless.selectChain();
+        });
+        
+
+        // select address / change
+        this.el.querySelector('.change_wallet').addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('change address');
+            // this.keyless._hideUI();
+            this.keyless.selectChain();
+        });
+
+        // open wallet 
+        this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('open wallet');
+            // this.keyless._hideUI();
+            // this.keyless.selectChain();
+        });
+
+        
         
     }
 
@@ -52,7 +87,7 @@ class DashboardScreen extends UIScreen {
             </a>
 
             <div class="dashboard__network">
-                <img src"${networkImg}" alt="Network Icon">
+                <img src="${networkImg}" alt="Network Icon">
                 <h3>Ethereum  Mainnet</h3>
             </div>
             
@@ -64,10 +99,10 @@ class DashboardScreen extends UIScreen {
             <div class="dashboard__wallet">
                 <div class="copy-address">
                     <img src="${tokenIcon}" alt="Token Icon">
-                    <h3>0x10e7…203d9</h3>
+                    <h3 class="from_to_clipboard">0x10e7…203d9</h3>
                     <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
                 </div>
-                <button class="btn__tp--3">
+                <button class="btn__tp--3 change_wallet">
                     <img src="${gearImg}" alt="Gear Icon">
                     <div>Change</div>
                 </button>
@@ -77,7 +112,7 @@ class DashboardScreen extends UIScreen {
             <div class="dashboard__balance"> 
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
-                    <input type="number">
+                    <input type="number" value="3.0120" readonly>
                     <h3>$11469.43</h3>
                 </div>
             </div>
@@ -87,7 +122,7 @@ class DashboardScreen extends UIScreen {
                 <div>
                     <div>
                         <img src="${tokenIcon}" alt="Network Icon">
-                        <h3>0x17...3d9</h3>
+                        <h3 class='token_prefix'>Matic</h3>
                     </div>
                     <div>
                         <h3>3.0120</h3>
@@ -96,7 +131,7 @@ class DashboardScreen extends UIScreen {
                 <div>
                     <div>
                         <img src="${user2}" alt="Network Icon">
-                        <h3>0x17...3d9</h3>
+                        <h3 class='token_prefix'>Luna</h3>
                     </div>
                     <div>
                         <h3>3.0120</h3>
@@ -105,7 +140,7 @@ class DashboardScreen extends UIScreen {
                 <div>
                     <div>
                         <img src="${user3}" alt="Network Icon">
-                        <h3>0x17...3d9</h3>
+                        <h3 class='token_prefix'>BNB</h3>
                     </div>
                     <div>
                         <h3>3.0120</h3>
@@ -114,7 +149,7 @@ class DashboardScreen extends UIScreen {
                 <div>
                     <div>
                         <img src="${user4}" alt="Network Icon">
-                        <h3>0x17...3d9</h3>
+                        <h3 class='token_prefix'>USDT</h3>
                     </div>
                     <div>
                         <h3>3.0120</h3>
@@ -122,7 +157,7 @@ class DashboardScreen extends UIScreen {
                 </div>
             </div>
     
-            <button class="btn__tp--2 c--gray">
+            <button class="btn__tp--2 c--gray btn_open_webapp">
                 Open Wallet
                 <img src="${popoutImg}" alt="Open Wallet Pop Out Icon">
             </button>

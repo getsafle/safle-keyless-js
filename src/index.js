@@ -50,9 +50,25 @@ window.onload = async() => {
             $('#dash-btn').addEventListener('click', ( e ) => {
                 keyless.openDashboard();
             });
+            $('#send-btn').addEventListener('click', ( e ) => {
+                keyless.sendTransaction();
+            });
+            $('#txn-success-btn').addEventListener('click', ( e ) => {
+                keyless.txnSuccess();
+            });
+            $('#txn-failed-btn').addEventListener('click', ( e ) => {
+                keyless.txnFailed();
+            });
             $('#nw-switch').addEventListener('click', ( e ) => {
                 keyless.selectChain();
-            })
+            }); 
+            $('#pin-btn').addEventListener('click', ( e ) => {
+                keyless.enterPin();
+            });
+            $('#qr-btn').addEventListener('click', ( e ) => {
+                keyless.scanQR();
+            });
+            
         }
 
         function add_events(){

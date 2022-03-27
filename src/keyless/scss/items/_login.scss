@@ -9,6 +9,8 @@
             h3 {
                 @include font-size(18px);
                 color: $c--gray;
+                margin-bottom: 2px;
+                margin-top:20px;
             }
         }
         form {
@@ -19,13 +21,19 @@
                     top: 15px;
                     left: 15px;
                     width: 18px;
+                    z-index:1; 
+                    &.icon-left-pass{
+                        width: 18px;
+                    }
                 }
                 .icon-right {
                     cursor: pointer;
                     position: absolute;
                     top: 17px;
-                    right: 15px;
+                    right: 22px;
                     width: 20px;
+                    z-index:1;
+                    
                 }
             }
             .input-id,
@@ -38,11 +46,33 @@
                 margin-bottom: 14px;
                 border-radius: 10px;
                 width: 100%;
+                font-weight:500;
                 padding: 15px 47px;
-                &::placeholder {
+                font-family: $ff--primary;
+                color: $c--gray--second;
+                &::-webkit-input-placeholder { 
                     color: $c--gray--second;
                     font-family: $ff--primary;
-                    @include font-size(18px);
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &::-moz-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &:-ms-input-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &:-moz-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
                 }
                 &:focus {
                     outline: none;
@@ -53,13 +83,80 @@
                 letter-spacing: 3px;
                 font-size: 18px;
                 height: 50px;
-                &::placeholder {
-                    color: $c--gray--second;
+                &::-webkit-input-placeholder { 
+                    color: $c--gray--third;
                     @include font-size(28px);
                     position: relative;
                     letter-spacing: 1px;
                     top: 1px;
                 }
+                &::-moz-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &:-ms-input-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &:-moz-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &[type='text']{
+                    @include font-size(18px);
+                    letter-spacing:0px;
+                    &::-webkit-input-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &::-moz-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &:-ms-input-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &:-moz-placeholder { 
+                        @include font-size(28px);
+                    }
+
+                }
+                &[type='password']{
+                    @include font-size(28px);
+                    &::-webkit-input-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+
+                        vertical-align:top;
+                    }
+                    &::-moz-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                    &:-ms-input-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                    &:-moz-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                }
+               
             }
             input.error {
                 border: solid 1px #f0a2a2;
@@ -73,6 +170,11 @@
                 line-height: 24px;
                 font-size: 14px;
                 color: #ff0000;
+            }
+            .signin-btn{
+                &[disabled='disabled']{
+                    opacity:0.5;
+                }
             }
         }
         &__footer {

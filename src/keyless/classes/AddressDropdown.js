@@ -112,7 +112,7 @@ class AddressDropdown {
     }
 
     render(){
-        return `<div class="${this.extraClass} dropdown${this.index}">
+        return `<div class="dropdown_default dropdown_address ${this.extraClass} dropdown${this.index}">
             <div class="title_label" style="justify-content: space-between;width: 100%;">
                 <div>
                     <img class="title_icon" src="${networkImg}" alt="Network Icon">
@@ -120,7 +120,9 @@ class AddressDropdown {
                 </div>
                 <div class="balance">
                     <h3>${ maxChars( this.initial? this.initial.balance : this.options[0].balance, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
-                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg>
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
+                <path d="m8 10 .88-.843L16 2.316 14.241 0 8 5.998 1.759 0 0 2.316A277265.12 277265.12 0 0 0 8 10z" fill="#CBD7E9" fill-rule="nonzero"/>
+            </svg>
                 </div>
             </div>
             
