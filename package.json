@@ -12,6 +12,7 @@
     }
   },
   "scripts": {
+    "start": "npm run dev",
     "dev": "webpack serve --open --config-name webbuild",
     "build": "webpack --config-name webbuild",
     "build:lib": "webpack --config-name library"
@@ -33,9 +34,14 @@
   },
   "dependencies": {
     "@getsafle/blockchain-controller": "^1.0.2",
+    "@getsafle/safle-vault": "^1.9.2",
+    "aes-js": "^3.1.2",
     "assert": "^2.0.0",
+    "axios": "^0.26.1",
     "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.0",
+    "ethers": "^5.6.2",
+    "get-random-values": "^1.2.2",
     "html-webpack-plugin": "^5.5.0",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",

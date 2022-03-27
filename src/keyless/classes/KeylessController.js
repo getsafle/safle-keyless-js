@@ -1,5 +1,6 @@
 import blockchainInfo from './../helpers/blockchains';
 import { middleEllipsis } from './../helpers/helpers';
+import * as safleHelpers from './../helpers/safleHelpers';
 
 class KeylessController {
     vault = false;
@@ -17,30 +18,35 @@ class KeylessController {
 
     }
 
-    login( user, pass ){
+    async login( user, pass ){
+        this._setLoading( true );
         console.log('login with user '+user+', pass '+pass );
 
-        if( user != 'test'){
-            throw new Error('User invalid');
-            return false;
-        }        
+        await grecaptcha.execute();
+        const token = grecaptcha.getResponse();
+        // console.log( token );
+        const resp = await safleHelpers.login( user, pass, token );
+        if( resp ){
+            console.log('success', resp.data.token );
+        }
+        this._setLoading( false );
+              
         //pull wallet from cloud
         this.flowState++;
-        this.keylessInstance._loggedin = true;
+        // this.keylessInstance._loggedin = true;
 
-        this.keylessInstance._showUI('switchChain');
+        // this.keylessInstance._showUI('switchChain');
+        // this.wallets = [
+        //     {
+        //         address: '0xb4683dffed6dcf3f3c5c046c2592880f0b4f3fb2',
+        //         balance: 0.000152
+        //     },
 
-        this.wallets = [
-            {
-                address: '0xb4683dffed6dcf3f3c5c046c2592880f0b4f3fb2',
-                balance: 0.000152
-            },
-
-            {
-                address: '0xaAB327b17c9C6399307C7b8752405830BE553D64',
-                balance: 1.242
-            }
-        ]
+        //     {
+        //         address: '0xaAB327b17c9C6399307C7b8752405830BE553D64',
+        //         balance: 1.242
+        //     }
+        // ]
 
         return true;
     }
@@ -89,6 +95,13 @@ class KeylessController {
             balances[ addreses[i] ] = ( Math.random() * 1000 ) +'.'+ ( Math.random() * 1200 );
         }
         return balances;
+    }
+
+    _setLoading( flag ){
+        const inst = this.keylessInstance._activeScreen;
+        if( inst.hasOwnProperty('el') ){
+            flag? inst.el.classList.add('loading') : inst.el.classList.remove('loading')
+        }
     }
 }
 
