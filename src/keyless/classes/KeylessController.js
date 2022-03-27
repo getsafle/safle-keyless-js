@@ -23,15 +23,25 @@ class KeylessController {
         console.log('login with user '+user+', pass '+pass );
 
         await grecaptcha.execute();
-        const token = grecaptcha.getResponse();
+        let token = grecaptcha.getResponse();
         // console.log( token );
         const resp = await safleHelpers.login( user, pass, token );
-        if( resp ){
-            console.log('success', resp.data.token );
-        }
+        const safleToken = resp.data.token;
+        
+
+        //pull vault from cloud
+        await grecaptcha.execute();
+        token = grecaptcha.getResponse();
+        const authToken = await safleHelpers.getCloudToken( user, pass, token );
+
+        let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
+        const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });
+        const vault = await safleHelpers.retrieveVaultFromCloud( pdkeyHash, authToken );
+
+        console.log( vault );
+
         this._setLoading( false );
-              
-        //pull wallet from cloud
+        
         this.flowState++;
         // this.keylessInstance._loggedin = true;
 
