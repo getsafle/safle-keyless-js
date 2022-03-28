@@ -94,6 +94,7 @@ class KeylessWeb3 {
 
     }
     disconnect(){
+        this.kctrl.logout();
         this._loggedin = false;
         this._connected = false;
         this.provider.emit('disconnect', {} );

@@ -1,6 +1,8 @@
 import blockchainInfo from './../helpers/blockchains';
 import { middleEllipsis } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
+import Storage from './../classes/Storage';
+import Vault from '@getsafle/safle-vault';
 
 class KeylessController {
     vault = false;
@@ -14,8 +16,14 @@ class KeylessController {
 
     }
 
-    loadVault(){
-
+    async loadVault(){
+        const state = Storage.getState();
+        if( state.vault ){
+            this.vault = new Vault( state.vault );
+            console.log( await this.vault.getAccounts( state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} ) ));
+        } else {
+            console.error('user is not logged in or vault empty.');
+        }
     }
 
     async login( user, pass ){
@@ -37,13 +45,22 @@ class KeylessController {
         let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
         const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });
         const vault = await safleHelpers.retrieveVaultFromCloud( pdkeyHash, authToken );
+        const encKey = await safleHelpers.retrieveEncryptionKey( pdkeyHash, authToken );
+        console.log( encKey );
 
-        console.log( vault );
+        Storage.saveState( { 
+            vault, 
+            decriptionKey: safleHelpers.decryptEncryptionKey( user, pass, Object.values( encKey ) ),
+            safleID: user
+        });
+        this.keylessInstance._loggedin = true;
+
+        this.loadVault();
 
         this._setLoading( false );
         
-        this.flowState++;
-        // this.keylessInstance._loggedin = true;
+        this.flowState = 1;
+        
 
         // this.keylessInstance._showUI('switchChain');
         // this.wallets = [
@@ -60,6 +77,10 @@ class KeylessController {
 
         return true;
     }
+    logout(){
+        Storage.saveState({vault: null})
+    }
+
     loginSuccess( wallet ){
         this.activeWallet = wallet;
 
