@@ -19,16 +19,17 @@ class SwitchChainScreen extends UIScreen {
 
     async onShow(){
         const currWallet = this.keyless.kctrl.getAccounts();
+        console.log( currWallet );
         this.chosenAddress = currWallet.address;
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             console.log( this.chosenAddress );
-            this.keyless.setNetworkAndLogin( this.chosenAddress );
+            this.keyless.kctrl._loginSuccess();
             this.keyless._hideUI();
         });
 
         const chains = this.keyless.kctrl.getChainsOptions( this.keyless.allowedChains );
-        let addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets );
+        let addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
         this.chosenAddress = this.keyless.kctrl.wallets[ 0 ];
 
         this.mount = this.el.querySelector('#mount_dropdowns');
@@ -52,7 +53,8 @@ class SwitchChainScreen extends UIScreen {
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
             this.keyless._hideUI();
-            this.keyless.setNetworkAndLogin( 0 );
+            this.keyless._loggedin = true;
+            this.keyless.kctrl._loginSuccess();
         });
     }
 

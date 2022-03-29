@@ -39,9 +39,9 @@ class Web3Provider extends EventEmitter {
                 if( !addrs ){
                     throw new RPCError('Please connect to DAP');
 
-                    return Promise.reject( addr );
+                    // return Promise.reject( addr );
                 }
-                return Promise.resolve( [ addrs ] );
+                return Promise.resolve( [ addrs.address ] );
 
             break;
 
