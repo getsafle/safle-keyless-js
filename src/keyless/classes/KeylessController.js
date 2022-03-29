@@ -18,9 +18,18 @@ class KeylessController {
 
     async loadVault(){
         const state = Storage.getState();
-        if( state.vault ){
+        if( state.vault && state.decriptionKey != null ){
             this.vault = new Vault( state.vault );
-            console.log( await this.vault.getAccounts( state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} ) ));
+            //todo - move this to helpers
+            const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+            this.wallets = ( await this.vault.getAccounts( decKey ) ).response.map( e => { return { address: e.address }} ) || [];
+            console.log( this.wallets );
+
+            if( this.wallets.length == 0 ){
+                //todo - handle empty vault case
+                throw new Error('No wallets found in the current vault');
+            }
+            this.activeWallet = 0;
         } else {
             console.error('user is not logged in or vault empty.');
         }
@@ -61,35 +70,28 @@ class KeylessController {
         
         this.flowState = 1;
         
-
-        // this.keylessInstance._showUI('switchChain');
-        // this.wallets = [
-        //     {
-        //         address: '0xb4683dffed6dcf3f3c5c046c2592880f0b4f3fb2',
-        //         balance: 0.000152
-        //     },
-
-        //     {
-        //         address: '0xaAB327b17c9C6399307C7b8752405830BE553D64',
-        //         balance: 1.242
-        //     }
-        // ]
-
-        return true;
+        this.keylessInstance._showUI('switchChain');
+        // return true;
     }
     logout(){
         Storage.saveState({vault: null})
     }
 
-    loginSuccess( wallet ){
-        this.activeWallet = wallet;
-
-        const addreses = this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
+    _loginSuccess(){
+        const addreses = this.getAccounts();
         this.keylessInstance.provider.emit('login successful', addreses );
     }
 
-    getAccounts(){
-        return this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
+    // re-build web3 instance for the current blockchain
+    switchNetwork( network ){
+        console.log( 'rebuild web3 object for EVM chainId '+network );
+
+    }
+
+
+
+    getAccounts( all = false ){
+        return all? this.wallets : this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
     }
 
 
@@ -118,14 +120,21 @@ class KeylessController {
         } })
     }
 
-
-
     async _getWalletBalances( addreses ){
+        // todo - get wallet native token balances
+
         const balances = {};
         for( var i in addreses ){
             balances[ addreses[i] ] = ( Math.random() * 1000 ) +'.'+ ( Math.random() * 1200 );
         }
         return balances;
+    }
+
+    async _getWalletTokens( address ){
+        //todo - get wallet tokens and balances - asset controller
+        
+
+
     }
 
     _setLoading( flag ){

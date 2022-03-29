@@ -66,7 +66,8 @@ let Storage = {
     // },
 
     INITIAL_STATE: {
-       vault: null
+       vault: null,
+       decriptionKey: null
     },
 
     commit: function( place, obj ){

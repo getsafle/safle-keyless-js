@@ -102,6 +102,7 @@ class KeylessWeb3 {
 
     switchNetwork( nid ){
         this._activeChain = this.allowedChains.indexOf( this.allowedChains.find( e => e.chainId == nid ) );
+        this.kctrl.switchNetwork( this._activeChain );
         this.provider.emit('chainChanged', { chainId: nid } );
     }
     switchWallet( wid ){
@@ -109,9 +110,8 @@ class KeylessWeb3 {
         this.provider.emit('accountsChanged', { address: this.kctrl.wallets[ this.kctrl.activeWallet ].address });
     }
 
-    setNetworkAndLogin( wallet ){
-        this._loggedin = true;
-        this.kctrl.loginSuccess( wallet );
+    setNetwork(){
+        
     }
 
     getSupportedNetworks(){
