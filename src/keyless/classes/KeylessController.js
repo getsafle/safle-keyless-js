@@ -59,7 +59,7 @@ class KeylessController {
         const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });
         const vault = await safleHelpers.retrieveVaultFromCloud( pdkeyHash, authToken );
         const encKey = await safleHelpers.retrieveEncryptionKey( pdkeyHash, authToken );
-        console.log( encKey );
+        // console.log( encKey );
 
         Storage.saveState( { 
             vault, 
@@ -120,7 +120,7 @@ class KeylessController {
         const assets = new asset_controller.AssetController({ chain: chain , rpcURL: this.getNodeURI() });
         const erc20Balance = await assets.detectTokens('erc20');
 
-        return erc20Balance[ chain ];
+        return erc20Balance;
     }
 
     // option transformers
