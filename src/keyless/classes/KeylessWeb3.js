@@ -134,6 +134,7 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
+        console.log( 'getnativetoken', currChain );
         return currChain.chain.symbol;
     }
 

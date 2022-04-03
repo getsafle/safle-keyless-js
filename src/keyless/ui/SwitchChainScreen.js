@@ -28,27 +28,33 @@ class SwitchChainScreen extends UIScreen {
             this.keyless._hideUI();
         });
 
-        const chains = this.keyless.kctrl.getChainsOptions( this.keyless.allowedChains );
-        let addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
-        this.chosenAddress = this.keyless.kctrl.wallets[ 0 ];
-
         this.mount = this.el.querySelector('#mount_dropdowns');
         this.mount.innerHTML = '';
 
+        const chains = this.keyless.kctrl.getChainsOptions( this.keyless.allowedChains );
+        let addreses = [{ label: '', balance: ''}];
+
+        this.chosenAddress = this.keyless.kctrl.wallets[ 0 ];
+
         this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains );
         this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken() );
+        this.dropdown2.setLoading( true );
 
         this.dropdown1.onChange( async ( idx, option ) => {
             this.keyless.switchNetwork( option.chainId );
-
-            addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets );
-            this.dropdown2.setOptions( addreses );
+            this.dropdown2.setLoading( true );
+            // this.keyless.kctrl._setLoading( true );
+            const addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets );
+            this.dropdown2.setLoading( false );
+            // this.keyless.kctrl._setLoading( false );
+            // this.dropdown2.setOptions( addreses );
+            this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
         });
 
         this.dropdown2.onChange( ( idx, wallet ) => {
-            this.keyless.switchWallet( idx );
+            this.keyless.switchWallet( idx );``
             this.chosenAddress = this.keyless.kctrl.wallets[ idx ];
-            console.log( this.chosenAddress );
+            // console.log( this.chosenAddress );
         });
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
@@ -56,6 +62,44 @@ class SwitchChainScreen extends UIScreen {
             this.keyless._loggedin = true;
             this.keyless.kctrl._loginSuccess();
         });
+
+        addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
+        this.dropdown2.setLoading( false );
+        this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
+    }
+
+    _renderLoadingDropDowns(){
+        return `<div>
+        <div class="dropdown_default dropdown_address loading dropdown1">
+            <div class="title_label" style="justify-content: space-between;width: 100%;">
+                <div>
+                    <img class="title_icon" src="" alt="Network Icon">
+                    <h3></h3>
+                </div>
+                <div class="balance">
+                    <h3><span class="c--dark"></span></h3>
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m8 10 .88-.843L16 2.316 14.241 0 8 5.998 1.759 0 0 2.316A277265.12 277265.12 0 0 0 8 10z" fill="#CBD7E9" fill-rule="nonzero"/>
+                    </svg>
+                </div>
+            </div>    
+        </div></div>
+        <div>
+        <div class="dropdown_default dropdown_address loading dropdown1">
+            <div class="title_label" style="justify-content: space-between;width: 100%;">
+                <div>
+                    <img class="title_icon" src="" alt="Network Icon">
+                    <h3></h3>
+                </div>
+                <div class="balance">
+                    <h3><span class="c--dark"></span></h3>
+                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m8 10 .88-.843L16 2.316 14.241 0 8 5.998 1.759 0 0 2.316A277265.12 277265.12 0 0 0 8 10z" fill="#CBD7E9" fill-rule="nonzero"/>
+                    </svg>
+                </div>
+            </div>    
+        </div></div>
+        `;
     }
 
     hideDropdowns(){

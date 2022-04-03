@@ -1,3 +1,4 @@
+import Web3 from 'web3';
 import blockchainInfo from './../helpers/blockchains';
 import { middleEllipsis } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
@@ -12,6 +13,8 @@ class KeylessController {
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
+        const nodeURI = this.getNodeURI();
+        this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
 
 
     }
@@ -85,7 +88,10 @@ class KeylessController {
     // re-build web3 instance for the current blockchain
     switchNetwork( network ){
         console.log( 'rebuild web3 object for EVM chainId '+network );
+        const nodeURI = this.getNodeURI( this.keylessInstance.allowedChains[ network ].chainId );
+        console.log('CHAINID', nodeURI );
 
+        this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
 
@@ -105,8 +111,13 @@ class KeylessController {
                 icon: ''
             }
         })
-
     }
+
+    getNodeURI( chainID = false ){
+        const chainId = chainID? chainID : this.keylessInstance.getCurrentChain().chainId;
+        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].uri + process.env.INFURA_KEY : '';
+    }
+
     async getAddressesOptions( options ){
         const balances = await this._getWalletBalances( options.map( e => e.address ) );
         // console.log( balances );
@@ -125,9 +136,18 @@ class KeylessController {
 
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = ( Math.random() * 1000 ) +'.'+ ( Math.random() * 1200 );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase() );
         }
+        console.log( balances );
+
         return balances;
+    }
+
+    async getWalletBalance( address ){
+        const bal = await this.web3.eth.getBalance( address, 'latest' );
+        console.log( address+': '+bal );
+        const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
+        return balance;
     }
 
     async _getWalletTokens( address ){
