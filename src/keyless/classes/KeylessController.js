@@ -4,6 +4,7 @@ import { middleEllipsis } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
+import asset_controller  from '@getsafle/asset-controller';
 
 class KeylessController {
     vault = false;
@@ -95,11 +96,32 @@ class KeylessController {
     }
 
 
+    // send transaction func
+    sendTransaction( config ){
+        this.activeTransaction = {
+            data: config,
+        };
+        this.activeTransaction.promise = new Promise( ( res, rej ) => {
+            this.keylessInstance._showUI('send');
+            this.activeTransaction.resolve = res;
+            this.activeTransaction.reject = rej;
+        });
+        return this.activeTransaction.promise;
+    }
+
 
     getAccounts( all = false ){
         return all? this.wallets : this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
     }
 
+    async getTokens(){
+        // const address = this.getAccounts();
+        const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
+        const assets = new asset_controller.AssetController({ chain: chain , rpcURL: this.getNodeURI() });
+        const erc20Balance = await assets.detectTokens('erc20');
+
+        return erc20Balance[ chain ];
+    }
 
     // option transformers
     getChainsOptions( options ){

@@ -33,6 +33,7 @@
     "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
+    "@getsafle/asset-controller": "^1.0.7",
     "@getsafle/blockchain-controller": "^1.0.2",
     "@getsafle/safle-vault": "^1.9.2",
     "aes-js": "^3.1.2",

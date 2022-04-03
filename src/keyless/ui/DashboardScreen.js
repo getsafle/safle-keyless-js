@@ -58,7 +58,9 @@ class DashboardScreen extends UIScreen {
             // this.keyless.selectChain();
         });
 
-        
+        //show tokens
+        const tokens = this.keyless.kctrl.getTokens();
+        console.log( tokens );
         
     }
 

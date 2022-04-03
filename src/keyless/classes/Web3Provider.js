@@ -50,7 +50,38 @@ class Web3Provider extends EventEmitter {
                     return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
                 }
                 // const addr = this.keyless.kctrl.getAccounts();
-                return Promise.resolve( this.keyless.kctrl.getWalletBalance( e.params[0] ) );
+                return this.keyless.kctrl.getWalletBalance( e.params[0] );
+            break;
+
+            case 'eth_sendTransaction':
+                if( !this.keyless._loggedin ){
+                    return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
+                }
+                return this.keyless.kctrl.sendTransaction( e.params[0] );     
+            break;
+
+            case 'eth_getTransactionCount':
+                if( !this.keyless._loggedin ){
+                    return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
+                }
+                return this.keyless.kctrl.web3.eth.getTransactionCount( e.params[0] );
+            break;
+
+            case 'eth_getBlockByNumber':
+                if( !this.keyless._loggedin ){
+                    return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
+                }
+                return this.keyless.kctrl.web3.eth.getBlock( e.params[0], e.params[1] );
+            break;
+
+            case 'eth_gasPrice':
+
+            break;
+
+            case 'eth_getTransactionReceipt':
+                return {
+                    transactionHash: '0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238',
+                }
             break;
 
             default:

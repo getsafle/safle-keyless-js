@@ -6,6 +6,7 @@ import blockchainInfo from './keyless/helpers/blockchains';
 window.onload = async() => {
 
     let activeAddress = null;
+    const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
 
      // helper methods
      const $ = ( sel ) => {
@@ -51,7 +52,7 @@ window.onload = async() => {
                 keyless.openDashboard();
             });
             $('#send-btn').addEventListener('click', ( e ) => {
-                keyless.sendTransaction();
+                send_transaction();
             });
             $('#txn-success-btn').addEventListener('click', ( e ) => {
                 keyless.txnSuccess();
@@ -123,6 +124,22 @@ window.onload = async() => {
                 $('.status .chain').innerHTML = '-';
             }
             
+        }
+
+        async function send_transaction(){
+            const nonce = await w3.eth.getTransactionCount( activeAddress, 'latest'); // nonce starts counting from 0
+
+            const transaction = {
+                'from': activeAddress,
+                'to': toAddress, // faucet address to return eth
+                'value': w3.utils.toWei( '0.001', 'ether'),
+                'gas': 30000,
+                // 'maxFeePerGas': 1000000108,
+                'nonce': nonce,
+            };
+            const resp = await w3.eth.sendTransaction( transaction );
+            
+            console.log( resp );
         }
 
     } catch( e ){

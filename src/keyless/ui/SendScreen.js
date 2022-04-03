@@ -144,10 +144,20 @@ class SendScreen extends UIScreen {
               console.log('clicked open_wallet_btn');
         });  
         this.el.querySelector('.confirm_btn').addEventListener('click', (e) => {
+            this.keyless.kctrl.activeTransaction.resolve({ status: 'sent' });
+            this.keyless._hideUI();
+
               e.preventDefault();
               console.log('clicked confirm_btn');
         }); 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
+            this.keyless.kctrl.activeTransaction.reject( {
+                message: 'User rejected the transaction',
+                code: 4200,
+                method: 'User rejected'
+            });
+            this.keyless._hideUI();
+
               e.preventDefault();
               console.log('clicked reject_btn');
         });
