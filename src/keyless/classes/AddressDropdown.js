@@ -32,6 +32,12 @@ class AddressDropdown {
 
         setTimeout( () => this.onInit(), 200 );
     }
+    update( options, nativeToken ){
+        this.nativeToken = nativeToken;
+        this.options = options;
+        this.el.innerHTML = this.render();
+        setTimeout( () => this.onInit(), 200 );
+    }
     onInit(){
         this.el.querySelector('.dropdown'+this.index ).addEventListener('click', ( e ) => {
             this.el.querySelector( '.'+this.opContClass ).classList.toggle('d--none');
@@ -51,7 +57,7 @@ class AddressDropdown {
     setOptions( options ){
         this.options = options;
         this.el.querySelector( '.'+this.opContClass ).innerHTML = `
-        ${ this.options.map( ( item, idx ) => {
+        ${ this.options.length > 0 && this.options.map( ( item, idx ) => {
             return `<div class="dd_option" data-option="${idx}">
                         <div>
                             <img src="${networkImg}" alt="Network Icon">
@@ -80,8 +86,16 @@ class AddressDropdown {
             this.opened = false;
             this.el.querySelector( '.'+this.opContClass ).classList.add('d--none');
             this.el.querySelector('.title_label h3').innerHTML = this.activeOption.label;
-            this.el.querySelector('.balance h3').innerHTML = maxChars( this.activeOption.balance, 10 );
+            this.el.querySelector('.balance h3').innerHTML = maxChars( this.activeOption.balance, 10 ) + ' <span class="c--dark">'+this.nativeToken+'</span>';
             this.triggerChange( idx, this.options[ idx ] );
+        }
+    }
+
+    setLoading( flag ){
+        if( flag ){
+            this.el.querySelector( '.dropdown_default' ).classList.add('loading');
+        } else {
+            this.el.querySelector( '.dropdown_default' ).classList.remove('loading');
         }
     }
 
@@ -116,10 +130,10 @@ class AddressDropdown {
             <div class="title_label" style="justify-content: space-between;width: 100%;">
                 <div>
                     <img class="title_icon" src="${networkImg}" alt="Network Icon">
-                    <h3>${ this.initial? this.initial.label : this.options[0].label }</h3>
+                    <h3>${ this.initial? this.initial?.label : this.options[0]?.label }</h3>
                 </div>
                 <div class="balance">
-                    <h3>${ maxChars( this.initial? this.initial.balance : this.options[0].balance, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
+                    <h3>${ maxChars( this.initial? this.initial?.balance : this.options[0]?.balance || 0, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
                 <path d="m8 10 .88-.843L16 2.316 14.241 0 8 5.998 1.759 0 0 2.316A277265.12 277265.12 0 0 0 8 10z" fill="#CBD7E9" fill-rule="nonzero"/>
             </svg>
@@ -128,7 +142,7 @@ class AddressDropdown {
             
         </div>
         <div class="dropdown__content ${this.extraOptionClass} ${this.opContClass} d--none">
-        ${ this.options.map( ( item, idx ) => {
+        ${ this.options.length > 0 && this.options.map( ( item, idx ) => {
             return `<div class="dd_option" data-option="${idx}">
                         <div>
                             <img src="${networkImg}" alt="Network Icon">

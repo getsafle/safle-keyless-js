@@ -1,5 +1,6 @@
 .#{$keyless_ui_class} {
     .dropdown {
+
         &_chain  {
             
             align-items:center;
@@ -186,6 +187,16 @@
                     background-color: $c--gray--third;
                     border-radius: 100px;
                }
+            }
+        }
+
+        &_default {
+            &.loading {
+                cursor: no-drop;
+                pointer-events: none;
+                .title_label {
+                    opacity: 0.3;
+                }
             }
         }
     }

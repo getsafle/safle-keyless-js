@@ -49,7 +49,8 @@ class Web3Provider extends EventEmitter {
                 if( !this.keyless._loggedin ){
                     return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
                 }
-                return Promise.resolve( 1000000000000000000 );
+                // const addr = this.keyless.kctrl.getAccounts();
+                return Promise.resolve( this.keyless.kctrl.getWalletBalance( e.params[0] ) );
             break;
 
             default:
