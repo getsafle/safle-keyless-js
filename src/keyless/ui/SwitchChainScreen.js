@@ -35,9 +35,13 @@ class SwitchChainScreen extends UIScreen {
         let addreses = [{ label: '', balance: ''}];
 
         this.chosenAddress = this.keyless.kctrl.wallets[ 0 ];
+        const initial =  chains.find( e => this.keyless.getCurrentChain().chainId == e.chainId )
+        // const initial = this.keyless.getCurrentChain().chain
 
-        this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains );
+        this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains, { initial } );
         this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken() );
+
+
         this.dropdown2.setLoading( true );
 
         this.dropdown1.onChange( async ( idx, option ) => {

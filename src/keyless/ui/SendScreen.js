@@ -9,7 +9,7 @@ import eth2Icon from './../images/eth-icon-2.svg'
 import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, middleEllipsisMax } from '../helpers/helpers';
 
 
 class SendScreen extends UIScreen {
@@ -18,6 +18,7 @@ class SendScreen extends UIScreen {
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
+            this.keyless.kctrl.clearActiveTransaction( true );
         });
         
         //transaction__account__address
@@ -217,6 +218,39 @@ class SendScreen extends UIScreen {
             });
         });
 
+        this.populateData();
+    }
+
+    populateData(){
+        const trans = this.keyless.kctrl.getActiveTransaction();
+        if( trans ){
+            this.populateAddresses( trans );
+            this.populateBalance();
+            this.populateAmount( trans );
+        }
+    }
+    populateAddresses( trans ){
+        const activeTrans = trans;
+        const fromAddress = this.keyless.kctrl.getAccounts().address;
+        const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
+        fromCont.innerHTML = middleEllipsisMax( fromAddress, 4 );
+        fromCont.parentNode.querySelector('.hover-info--1').innerText = fromAddress;
+        const toAddress = activeTrans.data.to;
+
+        const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
+        toCont.innerHTML = middleEllipsisMax( toAddress, 4 );
+        toCont.parentNode.querySelector('.hover-info--1').innerText = toAddress;
+    }
+
+    async populateBalance(){
+        const balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address );
+        this.el.querySelector('.transaction__balance__span').innerHTML = balance;
+    }
+
+    populateAmount( trans ){
+        console.log( trans );
+        const amt = trans.data.value;
+        this.el.querySelector('.transaction__send .transaction_amount').value = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
     }
 
     render(){
@@ -246,10 +280,10 @@ class SendScreen extends UIScreen {
         <div class="transaction__account">
             <div class="transaction__account__address">
                 <img src="${tokenIcon}" alt="Network Icon">
-                <h3>0x17...3d9</h3>
+                <h3></h3>
                 <div class="hover-info--1">
                     <div class="hover-info--1__triangle"></div>
-                    0x10e7de5D6Ab08jdki3mnxz21d938dC8F8c5903d9
+                    
                 </div>
             </div>
             <div class="transaction__account__arrow">
@@ -257,10 +291,10 @@ class SendScreen extends UIScreen {
             </div>
             <div class="transaction__account__user">
                 <img src="${user4}" alt="User Icon">
-                <h3>Gabriel Clayton</h3>
+                <h3></h3>
                 <div class="hover-info--1">
                     <div class="hover-info--1__triangle"></div>
-                    Gabriel Clayton
+                    
                 </div>
             </div>
         </div>
@@ -270,7 +304,7 @@ class SendScreen extends UIScreen {
             <div class="transaction__send__flex">
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
-                    <input type="number" value='0.823' readonly>
+                    <input type="number" value='' readonly class="transaction_amount">
                     <div class="h3">$3121.16</div>
                 </div>
             </div>

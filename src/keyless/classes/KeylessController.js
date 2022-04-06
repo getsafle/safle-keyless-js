@@ -11,6 +11,7 @@ class KeylessController {
     wallets = [];
     activeWallet = false;
     flowState = 0;
+    activeTransaction = null;
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
@@ -109,6 +110,23 @@ class KeylessController {
         return this.activeTransaction.promise;
     }
 
+    getActiveTransaction(){
+        if( this.activeTransaction ){
+            return this.activeTransaction;
+        }
+        return null;
+    }
+    clearActiveTransaction( reject = false ){
+        if( reject && !this.activeTransaction.promise.fulfilled ){
+            this.activeTransaction.reject({
+                message: 'User rejected the transaction',
+                code: 4200,
+                method: 'User rejected'
+            })
+        }
+        this.activeTransaction = null;
+    }
+
 
     getAccounts( all = false ){
         return all? this.wallets : this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
@@ -172,10 +190,7 @@ class KeylessController {
         return balance;
     }
 
-    async _getWalletTokens( address ){
-        //todo - get wallet tokens and balances - asset controller
-        
-
+    getBalanceInUSD( balance ){
 
     }
 

@@ -80,16 +80,18 @@ window.onload = async() => {
             w3.currentProvider.on('chainChanged', ( ch ) => {
                 console.log('chain changed: ', ch);
                 update_chain( ch.chainId );
+                update_loggedin();
             } );
             w3.currentProvider.on('accountsChanged', ( wallet ) => {
                 console.log('accounts changed: ', wallet );
                 activeAddress = wallet.address;
+                update_loggedin();
             });
 
         }
 
         function connected_handler( connectionInfo ){
-            console.log( connectionInfo);
+            console.log( 'connected', connectionInfo);
             update_loggedin();
             update_chain( connectionInfo.chainId );
         }
@@ -107,8 +109,14 @@ window.onload = async() => {
                 }
             });
             w3.eth.personal.getAccounts().then( ( addreses ) => {
+                console.log( 'update get acc', addreses );
+
                 activeAddress = addreses.shift();
-                console.log( activeAddress );
+                w3.eth.getBalance( activeAddress ).then( bal => {
+                    $('.status .balance').innerHTML = bal;
+                });
+                
+
             })
             
         }

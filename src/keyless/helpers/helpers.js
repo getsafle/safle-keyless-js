@@ -12,6 +12,14 @@ export const middleEllipsis = ( text, split=3 ) => {
     // console.log( text.slice( 0, sz ) + '...' + text.slice( -sz ) );
     return text.slice( 0, sz ) + '...' + text.slice( -sz );
 }
+export const middleEllipsisMax = ( text, maxLen ) => {
+    if( !text ){
+        return;
+    }
+    return text.slice( 0, maxLen ) + '...' + text.slice( -maxLen );
+}
+
+
 export const maxChars = ( text, max ) => {
     return text.length > max? text.substr( 0, max )+'' : text;
 }
