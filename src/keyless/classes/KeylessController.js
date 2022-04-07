@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import blockchainInfo from './../helpers/blockchains';
-import { middleEllipsis } from './../helpers/helpers';
+import { middleEllipsis, formatPrice } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
@@ -190,8 +190,20 @@ class KeylessController {
         return balance;
     }
 
-    getBalanceInUSD( balance ){
-
+    async getBalanceInUSD( balance ){
+        try {
+            let activeChain = await this.keylessInstance.getCurrentChain();
+            const nativeTokenName = activeChain.chain.symbol.toLowerCase();
+            
+           let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${nativeTokenName}`).then(e=>e.json());
+            const rate = res.data?.data[ nativeTokenName.toUpperCase() ]?.quote?.USD?.price;
+            
+            const priceUSD = isNaN( rate )? 0 : rate;
+            return formatPrice( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
+        } catch( e ){
+            console.log('Error fetching usd balance', e.message );
+            return 0;
+        }
     }
 
     _setLoading( flag ){

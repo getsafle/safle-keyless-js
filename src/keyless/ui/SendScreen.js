@@ -221,12 +221,16 @@ class SendScreen extends UIScreen {
         this.populateData();
     }
 
-    populateData(){
+    async populateData(){
         const trans = this.keyless.kctrl.getActiveTransaction();
         if( trans ){
             this.populateAddresses( trans );
-            this.populateBalance();
-            this.populateAmount( trans );
+            this.keyless.kctrl._setLoading( true );
+            await Promise.all( [
+                    this.populateBalance(),
+                    this.populateAmount( trans )
+            ] );
+            this.keyless.kctrl._setLoading( false );
         }
     }
     populateAddresses( trans ){
@@ -247,10 +251,14 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__balance__span').innerHTML = balance;
     }
 
-    populateAmount( trans ){
+    async populateAmount( trans ){
         console.log( trans );
         const amt = trans.data.value;
-        this.el.querySelector('.transaction__send .transaction_amount').value = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        const amtConv = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        this.el.querySelector('.transaction__send .transaction_amount').value = amtConv;
+
+        const amountUSD = await this.keyless.kctrl.getBalanceInUSD( amtConv );
+        this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+amountUSD;
     }
 
     render(){
@@ -305,7 +313,7 @@ class SendScreen extends UIScreen {
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
                     <input type="number" value='' readonly class="transaction_amount">
-                    <div class="h3">$3121.16</div>
+                    <div class="h3 balance-usd">$3121.16</div>
                 </div>
             </div>
         </div>

@@ -36,3 +36,17 @@ export const copyToClipboard = ( str ) => {
     document.body.removeChild(el);
     
 }
+
+export const formatPrice = ( price, nums ) => {
+    if( parseInt( price ) == 0 ){
+        nums += 8;
+    }
+    let str = price.toString();
+    str = str.slice(0, (str.indexOf(".")) + nums + 1); 
+    return Number(str);
+}
+export const formatXDecimals = ( price, nums ) => {
+    let str = price.toString();
+    str = str.slice(0, (str.indexOf(".")) + nums + 1); 
+    return Number(str);
+}

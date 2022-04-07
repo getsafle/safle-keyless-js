@@ -47,10 +47,10 @@ class SwitchChainScreen extends UIScreen {
         this.dropdown1.onChange( async ( idx, option ) => {
             this.keyless.switchNetwork( option.chainId );
             this.dropdown2.setLoading( true );
-            // this.keyless.kctrl._setLoading( true );
+            this.keyless.kctrl._setLoading( true );
             const addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets );
             this.dropdown2.setLoading( false );
-            // this.keyless.kctrl._setLoading( false );
+            this.keyless.kctrl._setLoading( false );
             // this.dropdown2.setOptions( addreses );
             this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
         });
