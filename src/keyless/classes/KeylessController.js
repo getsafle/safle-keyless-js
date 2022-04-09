@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import blockchainInfo from './../helpers/blockchains';
-import { middleEllipsis, formatPrice } from './../helpers/helpers';
+import { middleEllipsis, formatPrice, formatXDecimals } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
@@ -199,7 +199,7 @@ class KeylessController {
             const rate = res.data?.data[ nativeTokenName.toUpperCase() ]?.quote?.USD?.price;
             
             const priceUSD = isNaN( rate )? 0 : rate;
-            return formatPrice( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
+            return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
         } catch( e ){
             console.log('Error fetching usd balance', e.message );
             return 0;
