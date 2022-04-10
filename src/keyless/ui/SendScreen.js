@@ -9,23 +9,34 @@ import eth2Icon from './../images/eth-icon-2.svg'
 import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, middleEllipsisMax } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
 
 
 class SendScreen extends UIScreen {
 
+    nativeTokenName = 'ETH'
+    chosenFee = 'medium';
+    feeETH = 0;
+    feeUSD = 0;
+    customGasLimit = 0;
+    customPrioFee = 0;
+    amt = 0;
+    amountUSD = 0;
+    feeTm = false;
+
     onShow(){
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
+            clearInterval( this.feeTm );
             this.keyless._hideUI();
             this.keyless.kctrl.clearActiveTransaction( true );
         });
         
         //transaction__account__address
-        this.el.querySelector('.transaction__account__address').addEventListener('click', (e) => {
-              e.preventDefault();
-              console.log('clicked change wallet');
-        });
+        // this.el.querySelector('.transaction__account__address').addEventListener('click', (e) => {
+        //       e.preventDefault();
+        //       this.keyless.selectChain();
+        // });
         //used in 2 places
         let edit_popup = this.el.querySelector('.transaction__pop-up--overlay');
         let adv_options_content = this.el.querySelector('.dropdown__tp--4__content');
@@ -58,6 +69,8 @@ class SendScreen extends UIScreen {
               }else{
                 edit_popup.classList.add('closed');
               }
+
+              clearInterval( this.feeTm );
         });
 
         // advanced options 
@@ -111,29 +124,30 @@ class SendScreen extends UIScreen {
               // save your options
         });
         this.el.querySelector('.cancel_popup_btn, .transaction__pop-up__close').addEventListener('click', (e) => {
-              e.preventDefault();
-              console.log('clicked cancel popup btn');
-              // close popup 
-              edit_popup.classList.add('closed');
-              // close adv options 
-              adv_options_content.classList.add('hide');
-              adv_options_btn.classList.remove('dropdown-open');
-              
-              // remove values and checkboxes
-              radioVal = '';
-              gas_limit.setAttribute('disabled', 'disabled');
-              priority_fee.setAttribute('disabled', 'disabled');
-              radio_parent[0].classList.add('inactive');
-              radio_parent[1].classList.add('inactive');
+            e.preventDefault();
+            console.log('clicked cancel popup btn');
+            // close popup 
+            edit_popup.classList.add('closed');
+            // close adv options 
+            adv_options_content.classList.add('hide');
+            adv_options_btn.classList.remove('dropdown-open');
+            
+            // remove values and checkboxes
+            radioVal = '';
+            gas_limit.setAttribute('disabled', 'disabled');
+            priority_fee.setAttribute('disabled', 'disabled');
+            radio_parent[0].classList.add('inactive');
+            radio_parent[1].classList.add('inactive');
 
-              //uncheck all checkboxes
-              radios.forEach(function(radio, index){
-                radios[index].checked = false;
-              });
-              //remove any modifcation ro gas_limit / priority fee [ set them back to default]
-              gas_limit.value = '21000';
-              priority_fee.value = '1.5';
-              
+            //uncheck all checkboxes
+            radios.forEach(function(radio, index){
+            radios[index].checked = false;
+            });
+            //remove any modifcation ro gas_limit / priority fee [ set them back to default]
+            gas_limit.value = '21000';
+            priority_fee.value = '1.5';
+
+            this.addFeeInterval();              
         });
 
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
@@ -145,6 +159,7 @@ class SendScreen extends UIScreen {
               console.log('clicked open_wallet_btn');
         });  
         this.el.querySelector('.confirm_btn').addEventListener('click', (e) => {
+            clearInterval( this.feeTm );
             this.keyless.kctrl.activeTransaction.resolve({ status: 'sent' });
             this.keyless._hideUI();
 
@@ -152,6 +167,7 @@ class SendScreen extends UIScreen {
               console.log('clicked confirm_btn');
         }); 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
+            clearInterval( this.feeTm );
             this.keyless.kctrl.activeTransaction.reject( {
                 message: 'User rejected the transaction',
                 code: 4200,
@@ -219,19 +235,72 @@ class SendScreen extends UIScreen {
         });
 
         this.populateData();
+        this.populateGasEstimate();
+        clearInterval( this.feeTm );
+        this.addFeeInterval();
+    }
+
+    addFeeInterval(){
+        if( this.chosenFee != 'custom'){
+            this.feeTm = setInterval( () => this.populateGasEstimate(), 30000 );
+        }
+    }
+
+    async populateGasEstimate(){
+        const trans = this.keyless.kctrl.getActiveTransaction();
+
+        this.setFeesLoading( true );
+
+        const gasFees = await this.keyless.kctrl.estimateFees();
+        const gas = await this.keyless.kctrl.estimateGas( trans.data );
+        // console.log('GAS', gas );
+
+        if( gasFees ){
+            const chosenGas = gasFees[ this.chosenFee ];
+            const likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+            this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+likeTime+' Sec';
+
+            const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+            this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
+            this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
+            const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+            // console.log( 'chosenGas', gas, fee );
+            // console.log( feeETH, feeUSD );
+            this.el.querySelector('.transaction__checkout__input h3')
+            .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
+            '<span> $' + this.feeUSD + '</span>';
+            this.el.querySelector('.transaction__checkout h4').innerHTML = '<span>Max Fee: </span>' + maxFeePerGas;
+
+            this.populateFees();
+        }
+        await new Promise( ( res, rej ) => {
+            setTimeout( () => { res(); }, 2000 );
+        });
+        this.setFeesLoading( false );
+    }
+
+    async populateFees(){
+        const totalAmt = parseFloat( this.amt ) + parseFloat( this.feeETH );
+        const totalUSD = formatXDecimals( parseFloat( this.amountUSD ) + parseFloat( this.feeUSD ), 4 );
+        this.el.querySelector('.transaction__checkout__total h3').innerHTML = 
+            totalAmt+' '+ this.nativeTokenName + '<span>$' + totalUSD +'</span>';
+        
+         this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: '+ totalAmt;
     }
 
     async populateData(){
+        this.nativeTokenName = (await this.keyless.kctrl.getCurrentNativeToken()).toUpperCase();
         const trans = this.keyless.kctrl.getActiveTransaction();
         if( trans ){
             this.populateAddresses( trans );
             this.keyless.kctrl._setLoading( true );
             await Promise.all( [
-                    this.populateBalance(),
-                    this.populateAmount( trans )
+                this.populateBalance(),
+                this.populateAmount( trans )
             ] );
             this.keyless.kctrl._setLoading( false );
         }
+        
     }
     populateAddresses( trans ){
         const activeTrans = trans;
@@ -254,11 +323,28 @@ class SendScreen extends UIScreen {
     async populateAmount( trans ){
         console.log( trans );
         const amt = trans.data.value;
-        const amtConv = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-        this.el.querySelector('.transaction__send .transaction_amount').value = amtConv;
+        this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
 
-        const amountUSD = await this.keyless.kctrl.getBalanceInUSD( amtConv );
-        this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+amountUSD;
+        this.amountUSD = await this.keyless.kctrl.getBalanceInUSD( this.amt );
+        this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+    }
+
+    setFeesLoading( flag ){
+        if( flag ){
+            this.el.classList.add('fee_loading');
+            this.setProceedActive( false );
+        } else {
+            this.el.classList.remove('fee_loading');
+            this.setProceedActive( true );
+        }
+    }
+    setProceedActive( flag ){
+        if( flag ){
+            this.el.querySelector('.confirm_btn').removeAttribute('disabled');
+        } else {
+            this.el.querySelector('.confirm_btn').setAttribute('disabled', 'disabled');
+        }
     }
 
     render(){
@@ -308,7 +394,7 @@ class SendScreen extends UIScreen {
         </div>
 
         <div class="transaction__send">
-            <h3>SENT ETHER</h3>
+            <h3>SEND ${this.nativeTokenName}</h3>
             <div class="transaction__send__flex">
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
@@ -328,12 +414,12 @@ class SendScreen extends UIScreen {
                 Likely in &lt; 30 Sec
             </div>
             <div class="transaction__checkout__input">
-                <h3>0.000823 ETH <span>$3.37</span></h3>
+                <h3>0 ETH <span>$0</span></h3>
                 <div class="transaction__checkout__input__edit">
                     <img src="${editPenIcon}" alt="Edit Pen Icon">
                 </div>
             </div>
-            <h4><span>Max Fee:</span> 0.000823</h4>
+            <h4><span>Max Fee:</span> 0</h4>
             <div class="transaction__checkout__line"></div>
             <div class="transaction__checkout__total">
                 <h2>Total</h2>

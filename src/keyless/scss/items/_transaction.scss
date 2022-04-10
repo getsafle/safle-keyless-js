@@ -15,6 +15,27 @@
             }
         }
     }
+    &.fee_loading {
+        .transaction {
+            .transaction__checkout {
+                position: relative;
+                &:before {
+                    content: '';
+                    position: absolute;
+                    z-index: 100;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 14px;
+                    background: rgba(0,0,0,0.5) url('./loading.svg') center center no-repeat;
+                    background-size: 40px auto;
+                    // animation: pulsate 1s 0s linear infinite;
+                }
+            }
+        }
+    }
+
     .transaction {
         position: relative;
         .hover-info--1 {
@@ -515,6 +536,14 @@
             margin: 0px;
             height: 40px;
         }
+
+        .confirm_btn {
+            &:disabled {
+                opacity: 0.34;
+                user-select: none;
+                pointer-events: none;
+            }
+        }
     }
     .tips_btn {
         font-weight:500;
@@ -786,5 +815,18 @@
         100% {
             height: 100%;
         }
+    }
+
+    @keyframes pulsate {
+        0% {
+            opacity: 0;
+        }
+        50% {
+            opacity: 0.5;
+        }
+        100% {
+            opacity: 0;
+        }
+        
     }
 }
