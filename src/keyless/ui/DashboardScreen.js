@@ -15,22 +15,74 @@ import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
 
 
 class DashboardScreen extends UIScreen {
+    activeWalletAddress = '';
+    activeWalletBalance = '';
+    tokens = [];
 
-    onShow(){
+    activeAddressEl;
+    activeBalanceEl;
+
+    tokenListEl;
+
+    // Retrive dashboard data for UI
+    async populateData() {
+        // this.keyless.kctrl._setLoading(true);
+
+        // Extract selected address
+        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        
+        // Define html elems
+        this.activeAddressEl = this.el.querySelector('#active-wallet');
+        this.activeBalanceEl = this.el.querySelector('#active-balance');
+        this.tokenListEl = this.el.querySelector('#token-list');
+
+        // Attribute values to html elems
+        this.activeAddressEl.innerHTML = middleEllipsis(this.activeWalletAddress, 7);
+        this.activeBalanceEl.value = this.activeWalletBalance || 0;
+        this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
+
+        await this.keyless.kctrl.getTokens().then( tokensData => {
+            if (tokensData.length) {
+                this.tokenListEl.innerHTML = '';
+                tokensData.forEach(({symbol, balance, decimal}) => {
+                    const realBalance = balance / Number('1e'+decimal);
+                    console.log('tokineso list ', symbol, realBalance, balance, decimal);
+                    this.tokenListEl.innerHTML += (`
+                        <div>
+                            <div>
+                                <img src="${tokenIcon}" alt="Network Icon">
+                                <h3 class='token_prefix'>${symbol}</h3>
+                            </div>
+                            <div>
+                                <h3>${ parseFloat(realBalance).toFixed(4)}</h3>
+                            </div>
+                        </div>
+                    `);
+                })
+            } else {
+                this.tokenListEl.innerHTML = (`<div class="message">No tokens available on this wallet.</div>`);
+            }
+        });
+    }
+
+    async onShow() {
+        // on show > first retrieve data
+        await this.populateData();
+        
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
 
-
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('copied to clipboard');
-            copyToClipboard('0x1deaA720C9Be705D47CB05B30E549CC9b0E5128D');
+            console.log('copied to clipboard... ', this.activeWalletAddress);
+            copyToClipboard(this.activeWalletAddress);
         });
 
         // select network
@@ -57,9 +109,6 @@ class DashboardScreen extends UIScreen {
             // this.keyless._hideUI();
             // this.keyless.selectChain();
         });
-
-        //show tokens
-        this.keyless.kctrl.getTokens().then( resp => console.log( resp ) );
         
     }
 
@@ -100,7 +149,11 @@ class DashboardScreen extends UIScreen {
             <div class="dashboard__wallet">
                 <div class="copy-address">
                     <img src="${tokenIcon}" alt="Token Icon">
-                    <h3 class="from_to_clipboard">0x10e7…203d9</h3>
+                    <h3 id="active-wallet"></h3>
+                    <div id="active-wallet-tooltip" class="hover-info--1">
+                        <div class="hover-info--1__triangle"></div>
+                        <span></span>
+                    </div>
                     <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
                 </div>
                 <button class="btn__tp--3 change_wallet">
@@ -113,50 +166,13 @@ class DashboardScreen extends UIScreen {
             <div class="dashboard__balance"> 
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
-                    <input type="number" value="3.0120" readonly>
+                    <input id="active-balance" type="number" value="" readonly>
                     <h3>$11469.43</h3>
                 </div>
             </div>
 
             <div class="h4">Token Balances</div>
-            <div class="dropdown__content dropdown__content--3">
-                <div>
-                    <div>
-                        <img src="${tokenIcon}" alt="Network Icon">
-                        <h3 class='token_prefix'>Matic</h3>
-                    </div>
-                    <div>
-                        <h3>3.0120</h3>
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <img src="${user2}" alt="Network Icon">
-                        <h3 class='token_prefix'>Luna</h3>
-                    </div>
-                    <div>
-                        <h3>3.0120</h3>
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <img src="${user3}" alt="Network Icon">
-                        <h3 class='token_prefix'>BNB</h3>
-                    </div>
-                    <div>
-                        <h3>3.0120</h3>
-                    </div>
-                </div>
-                <div>
-                    <div>
-                        <img src="${user4}" alt="Network Icon">
-                        <h3 class='token_prefix'>USDT</h3>
-                    </div>
-                    <div>
-                        <h3>3.0120</h3>
-                    </div>
-                </div>
-            </div>
+            <div id="token-list" class="dropdown__content dropdown__content--3"></div>
     
             <button class="btn__tp--2 c--gray btn_open_webapp">
                 Open Wallet
