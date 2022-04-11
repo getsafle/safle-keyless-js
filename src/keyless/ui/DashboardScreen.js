@@ -61,8 +61,8 @@ class DashboardScreen extends UIScreen {
             if (tokensData.length) {
                 this.tokenListEl.innerHTML = '';
                 tokensData.forEach(({symbol, balance, decimal}) => {
-                    const realBalance = balance / Number('1e'+decimal);
-                    console.log('tokineso list ', symbol, realBalance, balance, decimal);
+                    const tokenBalance = balance / Number('1e'+decimal); // calculate 
+                    console.log('tokineso list ', symbol, tokenBalance, balance, decimal);
                     this.tokenListEl.innerHTML += (`
                         <div>
                             <div>
@@ -70,7 +70,7 @@ class DashboardScreen extends UIScreen {
                                 <h3 class='token_prefix'>${symbol}</h3>
                             </div>
                             <div>
-                                <h3>${ parseFloat(realBalance).toFixed(4)}</h3>
+                                <h3>${ parseFloat(tokenBalance).toFixed(4)}</h3>
                             </div>
                         </div>
                     `);
@@ -168,7 +168,7 @@ class DashboardScreen extends UIScreen {
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
                     <input id="active-balance" type="number" value="" readonly>
-                    <h3>$11469.43</h3>
+                    <h3>$0</h3>
                 </div>
             </div>
 
