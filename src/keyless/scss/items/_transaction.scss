@@ -610,8 +610,8 @@
     	position: absolute;
     	top: 0;
     	left: 0;
-    	height: 0.91rem;
-    	width: 0.91rem;
+    	height: 0.90rem;
+    	width: 0.90rem;
     	background: rgba(241, 245, 248, 1);
     	transition: background 250ms;
     	border: 1px solid $c--white;
@@ -622,23 +622,24 @@
     	position: absolute;
     	top: 0;
     	left: 0;
-    	height: 0.91rem;
-    	width: 0.91rem;
+    	height: 0.75rem;
+    	width: 0.8rem;
     	background: rgba(241, 245, 248, 1);
     	transition: background 250ms;
     	border: 2px solid $c--white;
-    	border-radius: 0.759rem;
+    	border-radius: 50%;
     }
 
     .b-contain input[type="checkbox"] ~ .b-input::after {
     	content: '';
     	position: absolute;
     	display: none;
-    	left: 0.28rem;
-    	top: 0.5rem;
-    	width: 0.71rem;
-    	height: 0.35rem;
+    	left: 0.15rem;
+    	top: 0.1rem;
+    	width: 0.6rem;
+    	height: 0.6rem;
     	border: solid rgba(255, 255, 255, 1);
+        border-radius: 50%;
     	border-width: 0 6px 6px 0;
     	transition: background 250ms;
     	transform: rotate(45deg);
@@ -648,13 +649,16 @@
     	content: '';
     	position: absolute;
     	display: none;
-    	left: 0.16rem;
-    	top: 0.17rem;
+    	left: 0.15rem;
+    	top: 0.1rem;
     	width: 0.6rem;
-    	height: 0.65rem;
-    	border-radius: 2.0rem;
+    	height: 0.6rem;
+    	border-radius:50%;
     	background: rgba(255, 255, 255, 1);
     	transition: background 250ms;
+    }
+    .b-contain input[type="radio"] ~ .b-input:focus {
+        outline: 0;
     }
 
     .b-contain input:disabled ~ .b-input::after {

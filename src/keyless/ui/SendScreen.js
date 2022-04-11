@@ -14,8 +14,11 @@ import {copyToClipboard, middleEllipsis, middleEllipsisMax, formatXDecimals } fr
 
 class SendScreen extends UIScreen {
 
-    nativeTokenName = 'ETH'
+    nativeTokenName = 'ETH';
+    gasFees = {};
     chosenFee = 'medium';
+    advancedFee = 'medium';
+    likeTime = 30;
     feeETH = 0;
     feeUSD = 0;
     customGasLimit = 0;
@@ -70,6 +73,11 @@ class SendScreen extends UIScreen {
                 edit_popup.classList.add('closed');
               }
 
+              this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = this.feeETH;
+              this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime + ' Sec';
+
+              this.populateOptions();
+
               clearInterval( this.feeTm );
         });
 
@@ -95,7 +103,7 @@ class SendScreen extends UIScreen {
         const priority_fee =  this.el.querySelector('.priority_fee');
         const radio_parent =  Array.from(document.querySelectorAll('.transaction__select__ctn'));
         radios.forEach(radio => {
-            radio.addEventListener('click', function () {
+            radio.addEventListener('click', () => {
                 radioVal = radio.value;
                 if(radioVal != 'custom'){
                     //add disable
@@ -110,6 +118,9 @@ class SendScreen extends UIScreen {
                     radio_parent[0].classList.remove('inactive');
                     radio_parent[1].classList.remove('inactive');
                 }
+
+                this.advancedFee = radioVal;
+                this.calculateCustomFee();
             });
         });
 
@@ -123,31 +134,33 @@ class SendScreen extends UIScreen {
               adv_options_btn.classList.remove('dropdown-open');
               // save your options
         });
-        this.el.querySelector('.cancel_popup_btn, .transaction__pop-up__close').addEventListener('click', (e) => {
-            e.preventDefault();
-            console.log('clicked cancel popup btn');
-            // close popup 
-            edit_popup.classList.add('closed');
-            // close adv options 
-            adv_options_content.classList.add('hide');
-            adv_options_btn.classList.remove('dropdown-open');
-            
-            // remove values and checkboxes
-            radioVal = '';
-            gas_limit.setAttribute('disabled', 'disabled');
-            priority_fee.setAttribute('disabled', 'disabled');
-            radio_parent[0].classList.add('inactive');
-            radio_parent[1].classList.add('inactive');
-
-            //uncheck all checkboxes
-            radios.forEach(function(radio, index){
-            radios[index].checked = false;
+        Array.from( this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close') ).forEach( ( el ) => {
+            el.addEventListener('click', (e) => {
+                e.preventDefault();
+                console.log('clicked cancel popup btn');
+                // close popup 
+                edit_popup.classList.add('closed');
+                // close adv options 
+                adv_options_content.classList.add('hide');
+                adv_options_btn.classList.remove('dropdown-open');
+                
+                // remove values and checkboxes
+                radioVal = '';
+                gas_limit.setAttribute('disabled', 'disabled');
+                priority_fee.setAttribute('disabled', 'disabled');
+                radio_parent[0].classList.add('inactive');
+                radio_parent[1].classList.add('inactive');
+    
+                //uncheck all checkboxes
+                radios.forEach(function(radio, index){
+                radios[index].checked = false;
+                });
+                //remove any modifcation ro gas_limit / priority fee [ set them back to default]
+                gas_limit.value = '21000';
+                priority_fee.value = '1.5';
+    
+                this.addFeeInterval();              
             });
-            //remove any modifcation ro gas_limit / priority fee [ set them back to default]
-            gas_limit.value = '21000';
-            priority_fee.value = '1.5';
-
-            this.addFeeInterval();              
         });
 
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
@@ -191,19 +204,20 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
-            down_arrow.addEventListener('click', function (event) {
+            down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
                 // remove 10 points to this value
                 input_val_total -= 10;
                 input_val.value = Math.max(input_val_total, 0 )
             });
-            up_arrow.addEventListener('click', function (event) {
+            up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
                 input_val_total += 10;
                 // add 10 points to this value                
                 input_val.value = Math.max(input_val_total, 0 )
+                this.calculateCustomFee();
             });
         });
         // inputs values up and down
@@ -218,19 +232,23 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
-            down_arrow.addEventListener('click', function (event) {
+            down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
                 // remove 10 points to this value
                 input_val_total -= 1;
                 input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+
+                this.calculateCustomFee();
             });
-            up_arrow.addEventListener('click', function (event) {
+            up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
                 input_val_total += 1;
                 // add 10 points to this value                
                 input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+
+                this.calculateCustomFee();
             });
         });
 
@@ -246,19 +264,50 @@ class SendScreen extends UIScreen {
         }
     }
 
+    populateOptions(){
+        this.el.querySelector('.transaction__pop-up__body .option_high').innerHTML = parseInt( this.gasFees['high'].suggestedMaxFeePerGas );
+        this.el.querySelector('.transaction__pop-up__body .option_medium').innerHTML = parseInt( this.gasFees['medium'].suggestedMaxFeePerGas );
+        this.el.querySelector('.transaction__pop-up__body .option_low').innerHTML = parseInt( this.gasFees['low'].suggestedMaxFeePerGas );
+    }
+
+    async calculateCustomFee(){
+        const trans = this.keyless.kctrl.getActiveTransaction();
+        let likeTime;
+        let fee, feeETH;
+
+        if( this.advancedFee == 'custom'){
+            likeTime = false;
+            const gasLimit = this.el.querySelector('.gas_limit').value;
+            const priorityFee = this.el.querySelector('.priority_fee').value;
+            fee = ( parseInt( this.gasFees['medium'].suggestedMaxFeePerGas ) + parseInt( priorityFee ) ) * gasLimit;
+            feeETH = this.keyless.kctrl.getFeeInEth(fee);
+        } else {
+            const chosenGas = this.gasFees[ this.advancedFee ];
+            console.log('gas', chosenGas )
+            
+            likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+            const gas = await this.keyless.kctrl.estimateGas( trans.data );
+            fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+            feeETH = this.keyless.kctrl.getFeeInEth(fee);
+        }        
+
+        this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = formatXDecimals( feeETH, 6 );
+        this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? 'Likely in < '+ likeTime + ' Sec' : 'Unkown Sec';
+    }
+
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
 
         this.setFeesLoading( true );
 
-        const gasFees = await this.keyless.kctrl.estimateFees();
+        this.gasFees = await this.keyless.kctrl.estimateFees();
         const gas = await this.keyless.kctrl.estimateGas( trans.data );
         // console.log('GAS', gas );
 
-        if( gasFees ){
-            const chosenGas = gasFees[ this.chosenFee ];
-            const likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
-            this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+likeTime+' Sec';
+        if( this.gasFees ){
+            const chosenGas = this.gasFees[ this.chosenFee ];
+            this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+            this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime +' Sec';
 
             const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
@@ -399,13 +448,13 @@ class SendScreen extends UIScreen {
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
                     <input type="number" value='' readonly class="transaction_amount">
-                    <div class="h3 balance-usd">$3121.16</div>
+                    <div class="h3 balance-usd">$0</div>
                 </div>
             </div>
         </div>
 
         <div class="transaction__balance">
-            <h3>Ether Balance : <span class="transaction__balance__span">3.0120</span></h3>
+            <h3>${this.nativeTokenName} Balance : <span class="transaction__balance__span">3.0120</span></h3>
         </div>
 
         <div class="transaction__checkout">
@@ -470,15 +519,15 @@ class SendScreen extends UIScreen {
                                 <div class="checkbox--flex">
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span class='light'>Fast <br><span class='bigger'>100</span></span>
-                                            <input type="radio" name="fee_gwei" value='fast' class='checkbox_fee_qwei'>
+                                            <span class='light'>Fast <br><span class='bigger option_high'>100</span></span>
+                                            <input type="radio" name="fee_gwei" value='high' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
                                     </div>
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span class='light'>Standard <br><span class='bigger'>50.5</span></span>
-                                            <input type="radio" name="fee_gwei" value='standard' class='checkbox_fee_qwei'>
+                                            <span class='light'>Standard <br><span class='bigger option_medium'>50.5</span></span>
+                                            <input type="radio" name="fee_gwei" value='medium' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
                                     </div>
@@ -486,8 +535,8 @@ class SendScreen extends UIScreen {
                                 <div class="checkbox--flex">
                                     <div class="checkbox--flex__item">
                                         <label class="b-contain">
-                                            <span class='light'>Slow <br><span class='bigger'>46</span></span>
-                                            <input type="radio" name="fee_gwei" value='slow' class='checkbox_fee_qwei'>
+                                            <span class='light'>Slow <br><span class='bigger option_low'>46</span></span>
+                                            <input type="radio" name="fee_gwei" value='low' class='checkbox_fee_qwei'>
                                             <div class="b-input"></div>
                                         </label>
                                     </div>
