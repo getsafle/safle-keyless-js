@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import blockchainInfo from './../helpers/blockchains';
-import { middleEllipsis } from './../helpers/helpers';
+import { middleEllipsis, formatPrice, formatXDecimals } from './../helpers/helpers';
 import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
@@ -11,6 +11,7 @@ class KeylessController {
     wallets = [];
     activeWallet = false;
     flowState = 0;
+    activeTransaction = null;
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
@@ -109,6 +110,23 @@ class KeylessController {
         return this.activeTransaction.promise;
     }
 
+    getActiveTransaction(){
+        if( this.activeTransaction ){
+            return this.activeTransaction;
+        }
+        return null;
+    }
+    clearActiveTransaction( reject = false ){
+        if( reject && !this.activeTransaction.promise.fulfilled ){
+            this.activeTransaction.reject({
+                message: 'User rejected the transaction',
+                code: 4200,
+                method: 'User rejected'
+            })
+        }
+        this.activeTransaction = null;
+    }
+
 
     getAccounts( all = false ){
         return all? this.wallets : this.activeWallet? this.wallets[ this.activeWallet ] : this.wallets[ 0 ];
@@ -172,11 +190,128 @@ class KeylessController {
         return balance;
     }
 
-    async _getWalletTokens( address ){
-        //todo - get wallet tokens and balances - asset controller
-        
+    async getBalanceInUSD( balance ){
+        try {
+            const nativeTokenName = await this.getCurrentNativeToken();
+            
+           let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${nativeTokenName}`).then(e=>e.json());
+            const rate = res.data?.data[ nativeTokenName.toUpperCase() ]?.quote?.USD?.price;
+            
+            const priceUSD = isNaN( rate )? 0 : rate;
+            console.log( balance, priceUSD );
+            return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
+        } catch( e ){
+            console.log('Error fetching usd balance', e.message );
+            return 0;
+        }
+    }
 
+    async getCurrentNativeToken(){
+        let activeChain = await this.keylessInstance.getCurrentChain();
+        return activeChain.chain.symbol.toLowerCase();
+    }
 
+    getFeeInEth( number ){
+        return this.web3.utils.fromWei( this.web3.utils.toWei( number.toString(), 'gwei').toString(), 'ether');
+    }
+
+    async estimateGas( { to, from, value } ){
+        try {
+            const res = await this.web3.eth.estimateGas( { to, from, value } );
+            return res;
+        } catch ( e ){
+            return 21000;
+        }
+    }
+
+    async estimateFees(){
+        let activeChain = await this.keylessInstance.getCurrentChain();
+        const eth_node = blockchainInfo[ activeChain.chainId ].uri;
+
+        try {    
+            let response;
+            if( eth_node.indexOf('polygon-mumbai') != -1 ){
+                return {
+                    estimatedBaseFee: '0',
+                    high: {
+                        maxWaitTimeEstimate: 10*1000,
+                        minWaitTimeEstimate: 5*1000,
+                        suggestedMaxFeePerGas: 250,
+                        suggestedMaxPriorityFeePerGas: 250
+                        
+                    },
+                    medium: {
+                        maxWaitTimeEstimate: 30*1000,
+                        minWaitTimeEstimate: 10*1000,
+                        suggestedMaxFeePerGas: 180,
+                        suggestedMaxPriorityFeePerGas: 180
+                    }, 
+                    low: {
+                        maxWaitTimeEstimate: 60*1000,
+                        minWaitTimeEstimate: 30*1000,
+                        suggestedMaxFeePerGas: 140,
+                        suggestedMaxPriorityFeePerGas: 140
+                    }
+                };
+            } 
+
+            if( eth_node.indexOf('polygon') != -1 ){
+                //fetch gas for polygon
+                const url = `https://gasstation-mainnet.matic.network/`;
+                let resp = await this.getRequest( { url} );
+
+                if( !resp ){
+                    resp = {
+                        fastest: 0, 
+                        standard: 0, 
+                        fast: 0                       
+                    }
+                }
+
+                // console.log( resp );
+
+                response = {
+                    estimatedBaseFee: '0',
+                    high: {
+                        maxWaitTimeEstimate: 10*1000,
+                        minWaitTimeEstimate: 5*1000,
+                        suggestedMaxFeePerGas: resp.fastest,
+                        suggestedMaxPriorityFeePerGas: resp.fastest
+                        
+                    },
+                    medium: {
+                        maxWaitTimeEstimate: 30*1000,
+                        minWaitTimeEstimate: 10*1000,
+                        suggestedMaxFeePerGas: resp.fast,
+                        suggestedMaxPriorityFeePerGas: resp.fast
+                    }, 
+                    low: {
+                        maxWaitTimeEstimate: 60*1000,
+                        minWaitTimeEstimate: 30*1000,
+                        suggestedMaxFeePerGas: resp.standard,
+                        suggestedMaxPriorityFeePerGas: resp.standard
+                    }
+                };
+
+            } else {
+                const chainId = activeChain.chainId;
+                const url = `https://gas-api.metaswap.codefi.network/networks/${chainId}/suggestedGasFees`;
+                response = await this.getRequest({ url });
+            }
+
+            return response;            
+        } catch( e ){
+            console.log('error', e );
+            return null;
+        }
+    }
+
+    async getRequest( { url } ){
+        const resp = await fetch( url ).then( e => e.json() ).catch( e => {
+            console.log('error fetching estimats', e );
+            return null;
+        });
+        return resp;
     }
 
     _setLoading( flag ){
