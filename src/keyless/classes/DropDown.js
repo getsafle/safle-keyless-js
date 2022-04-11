@@ -13,11 +13,14 @@ class Dropdown {
     opened = false;
     onChangeHandler = false;
 
-    constructor( el, extra_class, extra_option_class, options ){
+    constructor( el, extra_class, extra_option_class, options, config={} ){
         this.extraOptionClass = extra_option_class;        
         this.parentEl = el;
         this.extraClass = extra_class;
         this.options = options;
+        if( config.initial ) {
+            this.initial = config.initial;
+        }
 
         this.index = ++dropdownCounter;
         this.opContClass = 'd_cont_'+this.index;
@@ -104,7 +107,7 @@ class Dropdown {
     render(){
         return `<div class="dropdown_default dropdown_chain ${this.extraClass} dropdown${this.index}">
             <div class="title_label">
-                <img class="title_icon" src="${networkImg}" alt="Network Icon">
+                <img class="title_icon" src="${ this.initial && this.initial.icon? this.initial.icon : networkImg}" alt="Network Icon">
                 <h3>${ this.initial? this.initial.label : this.options[0].label }</h3>
             </div>
             <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
