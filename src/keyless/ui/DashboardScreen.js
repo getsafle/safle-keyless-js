@@ -19,27 +19,38 @@ import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
 
 
 class DashboardScreen extends UIScreen {
+    connectionStatus = false;
     activeWalletAddress = '';
     activeWalletBalance = '';
     tokens = [];
 
     activeAddressEl;
     activeBalanceEl;
+    connectionEl;
 
     tokenListEl;
 
     // Retrive dashboard data for UI
     async populateData() {
         // this.keyless.kctrl._setLoading(true);
-
-        // Extract selected address
-        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
+        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
         
         // Define html elems
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
+        this.connectionEl = this.el.querySelector('#connection-status');
+
+        // Update connection status 
+        // @todo to update connection update address url
+        this.connectionEl.innerHTML = (`
+        <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
+        <div class="hover-info--1">
+            <div class="hover-info--1__triangle"></div>
+            ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
+        </div>`);
 
         // Attribute values to html elems
         this.activeAddressEl.innerHTML = middleEllipsis(this.activeWalletAddress, 7);
@@ -120,17 +131,7 @@ class DashboardScreen extends UIScreen {
 
             <img class="close" src="${closeImg}" alt="Close Icon">
 
-            <!-- <div class="connected">Connected</div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-                app.uniswap.org
-            </div> -->
-
-            <div class="disconnected">Not Connected</div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-                Not Connected to any dApp
-            </div>
+            <div id="connection-status">${this.connectionEl}</div>
     
             <a class="logo" href="#">
                 <img src="${logoImg}" alt="Safle Logo">
