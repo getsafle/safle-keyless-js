@@ -16,6 +16,7 @@
         box-sizing: border-box;
     }
 
+    .dashboard__wallet .copy-address:hover > .hover-info--1,
     .transaction__account__address:hover > .hover-info--1,
     .transaction__account__user:hover > .hover-info--1,
     .connected:hover~.hover-info--1,
@@ -34,7 +35,18 @@
         position: absolute;
         left: -14px;
     }
-    // .transaction__account__user > .hover-info--1 {
-    //     width: 114px;
-    // }
+    .transaction__account__user > .hover-info--1 {
+        width: 114px;
+    }
+
+    .dashboard__wallet .copy-address {
+        .hover-info--1 {
+            margin-top: 75px;
+            
+            span {
+                display: inline-block;
+                width: auto !important;
+            }
+        }
+    }
 }
