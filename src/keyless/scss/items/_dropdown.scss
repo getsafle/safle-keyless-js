@@ -131,6 +131,8 @@
             }
             .message {
                 padding: 20px 10px;
+                color: $c--gray--dark;
+                font-size: 90%;
             }
             .token_prefix {
                 text-transform:uppercase;
