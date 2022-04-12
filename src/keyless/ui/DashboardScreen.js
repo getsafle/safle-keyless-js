@@ -20,9 +20,10 @@ import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
 
 class DashboardScreen extends UIScreen {
     connectionStatus = false;
-    activeWalletAddress = '';
-    activeWalletBalance = '';
-    tokens = [];
+    activeWalletAddress = ''; // string
+    activeWalletBalance = 0; // number
+    activeWalletUSDBalance = 0; // number
+    tokens = []; // [{ symbol, balance, decimal }]
 
     activeAddressEl;
     activeBalanceEl;
@@ -36,10 +37,13 @@ class DashboardScreen extends UIScreen {
         this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
+        this.activeBalanceEl = this.el.querySelector('#active-balance');
+        this.activeUSDBalanceEl = this.el.querySelector('#active-usd-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
         this.connectionEl = this.el.querySelector('#connection-status');
 
@@ -55,6 +59,7 @@ class DashboardScreen extends UIScreen {
         // Attribute values to html elems
         this.activeAddressEl.innerHTML = middleEllipsis(this.activeWalletAddress, 7);
         this.activeBalanceEl.value = this.activeWalletBalance || 0;
+        this.activeUSDBalanceEl.innerHTML = this.activeWalletUSDBalance || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
         await this.keyless.kctrl.getTokens().then( tokensData => {
@@ -168,7 +173,7 @@ class DashboardScreen extends UIScreen {
                 <img src="${ethIcon}" alt="ETH Icon">
                 <div>
                     <input id="active-balance" type="number" value="" readonly>
-                    <h3>$0</h3>
+                    <h3>$<span id="active-usd-balance"/></h3>
                 </div>
             </div>
 

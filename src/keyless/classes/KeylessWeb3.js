@@ -146,7 +146,7 @@ class KeylessWeb3 {
         const className = screenName.slice(0, 1).toUpperCase()+screenName.slice(1)+'Screen';
         this._activeScreen = await this._getInstance( className );
         
-        console.log( this._activeScreen );
+        console.log('KeylessWeb3._showUI', this._activeScreen );
         this.root = document.createElement('div');
         this.root.setAttribute('class', process.env.KEYLESS_UI_CLASSNAME );
         this.root.style.cssText = inlineS( {
