@@ -40,7 +40,28 @@ class DashboardScreen extends UIScreen {
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
-        await this.keyless.kctrl.getTokens().then( tokensData => { // [{ symbol, balance, decimal }]
+        // Define html elems
+        this.activeAddressEl = this.el.querySelector('#active-wallet');
+        this.activeBalanceEl = this.el.querySelector('#active-balance');
+        this.tokenListEl = this.el.querySelector('#token-list');
+        this.connectionEl = this.el.querySelector('#connection-status');
+
+        // Update connection status 
+        // @todo to update connection update address url
+        this.connectionEl.innerHTML = (`
+        <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
+        <div class="hover-info--1">
+            <div class="hover-info--1__triangle"></div>
+            ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
+        </div>`);
+
+        // Attribute values to html elems
+        this.activeAddressEl.innerHTML = middleEllipsis(this.activeWalletAddress, 7);
+        this.activeBalanceEl.value = this.activeWalletBalance || 0;
+        this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
+
+        this.keyless.kctrl.getTokens().then( tokensData => {
+            console.log( 'tokens', tokensData );
             if (tokensData.length) {
                 tokensData.forEach(({symbol, balance, decimal}) => {
                     tokenHtmlList += this._renderTokenEl(symbol, balance, decimal);
