@@ -133,10 +133,11 @@ class KeylessController {
     }
 
     async getTokens(){
-        // const address = this.getAccounts();
+        const address = this.getAccounts().address;
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
-        const assets = new asset_controller.AssetController({ chain: chain , rpcURL: this.getNodeURI() });
-        const erc20Balance = await assets.detectTokens({ tokenType: 'erc20' });
+        console.log( 'gettokens', address, chain, this.getNodeURI() );
+        const assets = new asset_controller.AssetController({ chain , rpcURL: this.getNodeURI() });
+        const erc20Balance = await assets.detectTokens({ tokenType: 'erc20', userAddress: address });
 
         return erc20Balance;
     }

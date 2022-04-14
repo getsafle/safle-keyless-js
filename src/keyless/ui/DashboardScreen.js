@@ -58,6 +58,7 @@ class DashboardScreen extends UIScreen {
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
         await this.keyless.kctrl.getTokens().then( tokensData => {
+            console.log( 'tokens', tokensData );
             if (tokensData.length) {
                 this.tokenListEl.innerHTML = '';
                 tokensData.forEach(({symbol, balance, decimal}) => {
