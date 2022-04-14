@@ -24,16 +24,17 @@
         visibility: visible;
         opacity: 1;
         z-index: 10;
+        width: auto;
+        transform: translateX(-50%);
     }
 
     .connected~.hover-info--1 {
         position: absolute;
-        left: 2px;
-        width: 114px;
+        left: 55px;
     }
     .disconnected~.hover-info--1 {
         position: absolute;
-        left: -14px;
+        left: 78px;
     }
     .transaction__account__user > .hover-info--1 {
         width: 114px;
