@@ -16,26 +16,29 @@ import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
-
+import blockchainInfo from '../helpers/blockchains';
 
 class DashboardScreen extends UIScreen {
     connectionStatus = false;
-    activeWalletAddress = '';
-    activeWalletBalance = '';
-    tokens = [];
-
-    activeAddressEl;
-    activeBalanceEl;
-    connectionEl;
-
-    tokenListEl;
+    activeChain = '';
+    activeChainUrl = '';
+    activeWalletAddress = ''; // string
+    activeWalletBalance = 0; // number
+    activeWalletUSDBalance = 0; // number
+    
 
     // Retrive dashboard data for UI
     async populateData() {
-        // this.keyless.kctrl._setLoading(true);
+        let tokenHtmlList = '';
+        const activeChainId = this.keyless.getCurrentChain().chainId;
+        this.keyless.kctrl._setLoading(true);
+
         this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
+        this.activeChainUrl = this.activeChain?.uri;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
         this.activeAddressEl = this.el.querySelector('#active-wallet');
@@ -60,26 +63,24 @@ class DashboardScreen extends UIScreen {
         this.keyless.kctrl.getTokens().then( tokensData => {
             console.log( 'tokens', tokensData );
             if (tokensData.length) {
-                this.tokenListEl.innerHTML = '';
                 tokensData.forEach(({symbol, balance, decimal}) => {
-                    const tokenBalance = balance / Number('1e'+decimal); // calculate 
-                    console.log('tokineso list ', symbol, tokenBalance, balance, decimal);
-                    this.tokenListEl.innerHTML += (`
-                        <div>
-                            <div>
-                                <img src="${tokenIcon}" alt="Network Icon">
-                                <h3 class='token_prefix'>${symbol}</h3>
-                            </div>
-                            <div>
-                                <h3>${ parseFloat(tokenBalance).toFixed(4)}</h3>
-                            </div>
-                        </div>
-                    `);
+                    tokenHtmlList += this._renderTokenEl(symbol, balance, decimal);
                 })
             } else {
-                this.tokenListEl.innerHTML = (`<div class="message">No tokens available on this wallet.</div>`);
+                tokenHtmlList = (`<div class="message">No tokens available on this wallet.</div>`);
             }
         });
+        
+        // Define html elems
+        this.setHTML('#connection-status', this._renderConnectionEl());
+        this.setHTML('#active-chain', this.activeChain.name);
+        this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 7));
+        this.setHTML('#active-balance', this.activeWalletBalance || 0);
+        this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
+        this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
+        this.setHTML('#token-list', tokenHtmlList);
+
+        this.keyless.kctrl._setLoading(false);
     }
 
     async onShow() {
@@ -124,66 +125,109 @@ class DashboardScreen extends UIScreen {
         
     }
 
-    render(){
+    // @query => query syntax of the html element
+    // @htmlContent => string / html content
+    setHTML (query, htmlContent) {
+        const el = this.el.querySelector(query);
+        console.log(query, el, htmlContent);
+        if (el && htmlContent) {
+            el.innerHTML = htmlContent;
+        }
+    }
 
-        return `<div class="dashboard">
-        
-        <div class="dashboard__header">
+    _renderConnectionEl () {
+        let statusClass = 'disconnected';
+        let statusLabel = 'Not Connected';
+        let statusDomain = 'Not Connected to any dApp';
 
-            <img class="close" src="${closeImg}" alt="Close Icon">
+        if (this.connectionStatus) {
+            statusClass = 'connected';
+            statusLabel = 'Connected';
+            statusDomain =  this.activeChainUrl;
+        }
 
-            <div id="connection-status">${this.connectionEl}</div>
-    
-            <a class="logo" href="#">
-                <img src="${logoImg}" alt="Safle Logo">
-            </a>
-
-            <div class="dashboard__network">
-                <img src="${networkImg}" alt="Network Icon">
-                <h3>Ethereum  Mainnet</h3>
+        return (`
+            <div class="${statusClass}">
+                ${statusLabel}
             </div>
-            
-        </div>    
-        
-        <div class="dashboard__body">
-
-            <div class="h4">Wallet Address</div>
-            <div class="dashboard__wallet">
-                <div class="copy-address">
-                    <img src="${tokenIcon}" alt="Token Icon">
-                    <h3 id="active-wallet"></h3>
-                    <div id="active-wallet-tooltip" class="hover-info--1">
-                        <div class="hover-info--1__triangle"></div>
-                        <span></span>
-                    </div>
-                    <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
-                </div>
-                <button class="btn__tp--3 change_wallet">
-                    <img src="${gearImg}" alt="Gear Icon">
-                    <div>Change</div>
-                </button>
+            <div class="hover-info--1">
+                <div class="hover-info--1__triangle"></div>
+            ${statusDomain}
             </div>
+        `);
+    }
 
-            <div class="h4">Balance</div>
-            <div class="dashboard__balance"> 
-                <img src="${ethIcon}" alt="ETH Icon">
-                <div>
-                    <input id="active-balance" type="number" value="" readonly>
-                    <h3>$0</h3>
-                </div>
+    _renderTokenEL (symbol, balance, decimal) {
+        const tokenBalance = balance / Number('1e'+decimal); // calculate 
+        return (`
+        <div>
+            <div>
+                <img src="${tokenIcon}" alt="Network Icon">
+                <h3 class='token_prefix'>${symbol}</h3>
             </div>
-
-            <div class="h4">Token Balances</div>
-            <div id="token-list" class="dropdown__content dropdown__content--3"></div>
-    
-            <button class="btn__tp--2 c--gray btn_open_webapp">
-                Open Wallet
-                <img src="${popoutImg}" alt="Open Wallet Pop Out Icon">
-            </button>
-        
+            <div>
+                <h3>${ parseFloat(tokenBalance).toFixed(4)}</h3>
+            </div>
         </div>
+    `)
+    }
 
-    </div>`
+    render() {
+        return (`
+        <div class="dashboard">
+        
+            <div class="dashboard__header">
+                <img class="close" src="${closeImg}" alt="Close Icon">
+                <div id="connection-status"></div>
+                <a class="logo" href="#">
+                    <img src="${logoImg}" alt="Safle Logo">
+                </a>
+                <div class="dashboard__network">
+                    <img src="${networkImg}" alt="Network Icon">
+                    <h3 id="active-chain"></h3>
+                </div>
+            </div>    
+            
+            <div class="dashboard__body">
+                <div class="h4">Wallet Address</div>
+                <div class="dashboard__wallet">
+                    <div class="copy-address">
+                        <img src="${tokenIcon}" alt="Token Icon">
+                        <h3 id="active-wallet"></h3>
+                        <div id="active-wallet-tooltip" class="hover-info--1">
+                            <div class="hover-info--1__triangle"></div>
+                            <span></span>
+                        </div>
+                        <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
+                    </div>
+                    <button class="btn__tp--3 change_wallet">
+                        <img src="${gearImg}" alt="Gear Icon">
+                        <div>Change</div>
+                    </button>
+                </div>
+
+                <div class="h4">Balance</div>
+                <div class="dashboard__balance"> 
+                    <img src="${ethIcon}" alt="ETH Icon">
+                    <div>
+                        <div id="active-balance" class="input"></div>
+                        <h3>\$
+                            <span id="active-usd-balance"></span>
+                        </h3>
+                    </div>
+                </div>
+
+                <div class="h4">Token Balances</div>
+                <div id="token-list" class="dropdown__content dropdown__content--3"></div>
+        
+                <button class="btn__tp--2 c--gray btn_open_webapp">
+                    Open Wallet
+                    <img src="${popoutImg}" alt="Open Wallet Pop Out Icon">
+                </button>
+            
+            </div>
+
+        </div>`)
     }
 
 }

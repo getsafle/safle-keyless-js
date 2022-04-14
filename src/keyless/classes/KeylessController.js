@@ -179,7 +179,7 @@ class KeylessController {
         for( var i in addreses ){
             balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase() );
         }
-        console.log( balances );
+        console.log('KeylessController._getWalletBalances', balances );
 
         return balances;
     }
@@ -194,12 +194,16 @@ class KeylessController {
     async getBalanceInUSD( balance ){
         try {
             const nativeTokenName = await this.getCurrentNativeToken();
+
+            if (!process.env.SAFLE_TOKEN_API) {
+                throw new Error('Please check the environment variables...');
+            }
             
            let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${nativeTokenName}`).then(e=>e.json());
             const rate = res.data?.data[ nativeTokenName.toUpperCase() ]?.quote?.USD?.price;
             
             const priceUSD = isNaN( rate )? 0 : rate;
-            console.log( balance, priceUSD );
+            console.log( 'KeylessController.getBalanceInUSD',  balance, priceUSD );
             return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
         } catch( e ){
             console.log('Error fetching usd balance', e.message );
