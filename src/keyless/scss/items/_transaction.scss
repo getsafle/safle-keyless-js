@@ -122,6 +122,15 @@
             padding: 16px 20px;
             margin-top: 14px;
             height: 136px;
+
+            &.low-balance {
+                border-color: #832121;
+                .transaction_amount,
+                .balance-usd {
+                    color: #d30f0f;
+                }
+            }
+
             h3 {
                 @include font-size(12px);
                 font-weight: 600;
@@ -134,6 +143,7 @@
             &__flex {
                 display: flex;
                 align-items: center;
+
                 img {
                     width: 38px;
                     position: relative;

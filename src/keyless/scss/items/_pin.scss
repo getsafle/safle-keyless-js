@@ -2,6 +2,23 @@ $pin-start-delay: 0.5s;
 
 .#{$keyless_ui_class} {
 
+    &.loading {
+        .pin {
+            &:after {
+                content: '';
+                z-index: 1000;
+                position: absolute;
+                border-radius: 20px;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba( 0, 0, 0, 0.8) url('./loading.svg') center center no-repeat;
+                background-size: 40px auto;
+            }
+        }
+    }
+
     // PIN
     .pin {
         position: relative;
@@ -55,6 +72,7 @@ $pin-start-delay: 0.5s;
 
         
         .pin_code_container{
+            position: relative;
             border: 1px solid $c--blue--dark;
             background-color: $c--background;
             border-radius: 10px;
@@ -65,6 +83,25 @@ $pin-start-delay: 0.5s;
             width: 320px;
             height: 97px;
             padding-bottom: 16px;
+
+            &.error {
+                border-color: #ff0000;
+            }
+            .error {
+                position: absolute;
+                left: 0;
+                top: 96px;
+                .error-boundary {
+                    color: #ff4949;
+                    position: absolute;
+                    text-align: left;
+                    width: 250px;
+                    left: -1px;
+                    top: 0;
+                    font-size: 12px;
+                    font-weight:500;
+                }
+            }
             .pin-codes {
                 display: flex;
                 flex-direction: row;
@@ -187,9 +224,9 @@ $pin-start-delay: 0.5s;
                                     content: '';
                                     height: calc(100% - 6px);
                                     width: 1px;
-                                    background-color: #000;
+                                    background-color: #eee;
                                     position: absolute;
-                                    left: 5px;
+                                    left: 18px;
                                     top: 3px;
                                     animation: pulsate 1s 0s linear infinite;
                                 }

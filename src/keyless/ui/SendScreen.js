@@ -25,9 +25,11 @@ class SendScreen extends UIScreen {
     customPrioFee = 0;
     amt = 0;
     amountUSD = 0;
+    balance = 0;
     feeTm = false;
 
     onShow(){
+        this.setProceedActive( false );
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval( this.feeTm );
@@ -127,12 +129,19 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.proceed_popup_btn').addEventListener('click', (e) => {
               e.preventDefault();
               console.log('clicked proceed popup btn');
+
+            // this.gas_limit =  this.el.querySelector('.gas_limit').value;
+            // this.priority_fee =  this.el.querySelector('.priority_fee').value;
+            this.calculateCustomFee();
+            this.populateGasEstimate();
+
               // close popup 
               edit_popup.classList.add('closed');
               // close adv options 
               adv_options_content.classList.add('hide');
               adv_options_btn.classList.remove('dropdown-open');
               // save your options
+            this.addFeeInterval();
         });
         Array.from( this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close') ).forEach( ( el ) => {
             el.addEventListener('click', (e) => {
@@ -156,10 +165,12 @@ class SendScreen extends UIScreen {
                 radios[index].checked = false;
                 });
                 //remove any modifcation ro gas_limit / priority fee [ set them back to default]
-                gas_limit.value = '21000';
-                priority_fee.value = '1.5';
-    
-                this.addFeeInterval();              
+                // gas_limit.value = '21000';
+                // priority_fee.value = '1.5';
+
+                if( this.chosenFee != 'custom'){
+                    this.addFeeInterval();
+                }                
             });
         });
 
@@ -171,13 +182,25 @@ class SendScreen extends UIScreen {
               e.preventDefault();
               console.log('clicked open_wallet_btn');
         });  
-        this.el.querySelector('.confirm_btn').addEventListener('click', (e) => {
+        this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
             clearInterval( this.feeTm );
-            this.keyless.kctrl.activeTransaction.resolve({ status: 'sent' });
-            this.keyless._hideUI();
+            // this.keyless.kctrl.activeTransaction.resolve({ status: 'sent' });
+            // this.keyless._hideUI();
+            const chosenGas = this.gasFees[ this.advancedFee ];
+            
+            if( this.advancedFee == 'custom'){
+                this.keyless.kctrl.setGasForTransaction( this.customGasLimit, this.gasFees['medium'].suggestedMaxFeePerGas, this.customPrioFee );
+            } else {
+                const trans = this.keyless.kctrl.getActiveTransaction();
+                const gas = await this.keyless.kctrl.estimateGas( trans.data );
+                this.keyless.kctrl.setGasForTransaction( gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas );
+            }
+            // console.log( this.keyless.kctrl.activeTransaction );
 
-              e.preventDefault();
-              console.log('clicked confirm_btn');
+            this.keyless._showUI('pin');
+
+            e.preventDefault();
+            console.log('clicked confirm_btn');
         }); 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
             clearInterval( this.feeTm );
@@ -275,13 +298,20 @@ class SendScreen extends UIScreen {
         let likeTime;
         let fee, feeETH;
 
+        
+
         if( this.advancedFee == 'custom'){
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
             fee = ( parseInt( this.gasFees['medium'].suggestedMaxFeePerGas ) + parseInt( priorityFee ) ) * gasLimit;
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
+            this.chosenFee = 'custom';
+            this.customGasLimit = gasLimit;
+            this.customPrioFee = priorityFee;
+
         } else {
+            this.chosenFee = this.advancedFee;
             const chosenGas = this.gasFees[ this.advancedFee ];
             console.log('gas', chosenGas )
             
@@ -298,18 +328,14 @@ class SendScreen extends UIScreen {
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
 
-        this.setFeesLoading( true );
+        // console.log( this.chosenFee );
+        if( this.chosenFee == 'custom'){
+            console.log('calc. custom fee ', this.customGasLimit );
 
-        this.gasFees = await this.keyless.kctrl.estimateFees();
-        const gas = await this.keyless.kctrl.estimateGas( trans.data );
-        // console.log('GAS', gas );
-
-        if( this.gasFees ){
-            const chosenGas = this.gasFees[ this.chosenFee ];
-            this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
-            this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime +' Sec';
-
-            const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+            this.el.querySelector('.transaction__checkout__time').innerHTML = 'unknown';
+            const chosenGas = this.gasFees[ 'medium' ];
+            
+            const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
             const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
@@ -319,13 +345,44 @@ class SendScreen extends UIScreen {
             .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
             '<span> $' + this.feeUSD + '</span>';
             this.el.querySelector('.transaction__checkout h4').innerHTML = '<span>Max Fee: </span>' + maxFeePerGas;
+            
+            this.setFeesLoading( false );
 
             this.populateFees();
+
+
+        } else {
+            this.setFeesLoading( true );
+
+            this.gasFees = await this.keyless.kctrl.estimateFees();
+            const gas = await this.keyless.kctrl.estimateGas( trans.data );
+            // console.log('GAS', gas );
+
+            if( this.gasFees ){
+                const chosenGas = this.gasFees[ this.chosenFee ];
+                this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+                this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime +' Sec';
+
+                const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+                this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
+                this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
+                const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+                // console.log( 'chosenGas', gas, fee );
+                // console.log( feeETH, feeUSD );
+                this.el.querySelector('.transaction__checkout__input h3')
+                .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
+                '<span> $' + this.feeUSD + '</span>';
+                this.el.querySelector('.transaction__checkout h4').innerHTML = '<span>Max Fee: </span>' + maxFeePerGas;
+
+                this.populateFees();
+            }
+
+            await new Promise( ( res, rej ) => {
+                setTimeout( () => { res(); }, 2000 );
+            });
+            this.setFeesLoading( false );            
         }
-        await new Promise( ( res, rej ) => {
-            setTimeout( () => { res(); }, 2000 );
-        });
-        this.setFeesLoading( false );
+        
     }
 
     async populateFees(){
@@ -335,6 +392,7 @@ class SendScreen extends UIScreen {
             totalAmt+' '+ this.nativeTokenName + '<span>$' + totalUSD +'</span>';
         
          this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: '+ totalAmt;
+         this.checkCanProceed();
     }
 
     async populateData(){
@@ -343,10 +401,10 @@ class SendScreen extends UIScreen {
         if( trans ){
             this.populateAddresses( trans );
             this.keyless.kctrl._setLoading( true );
-            await Promise.all( [
-                this.populateBalance(),
-                this.populateAmount( trans )
-            ] );
+            // await Promise.all( [
+                await this.populateBalance(),
+                await this.populateAmount( trans )
+            // ] );
             this.keyless.kctrl._setLoading( false );
         }
         
@@ -365,8 +423,10 @@ class SendScreen extends UIScreen {
     }
 
     async populateBalance(){
-        const balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address );
-        this.el.querySelector('.transaction__balance__span').innerHTML = balance;
+        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address );
+        // const trans = this.keyless.kctrl.getActiveTransaction();
+        // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
+        this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
     }
 
     async populateAmount( trans ){
@@ -374,6 +434,14 @@ class SendScreen extends UIScreen {
         const amt = trans.data.value;
         this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
         this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
+        
+        console.log('populate amount ');
+        console.log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
+        if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
+            this.el.querySelector('.transaction__send').classList.add('low-balance');
+        } else {
+            this.el.querySelector('.transaction__send').classList.remove('low-balance');
+        }
 
         this.amountUSD = await this.keyless.kctrl.getBalanceInUSD( this.amt );
         this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
@@ -382,10 +450,10 @@ class SendScreen extends UIScreen {
     setFeesLoading( flag ){
         if( flag ){
             this.el.classList.add('fee_loading');
-            this.setProceedActive( false );
+            // this.setProceedActive( false );
         } else {
             this.el.classList.remove('fee_loading');
-            this.setProceedActive( true );
+            // this.setProceedActive( true );
         }
     }
     setProceedActive( flag ){
@@ -393,6 +461,17 @@ class SendScreen extends UIScreen {
             this.el.querySelector('.confirm_btn').removeAttribute('disabled');
         } else {
             this.el.querySelector('.confirm_btn').setAttribute('disabled', 'disabled');
+        }
+    }
+
+    checkCanProceed(){
+        console.log('check can proceed');
+        console.log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
+
+        if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
+           this.setProceedActive( true );
+        } else {
+            this.setProceedActive( true );
         }
     }
 
