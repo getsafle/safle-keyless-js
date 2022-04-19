@@ -9,6 +9,7 @@ import eth2Icon from './../images/eth-icon-2.svg'
 import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
+import ConfirmationDialog from '../classes/ConfirmationDialog';
 import {copyToClipboard, middleEllipsis, middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
 
 
@@ -100,7 +101,7 @@ class SendScreen extends UIScreen {
         // clicked options
         // check if custom else disable
         let radioVal;
-        const radios = document.querySelectorAll('input[name="fee_gwei"');
+        const radios = document.querySelectorAll('input[name="fee_gwei"]');
         const gas_limit =  this.el.querySelector('.gas_limit');
         const priority_fee =  this.el.querySelector('.priority_fee');
         const radio_parent =  Array.from(document.querySelectorAll('.transaction__select__ctn'));
@@ -177,7 +178,8 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
               e.preventDefault();
               console.log('clicked tips_btn');
-        });  
+        }); 
+
         this.el.querySelector('.open_wallet_btn').addEventListener('click', (e) => {
               e.preventDefault();
               console.log('clicked open_wallet_btn');
@@ -202,17 +204,16 @@ class SendScreen extends UIScreen {
             e.preventDefault();
             console.log('clicked confirm_btn');
         }); 
-        this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
-            clearInterval( this.feeTm );
-            this.keyless.kctrl.activeTransaction.reject( {
-                message: 'User rejected the transaction',
-                code: 4200,
-                method: 'User rejected'
-            });
-            this.keyless._hideUI();
 
-              e.preventDefault();
-              console.log('clicked reject_btn');
+        this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            // Show reject confirmation modal
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                this.rejectConfirmCallback
+            );
         });
 
         // inputs values up and down
@@ -409,6 +410,7 @@ class SendScreen extends UIScreen {
         }
         
     }
+
     populateAddresses( trans ){
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
@@ -462,6 +464,16 @@ class SendScreen extends UIScreen {
         } else {
             this.el.querySelector('.confirm_btn').setAttribute('disabled', 'disabled');
         }
+    }
+    
+    rejectConfirmCallback = () => {
+        clearInterval( this.feeTm );
+        this.keyless.kctrl.activeTransaction.reject( {
+            message: 'User rejected the transaction',
+            code: 4200,
+            method: 'User rejected'
+        });
+        this.keyless._hideUI();
     }
 
     checkCanProceed(){
