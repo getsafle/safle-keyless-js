@@ -110,6 +110,14 @@ class KeylessController {
         return this.activeTransaction.promise;
     }
 
+    setGasForTransaction( gasLimit, maxFeePerGas, maxPriorityFee ){
+        if( this.activeTransaction ){
+            this.activeTransaction.data.gasLimit = gasLimit;
+            this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+            this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+        }
+    }
+
     getActiveTransaction(){
         if( this.activeTransaction ){
             return this.activeTransaction;
@@ -303,13 +311,33 @@ class KeylessController {
                 const url = `https://gas-api.metaswap.codefi.network/networks/${chainId}/suggestedGasFees`;
                 response = await this.getRequest({ url });
             }
-
-            return response;            
+            return response;
         } catch( e ){
-            console.log('error', e );
+            // console.log('error', e );
             return null;
         }
     }
+
+    async checkPin( pin ){
+        try {
+            const v = await this.vault.validatePin( parseInt( pin ) );
+            // console.log( v );
+            return v.response;
+        } catch( e ){
+            // console.log( e.message );
+            return false;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     async getRequest( { url } ){
         const resp = await fetch( url ).then( e => e.json() ).catch( e => {
