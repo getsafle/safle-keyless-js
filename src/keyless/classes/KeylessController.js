@@ -45,16 +45,16 @@ class KeylessController {
         console.log('login with user '+user+', pass '+pass );
 
         await grecaptcha.execute();
-        let token = grecaptcha.getResponse();
+        let captchaToken = grecaptcha.getResponse();
         // console.log( token );
-        const resp = await safleHelpers.login( user, pass, token );
+        const resp = await safleHelpers.login( user, pass, captchaToken );
         const safleToken = resp.data.token;
         
 
         //pull vault from cloud
         await grecaptcha.execute();
-        token = grecaptcha.getResponse();
-        const authToken = await safleHelpers.getCloudToken( user, pass, token );
+        captchaToken = grecaptcha.getResponse();
+        const authToken = await safleHelpers.getCloudToken( user, pass, captchaToken );
 
         let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
         const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });

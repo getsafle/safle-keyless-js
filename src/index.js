@@ -36,9 +36,7 @@ window.onload = async() => {
 
         add_events();
         add_ui_events();
-        update_loggedin();
-
-        
+        update_loggedin();  
         
         function add_ui_events(){
             $('#login-btn').addEventListener('click', () => { keyless.login(); });
@@ -90,34 +88,37 @@ window.onload = async() => {
 
         }
 
-        function connected_handler( connectionInfo ){
+        async function connected_handler( connectionInfo ){
             console.log( 'connected', connectionInfo);
-            update_loggedin();
+            await update_loggedin();
             update_chain( connectionInfo.chainId );
         }
-        function disconnect_handler(){
-            update_loggedin();
+        async function disconnect_handler(){
+            await update_loggedin();
             update_chain( 0 );   
         }
 
-        function update_loggedin(){
+        async function update_loggedin() {
+            console.log('index > update_loggedin');
+            const isUserLoggedIn = await keyless.isLoggedIn();
             each( $$('.active_when_logged'), ( el ) => {
-                if( keyless.isLoggedIn() ){
+                if( isUserLoggedIn ){
                     el.classList.remove('disabled');
                 } else {
                     el.classList.add('disabled');
                 }
             });
-            w3.eth.personal.getAccounts().then( ( addreses ) => {
-                console.log( 'update get acc', addreses );
 
-                activeAddress = addreses.shift();
-                w3.eth.getBalance( activeAddress ).then( bal => {
-                    $('.status .balance').innerHTML = bal;
-                });
-                
+            if( isUserLoggedIn ) {
+                w3.eth.personal.getAccounts().then( ( addreses ) => {
+                    console.log( 'update get acc', addreses );
 
-            })
+                    activeAddress = addreses.shift();
+                    w3.eth.getBalance( activeAddress ).then( bal => {
+                        $('.status .balance').innerHTML = bal;
+                    });
+                })
+            }
             
         }
         function update_chain( chainId ){
