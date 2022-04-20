@@ -40,15 +40,17 @@ class PinScreen extends UIScreen {
             if( !pinValid ){
                 this.showError( 'PIN is invalid');
             } else {
-                await new Promise( ( res ) => {
-                    setTimeout( () => res( true ), 12000 );
-                });
+                // await new Promise( ( res ) => {
+                //     setTimeout( () => res( true ), 12000 );
+                // });
+
+                const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
                 
                 this.keyless._showUI('txnSuccess');
             }
             this.keyless.kctrl._setLoading( false );
         });
-
+ 
         this.populateAddress();
         
     }
