@@ -46,7 +46,7 @@ class PinScreen extends UIScreen {
 
                 const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
                 
-                this.keyless._showUI('txnSuccess');
+                
             }
             this.keyless.kctrl._setLoading( false );
         });

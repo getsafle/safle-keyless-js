@@ -12,6 +12,7 @@ class KeylessController {
     activeWallet = false;
     flowState = 0;
     activeTransaction = null;
+    transactionHashes = [];
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
@@ -346,7 +347,23 @@ class KeylessController {
 
         const signedTx = (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chain.chainId ) )).response;
 
-        console.log( rawTx, signedTx );
+        const tx = this.web3.eth.sendSignedTransaction( signedTx );
+        try {
+            tx.once('transactionHash', ( hash ) => {
+                console.log( 'txn hash', hash );
+                this.transactionHashes.push( hash );
+                this.keylessInstance._showUI('txnSuccess');
+            }).once('error', ( e ) => {
+                console.log('errror', e );
+                this.keylessInstance._showUI('txnFailed'); 
+            }).then( receipt => {
+                console.log('receipt', receipt );
+                // this.keyless._showUI('txnSuccess');
+                this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+            });
+        } catch ( e ){
+            console.log('Error avoided');
+        }
 
         return false;
     }
@@ -388,7 +405,10 @@ class KeylessController {
         return config;
     }
 
-
+    getActiveChainExplorer(){
+        const chain = this.keylessInstance.getCurrentChain();
+        return blockchainInfo[ chain.chainId ].explorer;
+    }
 
 
 
