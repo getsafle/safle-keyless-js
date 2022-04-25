@@ -177,7 +177,7 @@ class KeylessWeb3 {
             } catch( e ){
                 console.log('ignored child that doens\'t exist')
             }
-            
+            this._activeScreen = null;
         }
         
     }

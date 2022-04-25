@@ -353,16 +353,33 @@ class KeylessController {
                 console.log( 'txn hash', hash );
                 this.transactionHashes.push( hash );
                 this.keylessInstance._showUI('txnSuccess');
-            }).once('error', ( e ) => {
-                console.log('errror', e );
-                this.keylessInstance._showUI('txnFailed'); 
-            }).then( receipt => {
+
+            }).once('receipt', ( err, txnReceipt ) => {
                 console.log('receipt', receipt );
-                // this.keyless._showUI('txnSuccess');
-                this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
-            });
+                this.keylessInstance.provider.emit('transactionComplete', { receipt } );
+                if( txnReceipt.status == 1 ){
+                    this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+                } else {
+                    this.keylessInstance._showUI('txnFailed'); 
+                    this.keylessInstance.provider.emit('transactionFailed', { receipt } );
+                }
+            }).on('confirmation', ( confNr, receipt ) => {
+                console.log('confirmations', confNr );
+                console.log('receipt', receipt );
+            }).once('error', ( e, receipt ) => {
+                // console.log('errror', e );
+                console.log('txn', receipt );
+                this.keylessInstance.provider.emit('transactionFailed', { receipt } );
+
+                this.keylessInstance._showUI('txnFailed');                 
+            })
+            .then( receipt => {
+                console.log('receipt', receipt );
+               // this.keyless._showUI('txnSuccess');
+               this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+            }).catch( err => { console.log('uncaught', err ) });
         } catch ( e ){
-            console.log('Error avoided');
+            console.log('Error avoided'); 
         }
 
         return false;

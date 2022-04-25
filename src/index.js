@@ -6,7 +6,8 @@ import blockchainInfo from './keyless/helpers/blockchains';
 window.onload = async() => {
 
     let activeAddress = null;
-    const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
+    // const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
+    const toAddress = "0x0922b7402E2C1E7503D8a757838d948FCc826D6d";
 
      // helper methods
      const $ = ( sel ) => {
@@ -87,7 +88,15 @@ window.onload = async() => {
                 activeAddress = wallet.address;
                 update_loggedin();
             });
-
+            // w3.currentProvider.on('transactionComplete', ( receipt ) => {
+            //     console.log('transaction complete', receipt );
+            // });
+            w3.currentProvider.on('transactionSuccess', ( receipt ) => {
+                console.log('transaction success', receipt );
+            });
+            w3.currentProvider.on('transactionFailed', ( receipt ) => {
+                console.log('transaction failed', receipt );
+            });
         }
 
         function connected_handler( connectionInfo ){
