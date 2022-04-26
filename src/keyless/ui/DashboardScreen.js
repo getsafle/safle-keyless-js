@@ -129,7 +129,6 @@ class DashboardScreen extends UIScreen {
     // @htmlContent => string / html content
     setHTML (query, htmlContent) {
         const el = this.el.querySelector(query);
-        console.log(query, el, htmlContent);
         if (el && htmlContent) {
             el.innerHTML = htmlContent;
         }

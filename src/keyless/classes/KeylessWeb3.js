@@ -1,6 +1,7 @@
 import Web3Provider from './Web3Provider';
 import { inlineS } from './../helpers/helpers';
 import KeylessController from './KeylessController';
+import Storage from './Storage';
 
 class KeylessWeb3 {
     root = false
@@ -11,6 +12,7 @@ class KeylessWeb3 {
     _activeChain = false
     _activeScreen = false
     _web3 = false
+    vault = {}
 
     constructor( config ){
         this.allowedChains = config.blockchain;
@@ -37,7 +39,7 @@ class KeylessWeb3 {
         this.provider.emit('connected', { chainId } );
 
         if( this._loggedin ){
-            console.log('Already loggedin')
+            console.log('Already loggedin');
         } else {
             this._showUI('login');
         }
@@ -46,12 +48,30 @@ class KeylessWeb3 {
             error: false
         }
     }
+
+    async isLoggedIn() {
+        if (!this._loggedin) {
+            // Try to retrieve user session from storage
+            const { vault, decriptionKey } = Storage.getState() || {};
+
+            if (!vault || !decriptionKey) {
+                return false;
+            } else {
+                this.kctrl.loadVault();
+                this._loggedin = true;
+            }
+        }
+        // user is logged in
+        return true
+    }
+
     openDashboard(){
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
         this._showUI('dashboard');
     }
+    
     sendTransaction(){
         if( !this._loggedin ){
             throw new Error('Please login first!');
@@ -120,9 +140,6 @@ class KeylessWeb3 {
 
     isConnected(){
         return this._connected;
-    }
-    isLoggedIn(){
-        return this._loggedin;
     }
    
     getCurrentChain(){
