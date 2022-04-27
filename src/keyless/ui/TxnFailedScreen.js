@@ -46,8 +46,15 @@ class TxnFailedScreen extends UIScreen {
         });
 
 
-        
-        
+        this.populateData();        
+    }
+
+    populateData(){
+        this.lastHash = this.keyless.kctrl.transactionHashes.pop();
+        const explorer = this.keyless.kctrl.getActiveChainExplorer();
+
+        this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
+        this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
     }
 
     render(){
@@ -78,14 +85,14 @@ class TxnFailedScreen extends UIScreen {
             <h3>Transaction declined</h3>
             <h5 class='mb_20'>Oops! something went wrong. <br> please try again.</h5>
             <h4>Check your transaction on</h4>
-            <a href="#" class='etherscan_link'>Etherscan</a>
+            <a href="#" target="_blank" class='etherscan_link'>Etherscan</a>
 
         </div>
 
         <div class="txn__footer">
 
             <div class="copy-address">
-                <h3><span>Txn#:</span>0x8f121BE4EC096DAF20aCE4….</h3>
+                <h3><span>Txn#:</span></h3>
                 <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
             </div>
             <button class="btn__tp--1 txn-failed-ok-btn">Click Ok to Continue</button>

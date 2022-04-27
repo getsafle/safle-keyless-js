@@ -12,6 +12,7 @@ class KeylessController {
     activeWallet = false;
     flowState = 0;
     activeTransaction = null;
+    transactionHashes = [];
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
@@ -329,10 +330,102 @@ class KeylessController {
         }
     }
 
+    async _createAndSendTransaction( pin ) {
+        const chain = this.keylessInstance.getCurrentChain();
+        const trans = this.activeTransaction;
+        if( !trans ){
+            console.log('transaction does not exist');
+            return;
+        }
+        console.log( trans );
+        
+        const rawTx = await this._createRawTransaction( trans );
+        
+        const state = Storage.getState();
+        const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+        this.vault.restoreKeyringState( state.vault, pin, decKey );
 
+        const signedTx = (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chain.chainId ) )).response;
 
+        const tx = this.web3.eth.sendSignedTransaction( signedTx );
+        try {
+            tx.once('transactionHash', ( hash ) => {
+                console.log( 'txn hash', hash );
+                this.transactionHashes.push( hash );
+                this.keylessInstance._showUI('txnSuccess');
 
+            }).once('receipt', ( err, txnReceipt ) => {
+                console.log('receipt', receipt );
+                this.keylessInstance.provider.emit('transactionComplete', { receipt } );
+                if( txnReceipt.status == 1 ){
+                    this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+                } else {
+                    this.keylessInstance._showUI('txnFailed'); 
+                    this.keylessInstance.provider.emit('transactionFailed', { receipt } );
+                }
+            }).on('confirmation', ( confNr, receipt ) => {
+                console.log('confirmations', confNr );
+                console.log('receipt', receipt );
+            }).once('error', ( e, receipt ) => {
+                // console.log('errror', e );
+                console.log('txn', receipt );
+                this.keylessInstance.provider.emit('transactionFailed', { receipt } );
 
+                this.keylessInstance._showUI('txnFailed');                 
+            })
+            .then( receipt => {
+                console.log('receipt', receipt );
+               // this.keyless._showUI('txnSuccess');
+               this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+            }).catch( err => { console.log('uncaught', err ) });
+        } catch ( e ){
+            console.log('Error avoided'); 
+        }
+
+        return false;
+    }
+
+    async _createRawTransaction( trans ){
+        const chain = this.keylessInstance.getCurrentChain();
+        const count = await this.web3.eth.getTransactionCount( trans.data.from );
+        // console.log( count );
+
+        let config = {};
+
+        switch( blockchainInfo[ chain.chainId ].chain_name ){
+            case 'ethereum':
+            case 'polygon':
+            case 'ropsten':
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value,
+                    gasLimit: this.web3.utils.numberToHex( trans.data.gasLimit ),
+                    maxFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    maxPriorityFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxPriorityFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count
+                }
+            break;
+
+            case 'mumbai':
+                config = {
+                    to: trans.to,
+                    from: trans.from,
+                    value: this.web3.utils.toWei( trans.value.toString(), 'ether'),
+                    gasLimit: this.web3.utils.numberToHex( trans.gasLimit ),
+                    gas: this.web3.utils.toHex( this.web3.utils.toWei( parseFloat( trans.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count,
+                    chainId: chain.chainId
+                }
+            break;
+        }
+        return config;
+    }
+
+    getActiveChainExplorer(){
+        const chain = this.keylessInstance.getCurrentChain();
+        return blockchainInfo[ chain.chainId ].explorer;
+    }
 
 
 
