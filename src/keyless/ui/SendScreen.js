@@ -10,7 +10,7 @@ import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from '../classes/ConfirmationDialog';
-import {copyToClipboard, middleEllipsis, middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
+import {middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
 
 
 class SendScreen extends UIScreen {

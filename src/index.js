@@ -52,6 +52,9 @@ window.onload = async() => {
             $('#send-btn').addEventListener('click', ( e ) => {
                 send_transaction();
             });
+            $('#sign-btn').addEventListener('click', ( e ) => {
+                keyless.openSignTransaction();
+            });
             $('#txn-success-btn').addEventListener('click', ( e ) => {
                 keyless.txnSuccess();
             });

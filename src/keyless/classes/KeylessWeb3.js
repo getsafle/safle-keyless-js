@@ -78,6 +78,13 @@ class KeylessWeb3 {
         }
         this._showUI('send');
     }
+
+    openSignTransaction(){
+        if( !this._loggedin ){
+            throw new Error('Please login first!');
+        }
+        this._showUI('sign');
+    }
     txnSuccess(){
         console.log('to be removed');
         if( !this._loggedin ){
