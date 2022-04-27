@@ -239,7 +239,7 @@ $pin-start-delay: 0.5s;
                     width: 40px;
                     height: 60px;
                     background-color: #f3f3f6;
-                    border: solid 1px #acb5c3;
+                    border: solid 1px $c--gray;
                     border-radius: 6px;
 
                     input {
@@ -403,7 +403,7 @@ $pin-start-delay: 0.5s;
                             width: 40px;
                             height: 60px;
                             background-color: #f3f3f6;
-                            border: solid 1px #acb5c3;
+                            border: solid 1px $c--gray;
                             border-radius: 6px;
 
                             input {
