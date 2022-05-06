@@ -47,6 +47,7 @@ class DashboardScreen extends UIScreen {
         this.setHTML('#active-balance', this.activeWalletBalance || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
+        this.setHTML('#sign-message', this.keyless.kctrl.getSignRequestData() );
 
         this.keyless.kctrl._setLoading(false);
     }
@@ -55,10 +56,7 @@ class DashboardScreen extends UIScreen {
     rejectConfirmCallback = () => {
         clearInterval( this.feeTm );
 
-        if (!this.keyless.kctrl.activeTransaction){
-            alert('no active connection!');
-        }
-        this.keyless.kctrl.activeTransaction.reject( {
+        this.keyless.kctrl.activeSignRequest.reject( {
             message: 'User rejected the transaction',
             code: 4200,
             method: 'User rejected'
@@ -71,8 +69,14 @@ class DashboardScreen extends UIScreen {
         await this.populateData();
         
         // on close
-        this.el.querySelector('.close').addEventListener('click', () => {
-            this.keyless._hideUI();
+        this.el.querySelector('.close').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                this.rejectConfirmCallback
+            );
         });
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
@@ -90,6 +94,10 @@ class DashboardScreen extends UIScreen {
                 `Accept`, 
                 this.rejectConfirmCallback
             );
+        });
+        this.el.querySelector('.confirm_btn').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            this.keyless._showUI('pin');
         });
 
         // open wallet 

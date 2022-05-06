@@ -12,6 +12,7 @@ class KeylessController {
     activeWallet = false;
     flowState = 0;
     activeTransaction = null;
+    activeSignRequest = null;
     transactionHashes = [];
 
     constructor( keylessInstance ){
@@ -97,6 +98,30 @@ class KeylessController {
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
+
+    //sign transaction func
+
+    signTransaction( address, data ){
+        this.activeSignRequest = {
+            data: data,
+            address: address
+        };
+        this.activeSignRequest.promise = new Promise( ( res, rej ) => {
+            this.keylessInstance._showUI('sign');
+            this.activeSignRequest.resolve = res;
+            this.activeSignRequest.reject = rej;
+        });
+        return this.activeSignRequest.promise;
+    }
+
+    getSignRequestData(){
+        if( this.activeSignRequest ){
+            return this.web3.utils.hexToUtf8( this.activeSignRequest.data );
+        } else {
+            throw new Error('No active signed request');
+            return '';
+        }
+    }
 
     // send transaction func
     sendTransaction( config ){
@@ -195,7 +220,7 @@ class KeylessController {
 
     async getWalletBalance( address ){
         const bal = await this.web3.eth.getBalance( address, 'latest' );
-        console.log( address+': '+bal );
+        console.log( address+': '+bal.toString() );
         const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
         return balance;
     }
@@ -427,6 +452,28 @@ class KeylessController {
         return blockchainInfo[ chain.chainId ].explorer;
     }
 
+    async _signMessage( pin ){
+        if( this.activeSignRequest ){
+            const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
+            console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
+
+            const state = Storage.getState();
+            const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+            this.vault.restoreKeyringState( state.vault, pin, decKey );
+            console.log( this.vault.decryptedVault );
+            
+            const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
+            console.log(acc);
+
+            
+
+            //const trans = this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
+
+            // console.log( trans );
+
+            return {};
+        }
+    }
 
 
 

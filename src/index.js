@@ -54,7 +54,8 @@ window.onload = async() => {
                 send_transaction();
             });
             $('#sign-btn').addEventListener('click', ( e ) => {
-                keyless.openSignTransaction();
+                // keyless.openSignTransaction();
+                sign_transaction();
             });
             $('#txn-success-btn').addEventListener('click', ( e ) => {
                 keyless.txnSuccess();
@@ -160,6 +161,13 @@ window.onload = async() => {
             };
             const resp = await w3.eth.sendTransaction( transaction );
             
+            console.log( resp );
+        }
+
+        async function sign_transaction(){
+            const message = 'Hello world';
+            const resp = await w3.eth.sign( message, activeAddress );
+
             console.log( resp );
         }
 

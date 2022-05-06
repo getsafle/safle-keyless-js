@@ -40,13 +40,15 @@ class PinScreen extends UIScreen {
             if( !pinValid ){
                 this.showError( 'PIN is invalid');
             } else {
-                // await new Promise( ( res ) => {
-                //     setTimeout( () => res( true ), 12000 );
-                // });
+                if( this.keyless.kctrl.activeTransaction ){
+                    const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
+                } else if( this.keyless.kctrl.activeSignRequest ){
+                    const encMsg = await this.keyless.kctrl._signMessage( parseInt( pin ) );
 
-                const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
-                
-                
+                    console.log( encMsg );
+                } else {
+                    throw new Error('Invalid invocation of PinConfirm Screen');
+                }
             }
             this.keyless.kctrl._setLoading( false );
         });
@@ -65,8 +67,11 @@ class PinScreen extends UIScreen {
         }
     }
     populateAddress(){
-        const trans = this.keyless.kctrl.activeTransaction;
-        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( trans.data.from, 4 );
+        let address = this.keyless.kctrl.activeTransaction? this.keyless.kctrl.activeTransaction.data.from : null;
+        if( !address ){
+            address = this.keyless.kctrl.activeSignRequest.address;
+        }
+        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( address, 4 );
     }
 
     pinHandlers(){
