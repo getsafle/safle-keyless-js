@@ -81,7 +81,9 @@ class KeylessController {
         // return true;
     }
     logout(){
-        Storage.saveState({vault: null})
+        // Storage.saveState({vault: null})
+        this.keylessInstance._loggedin = false;
+        Storage.clear();
     }
 
     _loginSuccess(){
@@ -211,18 +213,19 @@ class KeylessController {
 
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase() );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true );
         }
         console.log('KeylessController._getWalletBalances', balances );
-
         return balances;
     }
 
-    async getWalletBalance( address ){
+    async getWalletBalance( address, returnETH = false ){
         const bal = await this.web3.eth.getBalance( address, 'latest' );
-        console.log( address+': '+bal.toString() );
-        const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
-        return balance;
+        if( returnETH ){
+            const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
+            return balance;
+        }        
+        return bal;
     }
 
     async getBalanceInUSD( balance ){

@@ -37,7 +37,7 @@ window.onload = async() => {
 
         add_events();
         add_ui_events();
-        update_loggedin();  
+        await update_loggedin();  
         
         function add_ui_events(){
             $('#login-btn').addEventListener('click', () => { keyless.login(); });
@@ -107,13 +107,15 @@ window.onload = async() => {
             update_chain( connectionInfo.chainId );
         }
         async function disconnect_handler(){
+            console.log('disconnected');
             await update_loggedin();
             update_chain( 0 );   
         }
 
         async function update_loggedin() {
             console.log('index > update_loggedin');
-            const isUserLoggedIn = await keyless.isLoggedIn();
+            const isUserLoggedIn = keyless.isLoggedIn();
+            console.log('is loggedin', isUserLoggedIn );
             each( $$('.active_when_logged'), ( el ) => {
                 if( isUserLoggedIn ){
                     el.classList.remove('disabled');
@@ -124,11 +126,12 @@ window.onload = async() => {
 
             if( isUserLoggedIn ) {
                 w3.eth.personal.getAccounts().then( ( addreses ) => {
-                    console.log( 'update get acc', addreses );
+                    // console.log( 'update get acc', addreses );
 
                     activeAddress = addreses.shift();
                     w3.eth.getBalance( activeAddress ).then( bal => {
-                        $('.status .balance').innerHTML = bal;
+                        // console.log('GET BALANCE', bal.toString() );
+                        $('.status .balance').innerHTML = parseFloat( w3.utils.fromWei( bal, 'ether')).toFixed(5);
                     });
                 })
             }

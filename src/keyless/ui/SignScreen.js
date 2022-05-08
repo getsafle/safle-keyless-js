@@ -169,7 +169,7 @@ class DashboardScreen extends UIScreen {
                 </div>
 
                 <div class="h4">Message</div>
-                <textarea id="sign-message" class="sign-message"></textarea>
+                <textarea id="sign-message" readonly class="sign-message"></textarea>
         
                 <button class="btn__tp--1 upper confirm_btn">Sign</button>
                 <button class="btn__tp--2 upper reject_btn">Cancel</button>

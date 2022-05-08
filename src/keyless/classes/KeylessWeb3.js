@@ -49,10 +49,13 @@ class KeylessWeb3 {
         }
     }
 
-    async isLoggedIn() {
+    isLoggedIn() {
+        console.log( 'isloggedin', this._loggedin );
         if (!this._loggedin) {
             // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
+
+            console.log( vault, decriptionKey );
 
             if (!vault || !decriptionKey) {
                 return false;
@@ -124,7 +127,8 @@ class KeylessWeb3 {
         this.kctrl.logout();
         this._loggedin = false;
         this._connected = false;
-        this.provider.emit('disconnect', {} );
+
+        setTimeout( () => this.provider.emit('disconnect', {} ), 100 );
     }
 
     switchNetwork( nid ){

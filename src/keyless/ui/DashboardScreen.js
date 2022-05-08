@@ -17,9 +17,10 @@ import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
 import blockchainInfo from '../helpers/blockchains';
+import ConnectedStatus from './components/ConnectedStatus';
 
 class DashboardScreen extends UIScreen {
-    connectionStatus = false;
+    connectionStatus;
     activeChain = '';
     activeChainUrl = '';
     activeWalletAddress = ''; // string
@@ -37,10 +38,11 @@ class DashboardScreen extends UIScreen {
         this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
         this.activeChainUrl = this.activeChain?.uri;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true );
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
+        const connectionEl = this.el.querySelector('#connection-status');
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
@@ -48,12 +50,14 @@ class DashboardScreen extends UIScreen {
 
         // Update connection status 
         // @todo to update connection update address url
-        this.connectionEl.innerHTML = (`
-        <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
-        </div>`);
+        // this.connectionEl.innerHTML = (`
+        // <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
+        // <div class="hover-info--1">
+        //     <div class="hover-info--1__triangle"></div>
+        //     ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
+        // </div>`);
+        const connStatusEl = new ConnectedStatus( connectionEl, this.connectionStatus, this.activeChain?.uri );
+
 
         // Attribute values to html elems
         this.activeBalanceEl.value = this.activeWalletBalance || 0;
@@ -61,7 +65,7 @@ class DashboardScreen extends UIScreen {
 
         this.keyless.kctrl.getTokens().then( tokensData => {
             console.log( 'tokens', tokensData );
-            if (tokensData.length) {
+            if (!tokensData.error && tokensData.length) {
                 tokensData.forEach(({symbol, balance, decimal}) => {
                     tokenHtmlList += this._renderTokenEl(symbol, balance, decimal);
                 })
@@ -71,7 +75,7 @@ class DashboardScreen extends UIScreen {
         });
         
         // Define html elems
-        this.setHTML('#connection-status', this._renderConnectionEl());
+        // this.setHTML('#connection-status', this._renderConnectionEl());
         this.setHTML('#active-chain', this.activeChain.name);
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 7));
         this.setHTML('#active-balance', this.activeWalletBalance || 0);
@@ -122,28 +126,6 @@ class DashboardScreen extends UIScreen {
             // this.keyless.selectChain();
         });
         
-    }
-
-    _renderConnectionEl () {
-        let statusClass = 'disconnected';
-        let statusLabel = 'Not Connected';
-        let statusDomain = 'Not Connected to any dApp';
-
-        if (this.connectionStatus) {
-            statusClass = 'connected';
-            statusLabel = 'Connected';
-            statusDomain =  this.activeChainUrl;
-        }
-
-        return (`
-            <div class="${statusClass}">
-                ${statusLabel}
-            </div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-            ${statusDomain}
-            </div>
-        `);
     }
 
     _renderTokenEL (symbol, balance, decimal) {

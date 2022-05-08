@@ -4,14 +4,28 @@ import tokenIconImg from './../images/token-icon.webp';
 import copyIcon from './../images/copy-icon.svg';
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
+import ConfirmationDialog from '../classes/ConfirmationDialog';
 
 
 class PinScreen extends UIScreen {
 
     onShow(){
         // on close
-        this.el.querySelector('.close').addEventListener('click', () => {
-            this.keyless._hideUI();
+        this.el.querySelector('.close').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                () => {
+                    this.keyless.kctrl.activeTransaction.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless._hideUI();
+                }
+            );   
         });
         this.input = this.el.querySelector('.pin-codes input');
         this.error = this.el.querySelector('.error-boundary');
@@ -28,7 +42,19 @@ class PinScreen extends UIScreen {
 
         this.el.querySelector('.cancel_btn').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('clicked cancel');
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                () => {
+                    this.keyless.kctrl.activeTransaction.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless._hideUI();
+                }
+            );            
         });
         this.el.querySelector('.proceed_btn').addEventListener('click', async (e) => {
             e.preventDefault();
