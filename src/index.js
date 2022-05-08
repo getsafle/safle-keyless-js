@@ -7,7 +7,8 @@ window.onload = async() => {
 
     let activeAddress = null;
     // const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
-    const toAddress = "0x0922b7402E2C1E7503D8a757838d948FCc826D6d";
+    // const toAddress = "0x0922b7402E2C1E7503D8a757838d948FCc826D6d";
+    const toAddress = '0xca878f65d50caf80a84fb24e40f56ef05483e1cb';
 
      // helper methods
      const $ = ( sel ) => {

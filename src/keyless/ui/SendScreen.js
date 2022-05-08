@@ -411,16 +411,17 @@ class SendScreen extends UIScreen {
         
     }
 
-    populateAddresses( trans ){
+    async populateAddresses( trans ){
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
         const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
         fromCont.innerHTML = middleEllipsisMax( fromAddress, 4 );
         fromCont.parentNode.querySelector('.hover-info--1').innerText = fromAddress;
+        const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
         const toAddress = activeTrans.data.to;
 
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
-        toCont.innerHTML = middleEllipsisMax( toAddress, 4 );
+        toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
         toCont.parentNode.querySelector('.hover-info--1').innerText = toAddress;
     }
 

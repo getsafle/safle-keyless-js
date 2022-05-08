@@ -5,6 +5,7 @@ import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
+const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 
 class KeylessController {
     vault = false;
@@ -475,6 +476,19 @@ class KeylessController {
             // console.log( trans );
 
             return {};
+        }
+    }
+
+    async getSafleIdFromAddress( address ){
+        const node_uri = await this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
+        const safleId = new safleIdentity( process.env.SAFLE_ENV == 'dev'? 'testnet' : 'mainnet' );
+        try {
+            const safleID = await safleId.getSafleId( address );
+            console.log('SafleID: ', safleID );
+            return safleID.indexOf('Invalid') != -1? false : safleID;
+        } catch( e ){
+            console.log('error', e );
+            return false;
         }
     }
 
