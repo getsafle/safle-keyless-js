@@ -41,9 +41,6 @@ class SwitchChainScreen extends UIScreen {
         this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains, { initial } );
         this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken() );
 
-
-        this.dropdown2.setLoading( true );
-
         this.dropdown1.onChange( async ( idx, option ) => {
             this.keyless.switchNetwork( option.chainId );
             this.dropdown2.setLoading( true );
@@ -56,7 +53,7 @@ class SwitchChainScreen extends UIScreen {
         });
 
         this.dropdown2.onChange( ( idx, wallet ) => {
-            this.keyless.switchWallet( idx );``
+            this.keyless.switchWallet( idx );
             this.chosenAddress = this.keyless.kctrl.wallets[ idx ];
             // console.log( this.chosenAddress );
         });
@@ -67,9 +64,11 @@ class SwitchChainScreen extends UIScreen {
             this.keyless.kctrl._loginSuccess();
         });
 
+        this.keyless.kctrl._setLoading( true );
         addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
-        this.dropdown2.setLoading( false );
         this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
+
+        this.keyless.kctrl._setLoading( false );
     }
 
     _renderLoadingDropDowns(){

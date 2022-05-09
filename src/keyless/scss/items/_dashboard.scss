@@ -1,5 +1,6 @@
 .#{$keyless_ui_class} {
     &.loading {
+        .sign,
         .dashboard {
             &:after {
                 content: '';
@@ -16,6 +17,7 @@
         }
     }
 
+    .sign,
     .dashboard {
         @include container(-280px, -40px, 360px, 659px);
         padding: 0px;
@@ -137,6 +139,7 @@
             padding: 10px 20px;
             margin-bottom: 20px;
             height: 110px;
+            overflow: hidden;
 
             img {
                 position: relative;

@@ -5,6 +5,7 @@ import * as safleHelpers from './../helpers/safleHelpers';
 import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
+const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 
 class KeylessController {
     vault = false;
@@ -12,6 +13,8 @@ class KeylessController {
     activeWallet = false;
     flowState = 0;
     activeTransaction = null;
+    activeSignRequest = null;
+    transactionHashes = [];
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
@@ -79,7 +82,9 @@ class KeylessController {
         // return true;
     }
     logout(){
-        Storage.saveState({vault: null})
+        // Storage.saveState({vault: null})
+        this.keylessInstance._loggedin = false;
+        Storage.clear();
     }
 
     _loginSuccess(){
@@ -96,6 +101,30 @@ class KeylessController {
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
+
+    //sign transaction func
+
+    signTransaction( address, data ){
+        this.activeSignRequest = {
+            data: data,
+            address: address
+        };
+        this.activeSignRequest.promise = new Promise( ( res, rej ) => {
+            this.keylessInstance._showUI('sign');
+            this.activeSignRequest.resolve = res;
+            this.activeSignRequest.reject = rej;
+        });
+        return this.activeSignRequest.promise;
+    }
+
+    getSignRequestData(){
+        if( this.activeSignRequest ){
+            return this.web3.utils.hexToUtf8( this.activeSignRequest.data );
+        } else {
+            throw new Error('No active signed request');
+            return '';
+        }
+    }
 
     // send transaction func
     sendTransaction( config ){
@@ -164,7 +193,7 @@ class KeylessController {
 
     getNodeURI( chainID = false ){
         const chainId = chainID? chainID : this.keylessInstance.getCurrentChain().chainId;
-        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].uri + process.env.INFURA_KEY : '';
+        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL + process.env.INFURA_KEY : '';
     }
 
     async getAddressesOptions( options ){
@@ -185,18 +214,19 @@ class KeylessController {
 
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase() );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true );
         }
         console.log('KeylessController._getWalletBalances', balances );
-
         return balances;
     }
 
-    async getWalletBalance( address ){
+    async getWalletBalance( address, returnETH = false ){
         const bal = await this.web3.eth.getBalance( address, 'latest' );
-        console.log( address+': '+bal );
-        const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
-        return balance;
+        if( returnETH ){
+            const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
+            return balance;
+        }        
+        return bal;
     }
 
     async getBalanceInUSD( balance ){
@@ -329,11 +359,138 @@ class KeylessController {
         }
     }
 
+    async _createAndSendTransaction( pin ) {
+        const chain = this.keylessInstance.getCurrentChain();
+        const trans = this.activeTransaction;
+        if( !trans ){
+            console.log('transaction does not exist');
+            return;
+        }
+        console.log( trans );
+        
+        const rawTx = await this._createRawTransaction( trans );
+        
+        const state = Storage.getState();
+        const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+        this.vault.restoreKeyringState( state.vault, pin, decKey );
 
+        const signedTx = (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chain.chainId ) )).response;
 
+        const tx = this.web3.eth.sendSignedTransaction( signedTx );
+        try {
+            tx.once('transactionHash', ( hash ) => {
+                console.log( 'txn hash', hash );
+                this.transactionHashes.push( hash );
+                this.keylessInstance._showUI('txnSuccess');
 
+            }).once('receipt', ( err, txnReceipt ) => {
+                console.log('receipt', receipt );
+                this.keylessInstance.provider.emit('transactionComplete', { receipt } );
+                if( txnReceipt.status == 1 ){
+                    this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+                } else {
+                    this.keylessInstance._showUI('txnFailed'); 
+                    this.keylessInstance.provider.emit('transactionFailed', { receipt } );
+                }
+            }).on('confirmation', ( confNr, receipt ) => {
+                console.log('confirmations', confNr );
+                console.log('receipt', receipt );
+            }).once('error', ( e, receipt ) => {
+                // console.log('errror', e );
+                console.log('txn', receipt );
+                this.keylessInstance.provider.emit('transactionFailed', { receipt } );
 
+                this.keylessInstance._showUI('txnFailed');                 
+            })
+            .then( receipt => {
+                console.log('receipt', receipt );
+               // this.keyless._showUI('txnSuccess');
+               this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+            }).catch( err => { console.log('uncaught', err ) });
+        } catch ( e ){
+            console.log('Error avoided'); 
+        }
 
+        return false;
+    }
+
+    async _createRawTransaction( trans ){
+        const chain = this.keylessInstance.getCurrentChain();
+        const count = await this.web3.eth.getTransactionCount( trans.data.from );
+        // console.log( count );
+
+        let config = {};
+
+        switch( blockchainInfo[ chain.chainId ].chain_name ){
+            case 'ethereum':
+            case 'polygon':
+            case 'ropsten':
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value,
+                    gasLimit: this.web3.utils.numberToHex( trans.data.gasLimit ),
+                    maxFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    maxPriorityFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxPriorityFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count
+                }
+            break;
+
+            case 'mumbai':
+                config = {
+                    to: trans.to,
+                    from: trans.from,
+                    value: this.web3.utils.toWei( trans.value.toString(), 'ether'),
+                    gasLimit: this.web3.utils.numberToHex( trans.gasLimit ),
+                    gas: this.web3.utils.toHex( this.web3.utils.toWei( parseFloat( trans.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count,
+                    chainId: chain.chainId
+                }
+            break;
+        }
+        return config;
+    }
+
+    getActiveChainExplorer(){
+        const chain = this.keylessInstance.getCurrentChain();
+        return blockchainInfo[ chain.chainId ].explorer;
+    }
+
+    async _signMessage( pin ){
+        if( this.activeSignRequest ){
+            const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
+            console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
+
+            const state = Storage.getState();
+            const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+            this.vault.restoreKeyringState( state.vault, pin, decKey );
+            console.log( this.vault.decryptedVault );
+            
+            const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
+            console.log(acc);
+
+            
+
+            //const trans = this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
+
+            // console.log( trans );
+
+            return {};
+        }
+    }
+
+    async getSafleIdFromAddress( address ){
+        const node_uri = await this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
+        const safleId = new safleIdentity( process.env.SAFLE_ENV == 'dev'? 'testnet' : 'mainnet' );
+        try {
+            const safleID = await safleId.getSafleId( address );
+            console.log('SafleID: ', safleID );
+            return safleID.indexOf('Invalid') != -1? false : safleID;
+        } catch( e ){
+            console.log('error', e );
+            return false;
+        }
+    }
 
 
 

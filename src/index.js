@@ -6,7 +6,9 @@ import blockchainInfo from './keyless/helpers/blockchains';
 window.onload = async() => {
 
     let activeAddress = null;
-    const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
+    // const toAddress = "0x59c7c8391de66eaaedfbd6670aecadb66cc07f79";
+    // const toAddress = "0x0922b7402E2C1E7503D8a757838d948FCc826D6d";
+    const toAddress = '0xca878f65d50caf80a84fb24e40f56ef05483e1cb';
 
      // helper methods
      const $ = ( sel ) => {
@@ -36,7 +38,7 @@ window.onload = async() => {
 
         add_events();
         add_ui_events();
-        update_loggedin();  
+        await update_loggedin();  
         
         function add_ui_events(){
             $('#login-btn').addEventListener('click', () => { keyless.login(); });
@@ -53,7 +55,8 @@ window.onload = async() => {
                 send_transaction();
             });
             $('#sign-btn').addEventListener('click', ( e ) => {
-                keyless.openSignTransaction();
+                // keyless.openSignTransaction();
+                sign_transaction();
             });
             $('#txn-success-btn').addEventListener('click', ( e ) => {
                 keyless.txnSuccess();
@@ -88,7 +91,15 @@ window.onload = async() => {
                 activeAddress = wallet.address;
                 update_loggedin();
             });
-
+            // w3.currentProvider.on('transactionComplete', ( receipt ) => {
+            //     console.log('transaction complete', receipt );
+            // });
+            w3.currentProvider.on('transactionSuccess', ( receipt ) => {
+                console.log('transaction success', receipt );
+            });
+            w3.currentProvider.on('transactionFailed', ( receipt ) => {
+                console.log('transaction failed', receipt );
+            });
         }
 
         async function connected_handler( connectionInfo ){
@@ -97,13 +108,15 @@ window.onload = async() => {
             update_chain( connectionInfo.chainId );
         }
         async function disconnect_handler(){
+            console.log('disconnected');
             await update_loggedin();
             update_chain( 0 );   
         }
 
         async function update_loggedin() {
             console.log('index > update_loggedin');
-            const isUserLoggedIn = await keyless.isLoggedIn();
+            const isUserLoggedIn = keyless.isLoggedIn();
+            console.log('is loggedin', isUserLoggedIn );
             each( $$('.active_when_logged'), ( el ) => {
                 if( isUserLoggedIn ){
                     el.classList.remove('disabled');
@@ -114,11 +127,12 @@ window.onload = async() => {
 
             if( isUserLoggedIn ) {
                 w3.eth.personal.getAccounts().then( ( addreses ) => {
-                    console.log( 'update get acc', addreses );
+                    // console.log( 'update get acc', addreses );
 
                     activeAddress = addreses.shift();
                     w3.eth.getBalance( activeAddress ).then( bal => {
-                        $('.status .balance').innerHTML = bal;
+                        // console.log('GET BALANCE', bal.toString() );
+                        $('.status .balance').innerHTML = parseFloat( w3.utils.fromWei( bal, 'ether')).toFixed(5);
                     });
                 })
             }
@@ -144,7 +158,7 @@ window.onload = async() => {
             const transaction = {
                 'from': activeAddress,
                 'to': toAddress, // faucet address to return eth
-                'value': w3.utils.toWei( '0.25', 'ether'),
+                'value': w3.utils.toWei( '0.001', 'ether'),
                 'gas': 30000,
                 // 'maxFeePerGas': 1000000108,
                 'nonce': nonce,
@@ -154,8 +168,15 @@ window.onload = async() => {
             console.log( resp );
         }
 
+        async function sign_transaction(){
+            const message = 'Hello world';
+            const resp = await w3.eth.sign( message, activeAddress );
+
+            console.log( resp );
+        }
+
     } catch( e ){
-        console.error( 'an error has occuried', e.message );
+        console.error( 'an error has occured', e.message );
     }    
    
 }

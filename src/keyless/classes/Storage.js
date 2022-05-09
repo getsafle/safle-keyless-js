@@ -22,48 +22,10 @@ let Storage = {
         this.commit('state', Storage.state );
     },
 
-    // getLocalState: function(){
-    //     let cont = this.load('local');
-    //     if( !cont ){
-    //         cont = {};
-    //     }
-    //     Storage.localState = cont;
-    //     return Storage.localState;
-    // },
-
-    // saveLocalState: function( state ){
-    //     Storage.localState = { ...Storage.localState, ...state };
-    //     console.log( 'LOCALSTATE', Storage.localState );
-
-    //     this.commit( 'local', Storage.localState );
-    // },
-    // clearLocalState: function(){
-    //     Storage.localState = {};
-
-    //     this.commit( 'local', Storage.localState );
-    // },
-
-    // clearStateKeys: function( keyPrefixes ){        
-    //     let keys = Object.keys( Storage.state );
-    //     let newState = Object.values( Storage.state ).reduce( ( acc, curr, key ) => {
-    //         let shouldSkip = false;
-    //         for( var i in keyPrefixes ){
-    //             if( keys[ key ].indexOf( keyPrefixes[i] ) != -1 ){
-    //                 shouldSkip = true;
-    //             }
-    //         }
-    //         if( !shouldSkip ){
-    //             acc[ keys[key] ] = curr;
-    //         } else {
-    //             console.log('delete key ', keys[key] );
-    //         }
-
-    //         return acc;
-    //     }, {} );
-        
-    //     // console.log( 'new state', remaining );
-    //     this.commit( 'local', newState );
-    // },
+    clear: function(){
+        this.state = Storage.INITIAL_STATE;
+        sessionStorage.removeItem( Storage.key );
+    },
 
     INITIAL_STATE: {
        vault: null,

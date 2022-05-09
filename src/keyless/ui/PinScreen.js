@@ -4,14 +4,34 @@ import tokenIconImg from './../images/token-icon.webp';
 import copyIcon from './../images/copy-icon.svg';
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
+import ConfirmationDialog from '../classes/ConfirmationDialog';
 
 
 class PinScreen extends UIScreen {
 
     onShow(){
         // on close
-        this.el.querySelector('.close').addEventListener('click', () => {
-            this.keyless._hideUI();
+        this.el.querySelector('.close').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                () => {
+                    this.keyless.kctrl.activeTransaction && this.keyless.kctrl.activeTransaction.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless.kctrl.activeSignRequest && this.keyless.kctrl.activeSignRequest.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+
+                    this.keyless._hideUI();
+                }
+            );   
         });
         this.input = this.el.querySelector('.pin-codes input');
         this.error = this.el.querySelector('.error-boundary');
@@ -28,7 +48,24 @@ class PinScreen extends UIScreen {
 
         this.el.querySelector('.cancel_btn').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('clicked cancel');
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                () => {
+                    this.keyless.kctrl.activeTransaction && this.keyless.kctrl.activeTransaction.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless.kctrl.activeSignRequest && this.keyless.kctrl.activeSignRequest.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless._hideUI();
+                }
+            );            
         });
         this.el.querySelector('.proceed_btn').addEventListener('click', async (e) => {
             e.preventDefault();
@@ -40,15 +77,19 @@ class PinScreen extends UIScreen {
             if( !pinValid ){
                 this.showError( 'PIN is invalid');
             } else {
-                await new Promise( ( res ) => {
-                    setTimeout( () => res( true ), 12000 );
-                });
-                
-                this.keyless._showUI('txnSuccess');
+                if( this.keyless.kctrl.activeTransaction ){
+                    const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
+                } else if( this.keyless.kctrl.activeSignRequest ){
+                    const encMsg = await this.keyless.kctrl._signMessage( parseInt( pin ) );
+
+                    console.log( encMsg );
+                } else {
+                    throw new Error('Invalid invocation of PinConfirm Screen');
+                }
             }
             this.keyless.kctrl._setLoading( false );
         });
-
+ 
         this.populateAddress();
         
     }
@@ -63,8 +104,11 @@ class PinScreen extends UIScreen {
         }
     }
     populateAddress(){
-        const trans = this.keyless.kctrl.activeTransaction;
-        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( trans.data.from, 4 );
+        let address = this.keyless.kctrl.activeTransaction? this.keyless.kctrl.activeTransaction.data.from : null;
+        if( !address ){
+            address = this.keyless.kctrl.activeSignRequest.address;
+        }
+        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( address, 4 );
     }
 
     pinHandlers(){

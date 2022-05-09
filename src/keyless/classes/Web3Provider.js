@@ -75,13 +75,20 @@ class Web3Provider extends EventEmitter {
             break;
 
             case 'eth_gasPrice':
-
+                return this.keyless.kctrl.web3.eth.getGasPrice();
             break;
 
             case 'eth_getTransactionReceipt':
                 return {
                     transactionHash: '0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238',
                 }
+            break;
+
+            case 'eth_sign':
+                if( !this.keyless._loggedin ){
+                    return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
+                }
+                return this.keyless.kctrl.signTransaction( e.params[0], e.params[1] );
             break;
 
             default:

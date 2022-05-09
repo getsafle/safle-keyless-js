@@ -5,7 +5,7 @@ import popoutImg from './../images/pop-out.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, maxChars } from '../helpers/helpers';
 import ConfirmationDialog from '../classes/ConfirmationDialog';
 
 class DashboardScreen extends UIScreen {
@@ -21,7 +21,7 @@ class DashboardScreen extends UIScreen {
 
         this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true );
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
@@ -38,15 +38,16 @@ class DashboardScreen extends UIScreen {
         </div>`);
 
         // Attribute values to html elems
-        this.activeBalanceEl.value = this.activeWalletBalance || 0;
+        this.activeBalanceEl.value = maxChars( this.activeWalletBalance, 6 ) || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
         
         // Define html elems
         this.setHTML('#connection-status', this._renderConnectionEl());
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 4));
-        this.setHTML('#active-balance', this.activeWalletBalance || 0);
+        this.setHTML('#active-balance', maxChars( this.activeWalletBalance, 8 ) || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
+        this.setHTML('#sign-message', this.keyless.kctrl.getSignRequestData() );
 
         this.keyless.kctrl._setLoading(false);
     }
@@ -55,10 +56,7 @@ class DashboardScreen extends UIScreen {
     rejectConfirmCallback = () => {
         clearInterval( this.feeTm );
 
-        if (!this.keyless.kctrl.activeTransaction){
-            alert('no active connection!');
-        }
-        this.keyless.kctrl.activeTransaction.reject( {
+        this.keyless.kctrl.activeSignRequest.reject( {
             message: 'User rejected the transaction',
             code: 4200,
             method: 'User rejected'
@@ -71,8 +69,14 @@ class DashboardScreen extends UIScreen {
         await this.populateData();
         
         // on close
-        this.el.querySelector('.close').addEventListener('click', () => {
-            this.keyless._hideUI();
+        this.el.querySelector('.close').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            return new ConfirmationDialog(
+                this.el, 
+                `Are you sure you want to reject this transaction?`, 
+                `Accept`, 
+                this.rejectConfirmCallback
+            );
         });
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
@@ -90,6 +94,10 @@ class DashboardScreen extends UIScreen {
                 `Accept`, 
                 this.rejectConfirmCallback
             );
+        });
+        this.el.querySelector('.confirm_btn').addEventListener('click', ( e ) => {
+            e.preventDefault();
+            this.keyless._showUI('pin');
         });
 
         // open wallet 
@@ -161,7 +169,7 @@ class DashboardScreen extends UIScreen {
                 </div>
 
                 <div class="h4">Message</div>
-                <textarea id="sign-message" class="sign-message"></textarea>
+                <textarea id="sign-message" readonly class="sign-message"></textarea>
         
                 <button class="btn__tp--1 upper confirm_btn">Sign</button>
                 <button class="btn__tp--2 upper reject_btn">Cancel</button>

@@ -93,9 +93,9 @@ class AddressDropdown {
 
     setLoading( flag ){
         if( flag ){
-            this.el.querySelector( '.dropdown_default' ).classList.add('loading');
+             this.el.querySelector('.dropdown'+this.index ).classList.add('loading');
         } else {
-            this.el.querySelector( '.dropdown_default' ).classList.remove('loading');
+             this.el.querySelector('.dropdown'+this.index ).classList.remove('loading');
         }
     }
 
