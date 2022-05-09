@@ -36,7 +36,7 @@ class DashboardScreen extends UIScreen {
 
         this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
         this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
-        this.activeChainUrl = this.activeChain?.uri;
+        this.activeChainUrl = this.activeChain?.rpcURL;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true );
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
@@ -56,7 +56,7 @@ class DashboardScreen extends UIScreen {
         //     <div class="hover-info--1__triangle"></div>
         //     ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
         // </div>`);
-        const connStatusEl = new ConnectedStatus( connectionEl, this.connectionStatus, this.activeChain?.uri );
+        const connStatusEl = new ConnectedStatus( connectionEl, this.connectionStatus, this.activeChain?.rpcURL );
 
 
         // Attribute values to html elems

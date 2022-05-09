@@ -176,7 +176,7 @@ window.onload = async() => {
         }
 
     } catch( e ){
-        console.error( 'an error has occuried', e.message );
+        console.error( 'an error has occured', e.message );
     }    
    
 }

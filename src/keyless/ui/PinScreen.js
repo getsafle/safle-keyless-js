@@ -18,11 +18,17 @@ class PinScreen extends UIScreen {
                 `Are you sure you want to reject this transaction?`, 
                 `Accept`, 
                 () => {
-                    this.keyless.kctrl.activeTransaction.reject( {
+                    this.keyless.kctrl.activeTransaction && this.keyless.kctrl.activeTransaction.reject( {
                         message: 'User rejected the transaction',
                         code: 4200,
                         method: 'User rejected'
                     });
+                    this.keyless.kctrl.activeSignRequest && this.keyless.kctrl.activeSignRequest.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+
                     this.keyless._hideUI();
                 }
             );   
@@ -47,7 +53,12 @@ class PinScreen extends UIScreen {
                 `Are you sure you want to reject this transaction?`, 
                 `Accept`, 
                 () => {
-                    this.keyless.kctrl.activeTransaction.reject( {
+                    this.keyless.kctrl.activeTransaction && this.keyless.kctrl.activeTransaction.reject( {
+                        message: 'User rejected the transaction',
+                        code: 4200,
+                        method: 'User rejected'
+                    });
+                    this.keyless.kctrl.activeSignRequest && this.keyless.kctrl.activeSignRequest.reject( {
                         message: 'User rejected the transaction',
                         code: 4200,
                         method: 'User rejected'

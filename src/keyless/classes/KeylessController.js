@@ -193,7 +193,7 @@ class KeylessController {
 
     getNodeURI( chainID = false ){
         const chainId = chainID? chainID : this.keylessInstance.getCurrentChain().chainId;
-        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].uri + process.env.INFURA_KEY : '';
+        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL + process.env.INFURA_KEY : '';
     }
 
     async getAddressesOptions( options ){

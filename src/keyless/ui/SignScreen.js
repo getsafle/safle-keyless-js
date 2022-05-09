@@ -5,7 +5,7 @@ import popoutImg from './../images/pop-out.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, maxChars } from '../helpers/helpers';
 import ConfirmationDialog from '../classes/ConfirmationDialog';
 
 class DashboardScreen extends UIScreen {
@@ -21,7 +21,7 @@ class DashboardScreen extends UIScreen {
 
         this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress);
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true );
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
@@ -38,13 +38,13 @@ class DashboardScreen extends UIScreen {
         </div>`);
 
         // Attribute values to html elems
-        this.activeBalanceEl.value = this.activeWalletBalance || 0;
+        this.activeBalanceEl.value = maxChars( this.activeWalletBalance, 6 ) || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
         
         // Define html elems
         this.setHTML('#connection-status', this._renderConnectionEl());
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 4));
-        this.setHTML('#active-balance', this.activeWalletBalance || 0);
+        this.setHTML('#active-balance', maxChars( this.activeWalletBalance, 8 ) || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
         this.setHTML('#sign-message', this.keyless.kctrl.getSignRequestData() );
