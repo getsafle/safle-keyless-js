@@ -25,9 +25,17 @@ window.onload = async() => {
     const networks = await getNetworks();
 
     const chosenBlockchains = networks;
-    console.log( chosenBlockchains );
     const env = process.env.ENV;
 
+    const rpcUrls = {
+        1: 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY,
+        3: 'https://ropsten.infura.io/v3/' + process.env.INFURA_KEY,
+        137: 'https://polygon-mainnet.infura.io/v3/' + process.env.INFURA_KEY,
+        80001: 'https://polygon-mumbai.infura.io/v3/' + process.env.INFURA_KEY
+    }
+    for( var i in chosenBlockchains ){
+        chosenBlockchains[ i ]['rpcURL'] = rpcUrls[ chosenBlockchains[i].chainId ];
+    }
 
     try { 
         // initialize keyless with the supported chains and networks in an array objects

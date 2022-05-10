@@ -7,6 +7,7 @@ import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
 const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 
+
 class KeylessController {
     vault = false;
     wallets = [];
@@ -16,12 +17,14 @@ class KeylessController {
     activeSignRequest = null;
     transactionHashes = [];
 
-    constructor( keylessInstance ){
+    constructor( keylessInstance, chains = [] ){
         this.keylessInstance = keylessInstance;
+        if( chains[0].hasOwnProperty('rpcURL') ){
+            this._setBlockchainRPC( chains );
+        }
+
         const nodeURI = this.getNodeURI();
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
-
-
     }
 
     async loadVault(){
@@ -193,7 +196,7 @@ class KeylessController {
 
     getNodeURI( chainID = false ){
         const chainId = chainID? chainID : this.keylessInstance.getCurrentChain().chainId;
-        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL + process.env.INFURA_KEY : '';
+        return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL : '';
     }
 
     async getAddressesOptions( options ){
@@ -508,6 +511,15 @@ class KeylessController {
         const inst = this.keylessInstance._activeScreen;
         if( inst.hasOwnProperty('el') ){
             flag? inst.el.classList.add('loading') : inst.el.classList.remove('loading')
+        }
+    }
+
+    _setBlockchainRPC( config ){
+        for( var i in blockchainInfo ){
+            const curr = config.find( e => e.chainId == i );
+            if( curr ){
+                blockchainInfo[ i ].rpcURL = curr.rpcURL;
+            }
         }
     }
 }

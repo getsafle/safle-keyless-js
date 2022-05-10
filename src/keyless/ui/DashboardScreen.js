@@ -87,8 +87,7 @@ class DashboardScreen extends UIScreen {
     }
 
     async onShow() {
-        // on show > first retrieve data
-        await this.populateData();
+       
         
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
@@ -126,6 +125,8 @@ class DashboardScreen extends UIScreen {
             // this.keyless.selectChain();
         });
         
+        // on show > first retrieve data
+        await this.populateData();
     }
 
     _renderTokenEL (symbol, balance, decimal) {

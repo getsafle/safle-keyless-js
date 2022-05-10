@@ -18,7 +18,7 @@ class KeylessWeb3 {
         this.allowedChains = config.blockchain;
         
         this.provider = new Web3Provider( { keylessInstance: this } );
-        this.kctrl = new KeylessController( this );
+        this.kctrl = new KeylessController( this, this.allowedChains );
         const { chainId } = this.getCurrentChain();
         this._activeChain = chainId;
         this._connected = true;
