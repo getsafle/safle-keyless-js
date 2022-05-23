@@ -46,18 +46,9 @@ class DashboardScreen extends UIScreen {
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
-        this.connectionEl = this.el.querySelector('#connection-status');
 
-        // Update connection status 
-        // @todo to update connection update address url
-        // this.connectionEl.innerHTML = (`
-        // <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
-        // <div class="hover-info--1">
-        //     <div class="hover-info--1__triangle"></div>
-        //     ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
-        // </div>`);
-        const connStatusEl = new ConnectedStatus( connectionEl, this.connectionStatus, this.activeChain?.rpcURL );
-
+        // Update connection status
+        const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
         // Attribute values to html elems
         this.activeBalanceEl.value = this.activeWalletBalance || 0;

@@ -7,47 +7,41 @@ import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsis, maxChars } from '../helpers/helpers';
 import ConfirmationDialog from '../classes/ConfirmationDialog';
+import ConnectedStatus from './components/ConnectedStatus';
 
-class DashboardScreen extends UIScreen {
+class SignScreen extends UIScreen {
     connectionStatus = false;
     activeWalletAddress = ''; // string
     activeWalletBalance = 0; // number
     activeWalletUSDBalance = 0; // number
     
 
-    // Retrive dashboard data for UI
+    // Retrive sign transaction data for UI
     async populateData() {
         this.keyless.kctrl._setLoading(true);
 
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true );
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems
         this.activeBalanceEl = this.el.querySelector('#active-balance');
-        this.connectionEl = this.el.querySelector('#connection-status');
 
-        // Update connection status 
-        // @todo to update connection update address url
-        this.connectionEl.innerHTML = (`
-        <div class="connected">${this.connectionStatus ? 'Connected': 'Not Connected'}</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            ${this.connectionStatus ? 'app.uniswap.org' : 'Not Connected to any dApp'}
-        </div>`);
+        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        const connectionEl = this.el.querySelector('#connection-status');
+        const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
         // Attribute values to html elems
         this.activeBalanceEl.value = maxChars( this.activeWalletBalance, 6 ) || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
         
         // Define html elems
-        this.setHTML('#connection-status', this._renderConnectionEl());
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 4));
         this.setHTML('#active-balance', maxChars( this.activeWalletBalance, 8 ) || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
         this.setHTML('#sign-message', this.keyless.kctrl.getSignRequestData() );
+        
 
         this.keyless.kctrl._setLoading(false);
     }
@@ -108,27 +102,6 @@ class DashboardScreen extends UIScreen {
         
     }
 
-    _renderConnectionEl () {
-        let statusClass = 'disconnected';
-        let statusLabel = 'Not Connected';
-        let statusDomain = 'Not Connected to any dApp';
-
-        if (this.connectionStatus) {
-            statusClass = 'connected';
-            statusLabel = 'Connected';
-        }
-
-        return (`
-            <div class="${statusClass}">
-                ${statusLabel}
-            </div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-            ${statusDomain}
-            </div>
-        `);
-    }
-
 
     render() {
         return (`
@@ -185,4 +158,4 @@ class DashboardScreen extends UIScreen {
 
 }
 
-export default DashboardScreen;
+export default SignScreen;
