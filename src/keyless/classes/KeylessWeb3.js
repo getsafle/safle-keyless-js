@@ -61,6 +61,7 @@ class KeylessWeb3 {
                 return false;
             } else {
                 this.kctrl.loadVault();
+                this.kctrl.retrieveSessionNetwork();
                 this._loggedin = true;
             }
         }

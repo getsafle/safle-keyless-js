@@ -20,8 +20,6 @@ class KeylessController {
         this.keylessInstance = keylessInstance;
         const nodeURI = this.getNodeURI();
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
-
-
     }
 
     async loadVault(){
@@ -40,6 +38,17 @@ class KeylessController {
             this.activeWallet = 0;
         } else {
             console.error('user is not logged in or vault empty.');
+        }
+    }
+
+    async retrieveSessionNetwork() {
+        const state = Storage.getState();
+        const { network = '' } = state;
+        if (network) {
+            const currentChain = this.keylessInstance.allowedChains[ network ];
+            const nodeURI = this.getNodeURI( currentChain.chainId );
+            console.log('CHAINID on signin', nodeURI );
+            this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
         }
     }
 
@@ -99,6 +108,7 @@ class KeylessController {
         console.log('CHAINID', nodeURI );
 
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
+        Storage.saveState({ network });
     }
 
 
@@ -458,10 +468,10 @@ class KeylessController {
 
     async _signMessage( pin ){
         if( this.activeSignRequest ){
+            const state = Storage.getState();
             const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
             console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
 
-            const state = Storage.getState();
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             this.vault.restoreKeyringState( state.vault, pin, decKey );
             console.log( this.vault.decryptedVault );
