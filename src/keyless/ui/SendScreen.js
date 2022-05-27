@@ -9,7 +9,7 @@ import eth2Icon from './../images/eth-icon-2.svg'
 import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
-import ConfirmationDialog from '../classes/ConfirmationDialog';
+import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 import {middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
 

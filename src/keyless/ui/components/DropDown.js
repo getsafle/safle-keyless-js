@@ -1,27 +1,26 @@
 
-import networkImg from './../images/network-icon.svg';
-import network2 from './../images/network-2.svg'
-import network3 from './../images/network-3.svg'
-import network4 from './../images/network-4.svg'
-import network5 from './../images/network-5.svg'
-import network6 from './../images/network-6.svg'
-
-import { maxChars } from './../helpers/helpers';
+import networkImg from './../../images/network-icon.svg';
+import network2 from './../../images/network-2.svg'
+import network3 from './../../images/network-3.svg'
+import network4 from './../../images/network-4.svg'
+import network5 from './../../images/network-5.svg'
+import network6 from './../../images/network-6.svg'
 
 let dropdownCounter = 0;
 
-class AddressDropdown {
+class Dropdown {
     initial = false
     opened = false;
     onChangeHandler = false;
 
-    constructor( el, extra_class, extra_option_class, options, nativeToken='ETH' ){
-
-        this.nativeToken = nativeToken;
+    constructor( el, extra_class, extra_option_class, options, config={} ){
         this.extraOptionClass = extra_option_class;        
         this.parentEl = el;
         this.extraClass = extra_class;
         this.options = options;
+        if( config.initial ) {
+            this.initial = config.initial;
+        }
 
         this.index = ++dropdownCounter;
         this.opContClass = 'd_cont_'+this.index;
@@ -30,12 +29,6 @@ class AddressDropdown {
         this.el.innerHTML = this.render();
         this.parentEl.appendChild( this.el );
 
-        setTimeout( () => this.onInit(), 200 );
-    }
-    update( options, nativeToken ){
-        this.nativeToken = nativeToken;
-        this.options = options;
-        this.el.innerHTML = this.render();
         setTimeout( () => this.onInit(), 200 );
     }
     onInit(){
@@ -57,15 +50,10 @@ class AddressDropdown {
     setOptions( options ){
         this.options = options;
         this.el.querySelector( '.'+this.opContClass ).innerHTML = `
-        ${ this.options.length > 0 && this.options.map( ( item, idx ) => {
+        ${ this.options.map( ( item, idx ) => {
             return `<div class="dd_option" data-option="${idx}">
-                        <div>
-                            <img src="${networkImg}" alt="Network Icon">
-                            <h3 title="${item?.longLabel || ''}">${item.label}</h3>
-                        </div>
-                        <div>
-                            <h3>${ maxChars( item.balance, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
-                        </div>
+                        <img src="${networkImg}" alt="Network Icon">
+                        <h3 title="${item?.longLabel || ''}">${item.label}</h3>
                     </div>`
         }) }`;
 
@@ -86,16 +74,7 @@ class AddressDropdown {
             this.opened = false;
             this.el.querySelector( '.'+this.opContClass ).classList.add('d--none');
             this.el.querySelector('.title_label h3').innerHTML = this.activeOption.label;
-            this.el.querySelector('.balance h3').innerHTML = maxChars( this.activeOption.balance, 10 ) + ' <span class="c--dark">'+this.nativeToken+'</span>';
             this.triggerChange( idx, this.options[ idx ] );
-        }
-    }
-
-    setLoading( flag ){
-        if( flag ){
-             this.el.querySelector('.dropdown'+this.index ).classList.add('loading');
-        } else {
-             this.el.querySelector('.dropdown'+this.index ).classList.remove('loading');
         }
     }
 
@@ -111,7 +90,6 @@ class AddressDropdown {
         const handler = ( e ) => {
             if( this.el.contains( e.target) ){
                 window.removeEventListener('click', handler, false );
-                console.log('prevented');
                 return;
             }
             console.log('click outside');
@@ -126,31 +104,20 @@ class AddressDropdown {
     }
 
     render(){
-        return `<div class="dropdown_default dropdown_address ${this.extraClass} dropdown${this.index}">
-            <div class="title_label" style="justify-content: space-between;width: 100%;">
-                <div>
-                    <img class="title_icon" src="${networkImg}" alt="Network Icon">
-                    <h3>${ this.initial? this.initial?.label : this.options[0]?.label }</h3>
-                </div>
-                <div class="balance">
-                    <h3>${ maxChars( this.initial? this.initial?.balance : this.options[0]?.balance || 0, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
-                    <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
+        return `<div class="dropdown_default dropdown_chain ${this.extraClass} dropdown${this.index}">
+            <div class="title_label">
+                <img class="title_icon" src="${ this.initial && this.initial.icon? this.initial.icon : networkImg}" alt="Network Icon">
+                <h3>${ this.initial? this.initial.label : this.options[0].label }</h3>
+            </div>
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="angle-down" class="svg-inline--fa fa-angle-down fa-w-10" width="16" height="10" xmlns="http://www.w3.org/2000/svg">
                 <path d="m8 10 .88-.843L16 2.316 14.241 0 8 5.998 1.759 0 0 2.316A277265.12 277265.12 0 0 0 8 10z" fill="#CBD7E9" fill-rule="nonzero"/>
             </svg>
-                </div>
-            </div>
-            
         </div>
         <div class="dropdown__content ${this.extraOptionClass} ${this.opContClass} d--none">
-        ${ this.options.length > 0 && this.options.map( ( item, idx ) => {
+        ${ this.options.map( ( item, idx ) => {
             return `<div class="dd_option" data-option="${idx}">
-                        <div>
-                            <img src="${networkImg}" alt="Network Icon">
-                            <h3 title="${item?.longLabel || ''}">${item.label}</h3>
-                        </div>
-                        <div>
-                            <h3>${ maxChars( item.balance, 10 ) } <span class="c--dark">${ this.nativeToken }</span></h3>
-                        </div>
+                        <img src="${networkImg}" alt="Network Icon">
+                        <h3 title="${item?.longLabel || ''}">${item.label}</h3>
                     </div>`
         }) }        
         </div>`
@@ -158,4 +125,4 @@ class AddressDropdown {
     }
 }
 
-export default AddressDropdown;
+export default Dropdown;

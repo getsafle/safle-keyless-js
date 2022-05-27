@@ -19,14 +19,14 @@ class KeylessWeb3 {
         
         this.provider = new Web3Provider( { keylessInstance: this } );
         this.kctrl = new KeylessController( this );
+        this._activeChain = this.kctrl?.activeChain?.chainId;
+
         const { chainId } = this.getCurrentChain();
-        this._activeChain = chainId;
         this._connected = true;
 
         setTimeout( () => {
             this.provider.emit('connected', { chainId } );
-        }, 100 );
-        
+        }, 100 );        
     }
 
     // public functions
@@ -49,7 +49,7 @@ class KeylessWeb3 {
         }
     }
 
-    isLoggedIn() {
+    async isLoggedIn() {
         console.log( 'isloggedin', this._loggedin );
         if (!this._loggedin) {
             // Try to retrieve user session from storage
@@ -60,8 +60,7 @@ class KeylessWeb3 {
             if (!vault || !decriptionKey) {
                 return false;
             } else {
-                this.kctrl.loadVault();
-                this.kctrl.retrieveSessionNetwork();
+                await this.kctrl.loadVault();
                 this._loggedin = true;
             }
         }
@@ -140,6 +139,7 @@ class KeylessWeb3 {
     switchWallet( wid ){
         this.kctrl.activeWallet = wid;
         this.provider.emit('accountsChanged', { address: this.kctrl.wallets[ this.kctrl.activeWallet ].address });
+        Storage.saveState({ activeWallet: wid });
     }
 
     setNetwork(){
@@ -155,7 +155,8 @@ class KeylessWeb3 {
     }
    
     getCurrentChain(){
-        const chain =  this._activeChain? this.allowedChains[ this._activeChain ] : this.allowedChains[ 0 ];
+        const chain =  this._activeChain? this.allowedChains.find( e => e.chainId == this._activeChain ) : this.allowedChains[ 0 ];
+        console.log('....getCurrentChain: ', this._activeChain, this.allowedChains, chain);
         return {
             chainId: chain.chainId,
             chain
@@ -163,7 +164,7 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
-        console.log( 'getnativetoken', currChain );
+        // console.log( 'getnativetoken', currChain );
         return currChain.chain.symbol;
     }
 

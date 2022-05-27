@@ -11,8 +11,8 @@ import user3 from './../images/user-3.webp'
 import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
-import Dropdown from '../classes/DropDown';
-import AddressDropdown from '../classes/AddressDropdown';
+import Dropdown from './components/DropDown';
+import AddressDropdown from './components/AddressDropdown';
 
 class SwitchChainScreen extends UIScreen {
     chosenAddress = false;

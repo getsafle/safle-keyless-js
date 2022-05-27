@@ -10,7 +10,8 @@ const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 class KeylessController {
     vault = false;
     wallets = [];
-    activeWallet = false;
+    activeChain;
+    activeWallet;
     flowState = 0;
     activeTransaction = null;
     activeSignRequest = null;
@@ -18,7 +19,15 @@ class KeylessController {
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
-        const nodeURI = this.getNodeURI();
+
+        const state = Storage.getState();
+        const { chainId: sessionChainId = '', activeWallet: sessionActiveWallet = false } = state;
+        if (sessionChainId) {
+            this.activeChain = this.keylessInstance.allowedChains.find( e => e.chainId == sessionChainId );
+            console.log('CHAINID on signin', this.activeChain );
+            this.activeWallet = sessionActiveWallet;
+        }
+        const nodeURI = this.getNodeURI(this.activeChain?.chainId);
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
@@ -29,26 +38,15 @@ class KeylessController {
             //todo - move this to helpers
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             this.wallets = ( await this.vault.getAccounts( decKey ) ).response.map( e => { return { address: e.address }} ) || [];
-            console.log( this.wallets );
+            // console.log( this.wallets );
 
             if( this.wallets.length == 0 ){
                 //todo - handle empty vault case
                 throw new Error('No wallets found in the current vault');
             }
-            this.activeWallet = 0;
+            this.activeWallet = state?.activeWallet || 0;
         } else {
             console.error('user is not logged in or vault empty.');
-        }
-    }
-
-    async retrieveSessionNetwork() {
-        const state = Storage.getState();
-        const { network = '' } = state;
-        if (network) {
-            const currentChain = this.keylessInstance.allowedChains[ network ];
-            const nodeURI = this.getNodeURI( currentChain.chainId );
-            console.log('CHAINID on signin', nodeURI );
-            this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
         }
     }
 
@@ -81,7 +79,7 @@ class KeylessController {
         });
         this.keylessInstance._loggedin = true;
 
-        this.loadVault();
+        await this.loadVault();
 
         this._setLoading( false );
         
@@ -104,16 +102,16 @@ class KeylessController {
     // re-build web3 instance for the current blockchain
     switchNetwork( network ){
         console.log( 'rebuild web3 object for EVM chainId '+network );
-        const nodeURI = this.getNodeURI( this.keylessInstance.allowedChains[ network ].chainId );
-        console.log('CHAINID', nodeURI );
+        const chainId = this.keylessInstance.allowedChains[ network ].chainId
+        const nodeURI = this.getNodeURI(chainId);
 
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
-        Storage.saveState({ network });
+        console.log('switech network! chainId: ', chainId);
+        Storage.saveState({ chainId });
     }
 
 
     //sign transaction func
-
     signTransaction( address, data ){
         this.activeSignRequest = {
             data: data,

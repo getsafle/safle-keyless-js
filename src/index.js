@@ -25,7 +25,7 @@ window.onload = async() => {
     const networks = await getNetworks();
 
     const chosenBlockchains = networks;
-    console.log( chosenBlockchains );
+    console.log('Chosen blockchains', chosenBlockchains );
     const env = process.env.ENV;
 
 
@@ -115,7 +115,7 @@ window.onload = async() => {
 
         async function update_loggedin() {
             console.log('index > update_loggedin');
-            const isUserLoggedIn = keyless.isLoggedIn();
+            const isUserLoggedIn = await keyless.isLoggedIn();
             console.log('is loggedin', isUserLoggedIn );
             each( $$('.active_when_logged'), ( el ) => {
                 if( isUserLoggedIn ){
@@ -126,17 +126,27 @@ window.onload = async() => {
             });
 
             if( isUserLoggedIn ) {
-                w3.eth.personal.getAccounts().then( ( addreses ) => {
-                    // console.log( 'update get acc', addreses );
+                await w3.eth.personal.getAccounts().then( async ( addreses ) => {
+                    let activeAddress
 
-                    activeAddress = addreses.shift();
-                    w3.eth.getBalance( activeAddress ).then( bal => {
+                    if (Array.isArray( addreses ) && addreses.length > 0) {
+                        activeAddress = addreses.shift();
+                        
+                    } else if (typeof addreses === 'string' && addreses.length > 0) {
+                        activeAddress = addreses;
+                        console.log('One address: ', addreses, addreses.length);
+                    }
+                    if (!activeAddress) {
+                        console.log('No active Adrress!');
+                        return false;
+                    }
+
+                    await w3.eth.getBalance( activeAddress ).then( bal => {
                         // console.log('GET BALANCE', bal.toString() );
                         $('.status .balance').innerHTML = parseFloat( w3.utils.fromWei( bal, 'ether')).toFixed(5);
                     });
                 })
             }
-            
         }
         function update_chain( chainId ){
             if( keyless.isConnected() ){
@@ -176,7 +186,7 @@ window.onload = async() => {
         }
 
     } catch( e ){
-        console.error( 'an error has occured', e.message );
+        console.error( 'an error has occured', e );
     }    
    
 }

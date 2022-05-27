@@ -4,7 +4,7 @@ import tokenIconImg from './../images/token-icon.webp';
 import copyIcon from './../images/copy-icon.svg';
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
-import ConfirmationDialog from '../classes/ConfirmationDialog';
+import ConfirmationDialog from './components/ConfirmationDialog';
 
 
 class PinScreen extends UIScreen {
