@@ -50,7 +50,6 @@ class KeylessWeb3 {
     }
 
     async isLoggedIn() {
-        console.log( 'isloggedin', this._loggedin );
         if (!this._loggedin) {
             // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
@@ -131,10 +130,10 @@ class KeylessWeb3 {
         setTimeout( () => this.provider.emit('disconnect', {} ), 100 );
     }
 
-    switchNetwork( nid ){
-        this._activeChain = this.allowedChains.indexOf( this.allowedChains.find( e => e.chainId == nid ) );
+    switchNetwork( selectedChainId ){
+        this._activeChain = selectedChainId;
         this.kctrl.switchNetwork( this._activeChain );
-        this.provider.emit('chainChanged', { chainId: nid } );
+        this.provider.emit('chainChanged', { chainId: selectedChainId } );
     }
     switchWallet( wid ){
         this.kctrl.activeWallet = wid;

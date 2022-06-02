@@ -100,14 +100,15 @@ class KeylessController {
     }
 
     // re-build web3 instance for the current blockchain
-    switchNetwork( network ){
-        console.log( 'rebuild web3 object for EVM chainId '+network );
-        const chainId = this.keylessInstance.allowedChains[ network ].chainId
-        const nodeURI = this.getNodeURI(chainId);
-
-        this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
-        console.log('switech network! chainId: ', chainId);
+    switchNetwork( chainId){
+        console.log( 'rebuild web3 object for EVM chainId ', chainId );
+        this.web3 = this.generateWeb3Object(chainId);
         Storage.saveState({ chainId });
+    }
+
+    generateWeb3Object(chainId) {
+        const nodeURI = this.getNodeURI(chainId);
+        return new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
 
@@ -204,8 +205,8 @@ class KeylessController {
         return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL + process.env.INFURA_KEY : '';
     }
 
-    async getAddressesOptions( options ){
-        const balances = await this._getWalletBalances( options.map( e => e.address ) );
+    async getAddressesOptions( options, web3Obj){
+        const balances = await this._getWalletBalances( options.map( e => e.address ), web3Obj );
         // console.log( balances );
 
         return options.map( wallet => {
@@ -217,23 +218,22 @@ class KeylessController {
         } })
     }
 
-    async _getWalletBalances( addreses ){
+    async _getWalletBalances( addreses, web3Obj ){
         // todo - get wallet native token balances
-
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true, web3Obj );
         }
-        console.log('KeylessController._getWalletBalances', balances );
+        // console.log('KeylessController._getWalletBalances', balances );
         return balances;
     }
 
-    async getWalletBalance( address, returnETH = false ){
-        const bal = await this.web3.eth.getBalance( address, 'latest' );
+    async getWalletBalance( address, returnETH = false, web3Obj = this.web3 ){
+        const bal = await web3Obj.eth.getBalance( address, 'latest' );
         if( returnETH ){
-            const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
+            const balance = web3Obj.utils.fromWei( bal.toString(), 'ether' );
             return balance;
-        }        
+        }   
         return bal;
     }
 

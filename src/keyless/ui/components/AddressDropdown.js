@@ -11,17 +11,18 @@ import { maxChars } from '../../helpers/helpers';
 let dropdownCounter = 0;
 
 class AddressDropdown {
-    initial = false
+    initial;
     opened = false;
     onChangeHandler = false;
 
-    constructor( el, extra_class, extra_option_class, options, nativeToken='ETH' ){
+    constructor( el, extra_class, extra_option_class, options, nativeToken='ETH', initialValue = false  ){
 
         this.nativeToken = nativeToken;
         this.extraOptionClass = extra_option_class;        
         this.parentEl = el;
         this.extraClass = extra_class;
         this.options = options;
+        this.initial = options?.length > 0 ? options.find(item => item.label === initialValue) : false;
 
         this.index = ++dropdownCounter;
         this.opContClass = 'd_cont_'+this.index;
@@ -32,9 +33,11 @@ class AddressDropdown {
 
         setTimeout( () => this.onInit(), 200 );
     }
-    update( options, nativeToken ){
+    update( options, nativeToken, initialValue ){
         this.nativeToken = nativeToken;
         this.options = options;
+        this.initial = options?.length && initialValue ? options.find(item => item.address === initialValue) : false;
+        console.log(initialValue, options, this.initial);
         this.el.innerHTML = this.render();
         setTimeout( () => this.onInit(), 200 );
     }
@@ -113,7 +116,6 @@ class AddressDropdown {
                 window.removeEventListener('click', handler, false );
                 return;
             }
-            console.log('click outside');
             const opCont = this.el.querySelector( '.'+this.opContClass );
             if( !opCont.classList.contains('d--none') ){
                 opCont.classList.add('d--none');
