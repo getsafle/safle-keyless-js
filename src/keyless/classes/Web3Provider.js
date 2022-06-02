@@ -21,7 +21,6 @@ class Web3Provider extends EventEmitter {
     }
 
     async request( e ){
-        console.log('from web provider: ', e );
         if( !e.method ){
             return new RPCError('Method not described');
         } 

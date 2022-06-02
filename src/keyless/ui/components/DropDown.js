@@ -92,7 +92,6 @@ class Dropdown {
                 window.removeEventListener('click', handler, false );
                 return;
             }
-            console.log('click outside');
             const opCont = this.el.querySelector( '.'+this.opContClass );
             if( !opCont.classList.contains('d--none') ){
                 opCont.classList.add('d--none');
