@@ -114,7 +114,6 @@ window.onload = async() => {
         }
 
         async function update_loggedin() {
-            console.log('index > update_loggedin');
             const isUserLoggedIn = await keyless.isLoggedIn();
             console.log('is loggedin', isUserLoggedIn );
             each( $$('.active_when_logged'), ( el ) => {
