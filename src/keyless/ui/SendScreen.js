@@ -430,7 +430,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateBalance(){
-        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address );
+        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 6 );
         // const trans = this.keyless.kctrl.getActiveTransaction();
         // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
         this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
