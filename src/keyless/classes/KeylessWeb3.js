@@ -55,7 +55,7 @@ class KeylessWeb3 {
             // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
 
-            console.log( vault, decriptionKey );
+            // console.log( vault, decriptionKey );
 
             if (!vault || !decriptionKey) {
                 return false;

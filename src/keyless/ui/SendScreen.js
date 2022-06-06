@@ -10,6 +10,7 @@ import popoutImg from './../images/pop-out.svg'
 
 import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from '../classes/ConfirmationDialog';
+import ConnectedStatus from './components/ConnectedStatus';
 import {middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
 
 
@@ -408,7 +409,10 @@ class SendScreen extends UIScreen {
             // ] );
             this.keyless.kctrl._setLoading( false );
         }
-        
+
+        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        const connectionEl = this.el.querySelector('#connection-status');
+        const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }
 
     async populateAddresses( trans ){
@@ -494,19 +498,7 @@ class SendScreen extends UIScreen {
 
         <div class="transaction__header">
             <img class="close" src="${closeImg}" alt="Close Icon">
-
-            <div class="connected">Connected</div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-                app.uniswap.org
-            </div>
-
-            <!-- <div class="disconnected">Not Connected</div>
-            <div class="hover-info--1">
-                <div class="hover-info--1__triangle"></div>
-                Not Connected to any dApp
-            </div> -->
-
+            <div id="connection-status"></div>
             <a class="logo" href="#">
                 <img src="${logoImg}" alt="Safle Logo">
             </a>
