@@ -6,7 +6,7 @@ import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
 import {copyToClipboard, middleEllipsis, maxChars } from '../helpers/helpers';
-import ConfirmationDialog from '../classes/ConfirmationDialog';
+import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 
 class SignScreen extends UIScreen {

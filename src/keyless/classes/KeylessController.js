@@ -10,7 +10,8 @@ const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 class KeylessController {
     vault = false;
     wallets = [];
-    activeWallet = false;
+    activeChain;
+    activeWallet;
     flowState = 0;
     activeTransaction = null;
     activeSignRequest = null;
@@ -18,10 +19,16 @@ class KeylessController {
 
     constructor( keylessInstance ){
         this.keylessInstance = keylessInstance;
-        const nodeURI = this.getNodeURI();
+
+        const state = Storage.getState();
+        const { chainId: sessionChainId = '', activeWallet: sessionActiveWallet = false } = state;
+        if (sessionChainId) {
+            this.activeChain = this.keylessInstance.allowedChains.find( e => e.chainId == sessionChainId );
+            console.log('CHAINID on signin', this.activeChain );
+            this.activeWallet = sessionActiveWallet;
+        }
+        const nodeURI = this.getNodeURI(this.activeChain?.chainId);
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
-
-
     }
 
     async loadVault(){
@@ -31,13 +38,13 @@ class KeylessController {
             //todo - move this to helpers
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             this.wallets = ( await this.vault.getAccounts( decKey ) ).response.map( e => { return { address: e.address }} ) || [];
-            console.log( this.wallets );
+            // console.log( this.wallets );
 
             if( this.wallets.length == 0 ){
                 //todo - handle empty vault case
                 throw new Error('No wallets found in the current vault');
             }
-            this.activeWallet = 0;
+            this.activeWallet = state?.activeWallet || 0;
         } else {
             console.error('user is not logged in or vault empty.');
         }
@@ -72,7 +79,7 @@ class KeylessController {
         });
         this.keylessInstance._loggedin = true;
 
-        this.loadVault();
+        await this.loadVault();
 
         this._setLoading( false );
         
@@ -93,17 +100,19 @@ class KeylessController {
     }
 
     // re-build web3 instance for the current blockchain
-    switchNetwork( network ){
-        console.log( 'rebuild web3 object for EVM chainId '+network );
-        const nodeURI = this.getNodeURI( this.keylessInstance.allowedChains[ network ].chainId );
-        console.log('CHAINID', nodeURI );
+    switchNetwork( chainId){
+        console.log( 'rebuild web3 object for EVM chainId ', chainId );
+        this.web3 = this.generateWeb3Object(chainId);
+        Storage.saveState({ chainId });
+    }
 
-        this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
+    generateWeb3Object(chainId) {
+        const nodeURI = this.getNodeURI(chainId);
+        return new Web3( new Web3.providers.HttpProvider( nodeURI ));
     }
 
 
     //sign transaction func
-
     signTransaction( address, data ){
         this.activeSignRequest = {
             data: data,
@@ -196,8 +205,8 @@ class KeylessController {
         return blockchainInfo.hasOwnProperty( chainId )? blockchainInfo[ chainId ].rpcURL + process.env.INFURA_KEY : '';
     }
 
-    async getAddressesOptions( options ){
-        const balances = await this._getWalletBalances( options.map( e => e.address ) );
+    async getAddressesOptions( options, web3Obj){
+        const balances = await this._getWalletBalances( options.map( e => e.address ), web3Obj );
         // console.log( balances );
 
         return options.map( wallet => {
@@ -209,23 +218,22 @@ class KeylessController {
         } })
     }
 
-    async _getWalletBalances( addreses ){
+    async _getWalletBalances( addreses, web3Obj ){
         // todo - get wallet native token balances
-
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true, web3Obj );
         }
-        console.log('KeylessController._getWalletBalances', balances );
+        // console.log('KeylessController._getWalletBalances', balances );
         return balances;
     }
 
-    async getWalletBalance( address, returnETH = false ){
-        const bal = await this.web3.eth.getBalance( address, 'latest' );
+    async getWalletBalance( address, returnETH = false, web3Obj = this.web3 ){
+        const bal = await web3Obj.eth.getBalance( address, 'latest' );
         if( returnETH ){
-            const balance = this.web3.utils.fromWei( bal.toString(), 'ether' );
+            const balance = web3Obj.utils.fromWei( bal.toString(), 'ether' );
             return balance;
-        }        
+        }   
         return bal;
     }
 
@@ -458,10 +466,10 @@ class KeylessController {
 
     async _signMessage( pin ){
         if( this.activeSignRequest ){
+            const state = Storage.getState();
             const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
             console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
 
-            const state = Storage.getState();
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             this.vault.restoreKeyringState( state.vault, pin, decKey );
             console.log( this.vault.decryptedVault );

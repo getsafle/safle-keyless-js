@@ -19,14 +19,14 @@ class KeylessWeb3 {
         
         this.provider = new Web3Provider( { keylessInstance: this } );
         this.kctrl = new KeylessController( this );
+        this._activeChain = this.kctrl?.activeChain?.chainId;
+
         const { chainId } = this.getCurrentChain();
-        this._activeChain = chainId;
         this._connected = true;
 
         setTimeout( () => {
             this.provider.emit('connected', { chainId } );
-        }, 100 );
-        
+        }, 100 );        
     }
 
     // public functions
@@ -49,8 +49,7 @@ class KeylessWeb3 {
         }
     }
 
-    isLoggedIn() {
-        console.log( 'isloggedin', this._loggedin );
+    async isLoggedIn() {
         if (!this._loggedin) {
             // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
@@ -60,7 +59,7 @@ class KeylessWeb3 {
             if (!vault || !decriptionKey) {
                 return false;
             } else {
-                this.kctrl.loadVault();
+                await this.kctrl.loadVault();
                 this._loggedin = true;
             }
         }
@@ -131,14 +130,15 @@ class KeylessWeb3 {
         setTimeout( () => this.provider.emit('disconnect', {} ), 100 );
     }
 
-    switchNetwork( nid ){
-        this._activeChain = this.allowedChains.indexOf( this.allowedChains.find( e => e.chainId == nid ) );
+    switchNetwork( selectedChainId ){
+        this._activeChain = selectedChainId;
         this.kctrl.switchNetwork( this._activeChain );
-        this.provider.emit('chainChanged', { chainId: nid } );
+        this.provider.emit('chainChanged', { chainId: selectedChainId } );
     }
     switchWallet( wid ){
         this.kctrl.activeWallet = wid;
         this.provider.emit('accountsChanged', { address: this.kctrl.wallets[ this.kctrl.activeWallet ].address });
+        Storage.saveState({ activeWallet: wid });
     }
 
     setNetwork(){
@@ -154,7 +154,8 @@ class KeylessWeb3 {
     }
    
     getCurrentChain(){
-        const chain =  this._activeChain? this.allowedChains[ this._activeChain ] : this.allowedChains[ 0 ];
+        const chain =  this._activeChain? this.allowedChains.find( e => e.chainId == this._activeChain ) : this.allowedChains[ 0 ];
+        console.log('....getCurrentChain: ', this._activeChain, this.allowedChains, chain);
         return {
             chainId: chain.chainId,
             chain
@@ -162,7 +163,7 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
-        console.log( 'getnativetoken', currChain );
+        // console.log( 'getnativetoken', currChain );
         return currChain.chain.symbol;
     }
 

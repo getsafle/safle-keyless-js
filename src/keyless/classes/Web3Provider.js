@@ -21,7 +21,6 @@ class Web3Provider extends EventEmitter {
     }
 
     async request( e ){
-        console.log('from web provider: ', e );
         if( !e.method ){
             return new RPCError('Method not described');
         } 
@@ -35,10 +34,9 @@ class Web3Provider extends EventEmitter {
                     return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
                 }
 
-                const addrs = this.keyless.kctrl.getAccounts();
+                const addrs = await this.keyless.kctrl.getAccounts();
                 if( !addrs ){
                     throw new RPCError('Please connect to DAP');
-
                     // return Promise.reject( addr );
                 }
                 return Promise.resolve( [ addrs.address ] );

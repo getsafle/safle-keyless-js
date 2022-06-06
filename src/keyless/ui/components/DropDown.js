@@ -1,10 +1,10 @@
 
-import networkImg from './../images/network-icon.svg';
-import network2 from './../images/network-2.svg'
-import network3 from './../images/network-3.svg'
-import network4 from './../images/network-4.svg'
-import network5 from './../images/network-5.svg'
-import network6 from './../images/network-6.svg'
+import networkImg from './../../images/network-icon.svg';
+import network2 from './../../images/network-2.svg'
+import network3 from './../../images/network-3.svg'
+import network4 from './../../images/network-4.svg'
+import network5 from './../../images/network-5.svg'
+import network6 from './../../images/network-6.svg'
 
 let dropdownCounter = 0;
 
@@ -90,10 +90,8 @@ class Dropdown {
         const handler = ( e ) => {
             if( this.el.contains( e.target) ){
                 window.removeEventListener('click', handler, false );
-                console.log('prevented');
                 return;
             }
-            console.log('click outside');
             const opCont = this.el.querySelector( '.'+this.opContClass );
             if( !opCont.classList.contains('d--none') ){
                 opCont.classList.add('d--none');

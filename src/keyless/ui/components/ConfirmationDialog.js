@@ -1,5 +1,5 @@
 
-import iconDanger from './../images/icon_danger.svg'
+import iconDanger from './../../images/icon_danger.svg'
 
 class ConfirmationDialog {
     el;

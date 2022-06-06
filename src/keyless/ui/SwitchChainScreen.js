@@ -11,19 +11,21 @@ import user3 from './../images/user-3.webp'
 import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
-import Dropdown from '../classes/DropDown';
-import AddressDropdown from '../classes/AddressDropdown';
+import Dropdown from './components/DropDown';
+import AddressDropdown from './components/AddressDropdown';
 
 class SwitchChainScreen extends UIScreen {
+    currentChain;
+    activeWallet;
     chosenAddress = false;
 
     async onShow(){
-        const currWallet = this.keyless.kctrl.getAccounts();
-        console.log( currWallet );
-        this.chosenAddress = currWallet.address;
+        this.activeWallet = this.keyless.kctrl.activeWallet || 0;
+        this.chosenAddress = this.keyless.kctrl.wallets[this.activeWallet].address;
+        this.currentChain = this.keyless.getCurrentChain().chainId;
+
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
-            console.log( this.chosenAddress );
             this.keyless.kctrl._loginSuccess();
             this.keyless._hideUI();
         });
@@ -34,39 +36,42 @@ class SwitchChainScreen extends UIScreen {
         const chains = this.keyless.kctrl.getChainsOptions( this.keyless.allowedChains );
         let addreses = [{ label: '', balance: ''}];
 
-        this.chosenAddress = this.keyless.kctrl.wallets[ 0 ];
         const initial =  chains.find( e => this.keyless.getCurrentChain().chainId == e.chainId )
         // const initial = this.keyless.getCurrentChain().chain
 
         this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains, { initial } );
-        this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken() );
+        this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
 
         this.dropdown1.onChange( async ( idx, option ) => {
-            this.keyless.switchNetwork( option.chainId );
+            this.currentChain = option.chainId
+
+            const localWeb3Obj = this.keyless.kctrl.generateWeb3Object(this.currentChain);
             this.dropdown2.setLoading( true );
             this.keyless.kctrl._setLoading( true );
-            const addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets );
+            const addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets, localWeb3Obj );
             this.dropdown2.setLoading( false );
             this.keyless.kctrl._setLoading( false );
             // this.dropdown2.setOptions( addreses );
-            this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
+            this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
         });
 
-        this.dropdown2.onChange( ( idx, wallet ) => {
-            this.keyless.switchWallet( idx );
-            this.chosenAddress = this.keyless.kctrl.wallets[ idx ];
-            // console.log( this.chosenAddress );
+        this.dropdown2.onChange( ( wid, wallet ) => {
+            this.activeWallet = wid;
+            this.chosenAddress = this.keyless.kctrl.wallets[ wid ];
         });
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
             this.keyless._hideUI();
+            this.keyless.switchNetwork( this.currentChain );
+            this.keyless.switchWallet( this.activeWallet );
+
             this.keyless._loggedin = true;
             this.keyless.kctrl._loginSuccess();
         });
 
         this.keyless.kctrl._setLoading( true );
         addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
-        this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken() );
+        this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
 
         this.keyless.kctrl._setLoading( false );
     }
