@@ -38,7 +38,7 @@ class DashboardScreen extends UIScreen {
         this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
         this.activeChainUrl = this.activeChain?.rpcURL;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true );
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 6);
         this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
         
         // Define html elems

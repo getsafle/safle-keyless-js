@@ -222,18 +222,18 @@ class KeylessController {
         // todo - get wallet native token balances
         const balances = {};
         for( var i in addreses ){
-            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true, web3Obj );
+            balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true, false, web3Obj );
         }
         // console.log('KeylessController._getWalletBalances', balances );
         return balances;
     }
 
-    async getWalletBalance( address, returnETH = false, web3Obj = this.web3 ){
+    async getWalletBalance( address, returnETH = false, digits=false, web3Obj = this.web3 ){
         const bal = await web3Obj.eth.getBalance( address, 'latest' );
         if( returnETH ){
             const balance = web3Obj.utils.fromWei( bal.toString(), 'ether' );
-            return balance;
-        }   
+            return digits ? parseFloat(balance).toFixed(digits) : balance;
+        }
         return bal;
     }
 
