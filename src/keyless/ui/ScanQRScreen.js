@@ -2,8 +2,7 @@ import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
 import qrIcon from './../images/qr-code.svg';
 import UIScreen from '../classes/UIScreen';
-
-
+import QRCode from 'qrcode';
 
 class ScanQRScreen extends UIScreen {
 
@@ -12,6 +11,26 @@ class ScanQRScreen extends UIScreen {
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
+
+        this.generateQR();
+    }
+
+    async generateQR(){
+        let url;
+
+        if( this.keyless.kctrl.activeTransaction ){
+            //generate required transaction data
+            const data = JSON.stringify( this.keyless.kctrl.activeTransaction );
+            url = await QRCode.toDataURL( data );
+            this.el.querySelector('.mobile-or__code img').setAttribute('src', url );
+        } else if( this.keyless.kctrl.activeSignRequest ){
+            //generate required sign data
+            const data = JSON.stringify( this.keyless.kctrl.activeSignRequest );
+            url = await QRCode.toDataURL( data );
+            this.el.querySelector('.mobile-or__code img').setAttribute('src', url );
+        } else {
+            this.keyless._hideUI();
+        }
     }
     
 
@@ -32,7 +51,7 @@ class ScanQRScreen extends UIScreen {
         </div>
 
         <div class="mobile-or__code">
-          <img src="${qrIcon}" alt="QR CODE">
+          <img src="" alt="QR CODE">
         </div>
 
     </div>`

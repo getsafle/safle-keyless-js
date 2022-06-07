@@ -358,6 +358,7 @@ class SendScreen extends UIScreen {
             this.gasFees = await this.keyless.kctrl.estimateFees();
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
             // console.log('GAS', gas );
+            console.log( this.gasFees );
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];

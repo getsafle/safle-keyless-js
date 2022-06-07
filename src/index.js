@@ -104,6 +104,8 @@ window.onload = async() => {
             // });
             w3.currentProvider.on('transactionSuccess', ( receipt ) => {
                 console.log('transaction success', receipt );
+                //show toast with transaction success
+                
             });
             w3.currentProvider.on('transactionFailed', ( receipt ) => {
                 console.log('transaction failed', receipt );

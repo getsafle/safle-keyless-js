@@ -7,6 +7,11 @@ import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
 const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 
+const { FeeMarketEIP1559Transaction, Transaction } = require('@ethereumjs/tx');
+const Common = require('@ethereumjs/common').default;
+const { Hardfork } = require('@ethereumjs/common');
+const { bufferToHex }=require('ethereumjs-util');
+
 
 class KeylessController {
     vault = false;
@@ -16,6 +21,7 @@ class KeylessController {
     activeTransaction = null;
     activeSignRequest = null;
     transactionHashes = [];
+    _isMobileVault = false;
 
     constructor( keylessInstance, chains = [] ){
         this.keylessInstance = keylessInstance;
@@ -29,12 +35,25 @@ class KeylessController {
 
     async loadVault(){
         const state = Storage.getState();
+        if( state.hasOwnProperty('isMobile') ){
+            this._isMobileVault = state.isMobile;
+        }
+
         if( state.vault && state.decriptionKey != null ){
             this.vault = new Vault( state.vault );
             //todo - move this to helpers
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
-            this.wallets = ( await this.vault.getAccounts( decKey ) ).response.map( e => { return { address: e.address }} ) || [];
-            console.log( this.wallets );
+            try {
+                const acc = await this.vault.getAccounts( decKey );
+                console.log( acc );
+
+                this.wallets = acc.response.map( e => { return { address: e.address }} ) || [];
+                console.log( this.wallets );
+            } catch( e ){
+                console.log( e );
+            }
+            
+            
 
             if( this.wallets.length == 0 ){
                 //todo - handle empty vault case
@@ -49,6 +68,9 @@ class KeylessController {
     async login( user, pass ){
         this._setLoading( true );
         console.log('login with user '+user+', pass '+pass );
+
+        this._isMobileVault = await this._getIsVaultMobile( user );
+        console.log( this._isMobileVault );
 
         await grecaptcha.execute();
         let captchaToken = grecaptcha.getResponse();
@@ -71,7 +93,8 @@ class KeylessController {
         Storage.saveState( { 
             vault, 
             decriptionKey: safleHelpers.decryptEncryptionKey( user, pass, Object.values( encKey ) ),
-            safleID: user
+            safleID: user,
+            isMobile: this._isMobileVault
         });
         this.keylessInstance._loggedin = true;
 
@@ -113,7 +136,11 @@ class KeylessController {
             address: address
         };
         this.activeSignRequest.promise = new Promise( ( res, rej ) => {
-            this.keylessInstance._showUI('sign');
+            if( this._isMobileVault ){
+                this.keylessInstance._showUI('scanQR');
+            } else {
+                this.keylessInstance._showUI('sign');
+            }
             this.activeSignRequest.resolve = res;
             this.activeSignRequest.reject = rej;
         });
@@ -135,7 +162,12 @@ class KeylessController {
             data: config,
         };
         this.activeTransaction.promise = new Promise( ( res, rej ) => {
-            this.keylessInstance._showUI('send');
+            if( this._isMobileVault ){
+                this.keylessInstance._showUI('scanQR');
+            } else {
+                this.keylessInstance._showUI('send');
+            }
+            
             this.activeTransaction.resolve = res;
             this.activeTransaction.reject = rej;
         });
@@ -272,13 +304,13 @@ class KeylessController {
 
     async estimateFees(){
         let activeChain = await this.keylessInstance.getCurrentChain();
-        const eth_node = blockchainInfo[ activeChain.chainId ].uri;
+        const eth_node = blockchainInfo[ activeChain.chainId ].rpcURL;
 
         try {    
             let response;
             if( eth_node.indexOf('polygon-mumbai') != -1 ){
                 return {
-                    estimatedBaseFee: '0',
+                    estimatedBaseFee: 16,
                     high: {
                         maxWaitTimeEstimate: 10*1000,
                         minWaitTimeEstimate: 5*1000,
@@ -346,7 +378,7 @@ class KeylessController {
             }
             return response;
         } catch( e ){
-            // console.log('error', e );
+            console.log('error', e );
             return null;
         }
     }
@@ -372,13 +404,20 @@ class KeylessController {
         console.log( trans );
         
         const rawTx = await this._createRawTransaction( trans );
+        rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+        rawTx.to = rawTx.to.substr(0, 2)+ rawTx.to.substr(-40).toLowerCase();
         
         const state = Storage.getState();
         const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
         this.vault.restoreKeyringState( state.vault, pin, decKey );
 
-        const signedTx = (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chain.chainId ) )).response;
+        const chainName = chain.chain.rpcURL.indexOf('polygon') != -1? 'polygon' : 'ethereum';
+        // this.vault.changeNetwork( chainName );
 
+        console.log('RAW', rawTx );
+
+        const signedTx = await this._signTransaction( rawTx, pin, chain.chainId );
+        console.log( 'signed', signedTx );
         const tx = this.web3.eth.sendSignedTransaction( signedTx );
         try {
             tx.once('transactionHash', ( hash ) => {
@@ -417,16 +456,112 @@ class KeylessController {
         return false;
     }
 
+    async _signTransaction( rawTx, pin, chainId ){
+        // console.log('TX', rawTx );
+
+        let signedTx, chainName, signed, state, decKey;
+        switch( blockchainInfo[ chainId ].chain_name ){
+            case 'ethereum':
+            case 'polygon':
+                chainName = blockchainInfo[ chainId ].chain_name;
+                this.vault.changeNetwork( chainName );
+
+                state = Storage.getState();
+                decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+
+                rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+
+                console.log('before raw', rawTx );
+
+                signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
+                console.log( signed );
+
+                return signed.response;
+            break;
+
+            case 'mumbai':
+                chainName = blockchainInfo[ chainId ].chain_name == 'mumbai'? 'polygon' : blockchainInfo[ chainId ].chain_name;
+                console.log( 'chn', chainName );
+                this.vault.changeNetwork( chainName );
+
+                state = Storage.getState();
+                decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+                
+                rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+
+                signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
+                console.log( signed )
+
+                return signed.response;
+            break;
+            // case 'mumbai':
+            //     const state = Storage.getState();
+            //     const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+            //     await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+                
+            //     const acc = await this.vault.getAccounts( decKey );
+            //     const addr = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+
+            //     console.log( addr, parseInt( pin ) );
+
+            //     const privateKey = (await this.vault.exportPrivateKey( addr, parseInt( pin ) )).response;
+            //     console.log('pkey', privateKey );
+
+            //     const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
+            //     const common = Common.forCustomChain('goerli', customChainParams );
+            //     const tx = Transaction.fromTxData({ ...rawTx, nonce: rawTx.nonce }, { common })
+            //     const pkey = Buffer.from( privateKey, 'hex');
+
+            //     const signedTransaction = tx.sign( pkey );
+            //     console.log( 'signed', signedTransaction );
+            //     const signedTx = bufferToHex(signedTransaction.serialize());
+            //     return signedTx;
+            // break;
+
+            default: 
+                return (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) )).response;
+            break;
+        }
+        
+        return signedTx;
+    }
+
     async _createRawTransaction( trans ){
         const chain = this.keylessInstance.getCurrentChain();
         const count = await this.web3.eth.getTransactionCount( trans.data.from );
-        // console.log( count );
+        console.log( 'trans d', trans.data );
 
         let config = {};
 
         switch( blockchainInfo[ chain.chainId ].chain_name ){
             case 'ethereum':
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value,
+                    gasLimit: this.web3.utils.numberToHex( trans.data.gasLimit ),
+                    maxFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    maxPriorityFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxPriorityFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count
+                }
+            break;
+
             case 'polygon':
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value,
+                    gasLimit: this.web3.utils.numberToHex( trans.data.gasLimit ),
+                    maxFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    maxPriorityFeePerGas: this.web3.utils.numberToHex( this.web3.utils.toWei( parseFloat( trans.data.maxPriorityFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    nonce: count,
+                    type: '0x2',
+                    chainId: chain.chainId
+                }
+            break;
+
             case 'ropsten':
                 config = {
                     to: trans.data.to,
@@ -441,14 +576,15 @@ class KeylessController {
 
             case 'mumbai':
                 config = {
-                    to: trans.to,
-                    from: trans.from,
-                    value: this.web3.utils.toWei( trans.value.toString(), 'ether'),
-                    gasLimit: this.web3.utils.numberToHex( trans.gasLimit ),
-                    gas: this.web3.utils.toHex( this.web3.utils.toWei( parseFloat( trans.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value.indexOf('0x') != -1? trans.data.value : this.web3.utils.toWei( trans.data.value.toString(), 'ether'),
+                    gasLimit: this.web3.utils.numberToHex( 40000 ),
+                    gasPrice: this.web3.utils.toHex( this.web3.utils.toWei( parseFloat( trans.data.maxFeePerGas ).toFixed(2).toString(), 'gwei') ),
                     nonce: count,
                     chainId: chain.chainId
                 }
+                console.log( 'mumbai trans', config );
             break;
         }
         return config;
@@ -521,6 +657,14 @@ class KeylessController {
                 blockchainInfo[ i ].rpcURL = curr.rpcURL;
             }
         }
+    }
+
+    async _getIsVaultMobile( user ){
+        let res = await fetch(`${process.env.AUTH_URL}/auth/safleid-status/${user}`).then(e=>e.json());
+        if( res.statusCode !== 200 ){
+            return null;
+        }
+        return res.data?.vaultStorage?.mobile == true;
     }
 }
 
