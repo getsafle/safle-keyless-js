@@ -277,6 +277,7 @@ class KeylessController {
 
     async estimateFees(){
         let activeChain = await this.keylessInstance.getCurrentChain();
+        console.log(' AAAA ', blockchainInfo[ activeChain.chainId ] );
         const eth_node = blockchainInfo[ activeChain.chainId ].uri;
 
         try {    
@@ -351,7 +352,7 @@ class KeylessController {
             }
             return response;
         } catch( e ){
-            // console.log('error', e );
+            console.log('error', e );
             return null;
         }
     }
