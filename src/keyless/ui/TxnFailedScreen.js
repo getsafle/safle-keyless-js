@@ -4,7 +4,7 @@ import failedIconImg from './../images/failed-icon.svg';
 import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
 
 
 
