@@ -277,7 +277,7 @@ class KeylessController {
 
     async estimateFees(){
         let activeChain = await this.keylessInstance.getCurrentChain();
-        const eth_node = blockchainInfo[ activeChain.chainId ].uri;
+        const eth_node = blockchainInfo[ activeChain.chainId ].rpcURL;
 
         try {    
             let response;
