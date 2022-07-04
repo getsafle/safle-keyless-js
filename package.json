@@ -36,7 +36,7 @@
     "@getsafle/asset-controller": "^1.0.7",
     "@getsafle/blockchain-controller": "^1.0.2",
     "@getsafle/safle-identity-wallet": "^1.2.2",
-    "@getsafle/safle-vault": "^1.9.2",
+    "@getsafle/safle-vault": "^1.18.3",
     "aes-js": "^3.1.2",
     "assert": "^2.0.0",
     "axios": "^0.26.1",
