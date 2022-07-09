@@ -22,6 +22,7 @@ class KeylessController {
     activeTransaction = null;
     activeSignRequest = null;
     transactionHashes = [];
+    tokenData = {};
     _isMobileVault = false;
 
     constructor( keylessInstance, chains = [] ){
@@ -39,6 +40,8 @@ class KeylessController {
         const nodeURI = this.getNodeURI(this.activeChain?.chainId);
         
         this.web3 = new Web3( new Web3.providers.HttpProvider( nodeURI ));
+
+        this.loadTokenData();
     }
 
     async loadVault(){
@@ -294,8 +297,10 @@ class KeylessController {
 
     async getCurrentNativeToken(){
         let activeChain = await this.keylessInstance.getCurrentChain();
+        console.log('ACTIVE CHAIN', activeChain );
         return activeChain.chain.symbol.toLowerCase();
     }
+    
 
     getFeeInEth( number ){
         return this.web3.utils.fromWei( this.web3.utils.toWei( number.toString(), 'gwei').toString(), 'ether');
@@ -424,10 +429,12 @@ class KeylessController {
 
         console.log('RAW', rawTx );
 
-        const signedTx = await this._signTransaction( rawTx, pin, chain.chainId );
-        console.log( 'signed', signedTx );
-        const tx = this.web3.eth.sendSignedTransaction( signedTx );
         try {
+            const signedTx = await this._signTransaction( rawTx, pin, chain.chainId );
+            console.log( 'signed', signedTx );
+
+            const tx = this.web3.eth.sendSignedTransaction( signedTx );
+        
             tx.once('transactionHash', ( hash ) => {
                 console.log( 'txn hash', hash );
                 this.transactionHashes.push( hash );
@@ -435,30 +442,38 @@ class KeylessController {
 
             }).once('receipt', ( err, txnReceipt ) => {
                 console.log('receipt', receipt );
-                this.keylessInstance.provider.emit('transactionComplete', { receipt } );
                 if( txnReceipt.status == 1 ){
-                    this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
+                    this.keylessInstance.provider.emit('transactionSuccess', { receipt: txnReceipt } );
                 } else {
                     this.keylessInstance._showUI('txnFailed'); 
-                    this.keylessInstance.provider.emit('transactionFailed', { receipt } );
+                    this.keylessInstance.provider.emit('transactionFailed', { receipt: txnReceipt } );
                 }
             }).on('confirmation', ( confNr, receipt ) => {
                 console.log('confirmations', confNr );
                 console.log('receipt', receipt );
-            }).once('error', ( e, receipt ) => {
+                this.keylessInstance.provider.emit('transactionComplete', { receipt: txnReceipt } );
+            })/*.once('error', ( e, receipt ) => {
                 // console.log('errror', e );
                 console.log('txn', receipt );
                 this.keylessInstance.provider.emit('transactionFailed', { receipt } );
 
                 this.keylessInstance._showUI('txnFailed');                 
-            })
+            })*/
             .then( receipt => {
                 console.log('receipt', receipt );
                // this.keyless._showUI('txnSuccess');
                this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
-            }).catch( err => { console.log('uncaught', err ) });
+            }).catch( err => { 
+                console.log('uncaught', err )
+                Storage.saveState( { lastError: err.message } );
+                this.keylessInstance._showUI('txnFailed');
+                this.keylessInstance.provider.emit('transactionFailed', { receipt: err.message });
+            });
         } catch ( e ){
-            console.log('Error avoided'); 
+            Storage.saveState( { lastError: e.message } );
+            this.keylessInstance._showUI('txnFailed');
+
+            console.log('Error avoided', e ); 
         }
 
         return false;
@@ -639,14 +654,15 @@ class KeylessController {
             const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
             console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
 
-            const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
-            await this.vault.restoreKeyringState( state.vault, pin, decKey );
-            console.log( this.vault.decryptedVault );
-            
-            const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
-            // console.log(acc);
-            
             try {
+                const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( state.vault, pin, decKey );
+                console.log( this.vault.decryptedVault );
+                
+                const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
+                // console.log(acc);
+            
+            
                 const trans = await this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
                 if( trans.hasOwnProperty('error') ){
                     this.activeSignRequest.reject( {
@@ -721,6 +737,24 @@ class KeylessController {
             return null;
         }
         return res.data?.vaultStorage?.mobile == true;
+    }
+
+    async loadTokenData() {
+        const tokenData = await fetch('https://raw.githubusercontent.com/getsafle/multichain-data/main/assets.json').then( e => e.json() );
+        this.tokenData = tokenData;
+    }
+
+    getTokenIcon( token ){
+        const addr = token.tokenAddress;
+        const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
+        // console.log('tokendata', this.tokenData );
+
+        if( Object.values( this.tokenData ).length == 0 ){
+            return null;
+        }
+
+        const found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : null;
+        return found;
     }
 }
 

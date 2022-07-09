@@ -54,12 +54,14 @@ class DashboardScreen extends UIScreen {
         this.activeBalanceEl.value = this.activeWalletBalance || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
-        this.keyless.kctrl.getTokens().then( tokensData => {
+        await this.keyless.kctrl.getTokens().then( tokensData => {
             console.log( 'tokens', tokensData );
-            if (!tokensData.error && tokensData.length) {
-                tokensData.forEach( ({symbol, balance, decimal}) => {
-                    console.log( 'this?', this._renderTokenEl );
-                    tokenHtmlList += this._renderTokenEl(symbol, balance, decimal);
+            if (!tokensData.hasOwnProperty('error') && tokensData.length ) {
+                tokensData.forEach( ( token ) => {
+                    const {symbol, balance, decimal} = token;
+                    // console.log( 'this?', this._renderTokenEl );
+                    const tokenIcon = this.keyless.kctrl.getTokenIcon( token );
+                    tokenHtmlList += this._renderTokenEl(symbol, balance, decimal, tokenIcon );
                 })
             } else {
                 tokenHtmlList = (`<div class="message">No tokens available on this wallet.</div>`);
@@ -73,7 +75,9 @@ class DashboardScreen extends UIScreen {
         this.setHTML('#active-balance', this.activeWalletBalance || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
-        this.setHTML('#token-list', tokenHtmlList);
+
+        console.log( 'token cont', tokenHtmlList );
+        this.setHTML('#token-list', tokenHtmlList );
 
         this.keyless.kctrl._setLoading(false);
     }
@@ -121,12 +125,12 @@ class DashboardScreen extends UIScreen {
         await this.populateData();
     }
 
-    _renderTokenEl(symbol, balance, decimal) {
+    _renderTokenEl(symbol, balance, decimal, icon = null ) {
         const tokenBalance = balance / Number('1e'+decimal); // calculate 
         return (`
         <div>
             <div>
-                <img src="${tokenIcon}" alt="Network Icon">
+                <img src="${ icon || tokenIcon}" alt="Network Icon">
                 <h3 class='token_prefix'>${symbol}</h3>
             </div>
             <div>

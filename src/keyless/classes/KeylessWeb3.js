@@ -153,7 +153,9 @@ class KeylessWeb3 {
    
     getCurrentChain(){
         const chain =  this._activeChain? this.allowedChains.find( e => e.chainId == this._activeChain ) : this.allowedChains[ 0 ];
-        console.log('....getCurrentChain: ', this._activeChain, this.allowedChains, chain);
+        console.log('....getCurrentChain: ', this._activeChain)
+        console.log('allowedChains', this.allowedChains )
+        console.log('activechain', chain);
         return {
             chainId: chain.chainId,
             chain
@@ -163,6 +165,11 @@ class KeylessWeb3 {
         const currChain = this.getCurrentChain();
         // console.log( 'getnativetoken', currChain );
         return currChain.chain.symbol;
+    }
+    async getNativeTokenFor( chainId ){
+        let activeChain = this.allowedChains.find( e => e.chainId == chainId );
+        console.log('CHAIN', activeChain );
+        return activeChain.symbol.toLowerCase();
     }
 
 

@@ -52,7 +52,9 @@ class SwitchChainScreen extends UIScreen {
             this.dropdown2.setLoading( false );
             this.keyless.kctrl._setLoading( false );
             // this.dropdown2.setOptions( addreses );
-            this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
+            // console.log('PLM', this.keyless.getCurrentNativeToken() );
+            const nativeToken = await this.keyless.getNativeTokenFor( option.chainId );
+            this.dropdown2.update( addreses, nativeToken.toUpperCase(), this.chosenAddress );
         });
 
         this.dropdown2.onChange( ( wid, wallet ) => {
@@ -62,6 +64,8 @@ class SwitchChainScreen extends UIScreen {
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
             this.keyless._hideUI();
+            console.log('CURR', this.currentChain );
+
             this.keyless.switchNetwork( this.currentChain );
             this.keyless.switchWallet( this.activeWallet );
 

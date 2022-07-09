@@ -43,7 +43,8 @@ class PinScreen extends UIScreen {
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
             console.log('copied to clipboard');
-            // copyToClipboard('0x1deaA720C9Be705D47CB05B30E549CC9b0E5128D');
+            const address = this.getAddress();
+            copyToClipboard( address );
         });
 
         this.el.querySelector('.cancel_btn').addEventListener('click', (e) => {
@@ -104,11 +105,16 @@ class PinScreen extends UIScreen {
         }
     }
     populateAddress(){
+        const address = this.getAddress();
+        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( address, 4 );
+    }
+
+    getAddress(){
         let address = this.keyless.kctrl.activeTransaction? this.keyless.kctrl.activeTransaction.data.from : null;
         if( !address ){
             address = this.keyless.kctrl.activeSignRequest.address;
         }
-        this.el.querySelector('.copy-address h3').innerHTML = middleEllipsisMax( address, 4 );
+        return address;
     }
 
     pinHandlers(){

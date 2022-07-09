@@ -4,8 +4,9 @@ import failedIconImg from './../images/failed-icon.svg';
 import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
+import ConnectedStatus from './components/ConnectedStatus';
 import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
-
+import Storage from '../classes/Storage';
 
 
 class TxnFailedScreen extends UIScreen {
@@ -46,17 +47,33 @@ class TxnFailedScreen extends UIScreen {
             e.preventDefault();
             console.log('open external safle link');
         });
-
-
+        const state = Storage.getState();
+        if( state.lastError ){
+            this.isError = state.lastError;
+        }
         this.populateData();        
     }
 
     populateData(){
-        this.lastHash = this.keyless.kctrl.transactionHashes.pop();
-        const explorer = this.keyless.kctrl.getActiveChainExplorer();
+        if( this.isError ){
+            this.el.querySelector('.etherscan_link').style.display = 'none';
+            this.el.querySelector('.copy-address').style.display = 'none';
+            const h4 =this.el.querySelector('.txn__body h4');
+            h4.innerHTML = this.isError;
+            h4.style.minHeight = '130px';
+            h4.style.color = '#f63032';
 
-        this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
-        this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
+
+        } else {
+            this.lastHash = this.keyless.kctrl.transactionHashes.pop();
+            const explorer = this.keyless.kctrl.getActiveChainExplorer();
+    
+            this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
+            this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
+        }
+        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        const connectionEl = this.el.querySelector('#connection-status');
+        const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }
 
     render(){
@@ -65,17 +82,7 @@ class TxnFailedScreen extends UIScreen {
 
         <img class="close" src="${closeImg}" alt="Close Icon">
         
-        <!-- <div class="connected">Connected</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            app.uniswap.org
-        </div> -->
-
-        <div class="disconnected">Not Connected</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            Not Connected to any dApp
-        </div>
+        <div id="connection-status"></div>
 
         <a class="logo" href="#">
             <img src="${logoImg}" alt="Safle Logo">
