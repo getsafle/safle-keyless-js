@@ -4,6 +4,7 @@ import successIconImg from './../images/success-icon.svg';
 import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
+import ConnectedStatus from './components/ConnectedStatus';
 import {copyToClipboard, middleEllipsisMax } from '../helpers/helpers';
 
 
@@ -54,6 +55,10 @@ class TxnSuccessScreen extends UIScreen {
 
         this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
         this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
+
+        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        const connectionEl = this.el.querySelector('#connection-status');
+        const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }
 
     render(){
@@ -62,17 +67,7 @@ class TxnSuccessScreen extends UIScreen {
 
         <img class="close" src="${closeImg}" alt="Close Icon">
         
-        <div class="connected">Connected</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            app.uniswap.org
-        </div>
-
-        <!-- <div class="disconnected">Not Connected</div>
-        <div class="hover-info--1">
-            <div class="hover-info--1__triangle"></div>
-            Not Connected to any dApp
-        </div> -->
+        <div id="connection-status"></div>
 
         <a class="logo" href="#">
             <img src="${logoImg}" alt="Safle Logo">

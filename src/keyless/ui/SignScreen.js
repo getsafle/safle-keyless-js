@@ -84,8 +84,8 @@ class SignScreen extends UIScreen {
             // Show reject confirmation modal
             return new ConfirmationDialog(
                 this.el, 
-                `Are you sure you want to reject this transaction?`, 
-                `Accept`, 
+                `Are you sure you want to reject this request?`, 
+                `Yes`, 
                 this.rejectConfirmCallback
             );
         });

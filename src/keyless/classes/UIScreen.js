@@ -25,6 +25,7 @@ class UIScreen {
     // @htmlContent => string / html content
     setHTML (query, htmlContent) {
         const el = this.el.querySelector(query);
+        // console.log('QUERY', el );
         if (el && htmlContent) {
             el.innerHTML = htmlContent;
         }

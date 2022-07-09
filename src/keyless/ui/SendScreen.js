@@ -212,7 +212,7 @@ class SendScreen extends UIScreen {
             return new ConfirmationDialog(
                 this.el, 
                 `Are you sure you want to reject this transaction?`, 
-                `Accept`, 
+                `Yes`, 
                 this.rejectConfirmCallback
             );
         });
@@ -441,6 +441,11 @@ class SendScreen extends UIScreen {
         console.log( trans );
         const amt = trans.data.value;
         this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        
+        // if( this.amt > this.balance ){
+        //     this.setProceedActive( false );
+        // }
+
         this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
         
         console.log('populate amount ');
@@ -489,7 +494,7 @@ class SendScreen extends UIScreen {
         console.log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
 
         if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
-           this.setProceedActive( true );
+           this.setProceedActive( false );
         } else {
             this.setProceedActive( true );
         }
