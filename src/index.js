@@ -126,7 +126,7 @@ window.onload = async() => {
 
             if( isUserLoggedIn ) {
                 await w3.eth.personal.getAccounts().then( async ( addreses ) => {
-                    let activeAddress
+                    // let activeAddress
 
                     if (Array.isArray( addreses ) && addreses.length > 0) {
                         activeAddress = addreses.shift();
