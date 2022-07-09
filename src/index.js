@@ -137,7 +137,7 @@ window.onload = async() => {
 
             if( isUserLoggedIn ) {
                 await w3.eth.personal.getAccounts().then( async ( addreses ) => {
-                    let activeAddress
+                    // let activeAddress
 
                     if (Array.isArray( addreses ) && addreses.length > 0) {
                         activeAddress = addreses.shift();
@@ -178,7 +178,7 @@ window.onload = async() => {
             const transaction = {
                 'from': activeAddress,
                 'to': toAddress, // faucet address to return eth
-                'value': w3.utils.toWei( '0.001', 'ether'),
+                'value': w3.utils.toWei( '0.00001', 'ether'),
                 'gas': 30000,
                 // 'maxFeePerGas': 1000000108,
                 'nonce': nonce,

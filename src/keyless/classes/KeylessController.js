@@ -467,16 +467,18 @@ class KeylessController {
     async _signTransaction( rawTx, pin, chainId ){
         // console.log('TX', rawTx );
 
-        let signedTx, chainName, signed, state, decKey;
+        let signedTx, chainName, signed, decKey;
+        let state = {};
         switch( blockchainInfo[ chainId ].chain_name ){
             case 'ethereum':
-            case 'polygon':
+            // case 'polygon':
                 chainName = blockchainInfo[ chainId ].chain_name;
                 this.vault.changeNetwork( chainName );
 
-                state = Storage.getState();
-                decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
-                await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+                const mstate = Storage.getState();
+
+                const mdecKey = mstate.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( mstate.vault, parseInt( pin ), mdecKey );
 
                 rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
@@ -488,47 +490,75 @@ class KeylessController {
                 return signed.response;
             break;
 
-            case 'mumbai':
-                chainName = blockchainInfo[ chainId ].chain_name == 'mumbai'? 'polygon' : blockchainInfo[ chainId ].chain_name;
-                console.log( 'chn', chainName );
-                this.vault.changeNetwork( chainName );
+            case 'polygon':
+                console.log("IN POLYGON FLOW");
+                const someState = Storage.getState();
 
-                state = Storage.getState();
-                decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
-                await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+                chainName = blockchainInfo[ chainId ].chain_name;
+                this.vault.changeNetwork( chainName );
                 
+                console.log( someState );
+
+                const pdecKey = someState.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( someState.vault, parseInt( pin ), pdecKey );
+
                 rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
+                console.log('before raw', rawTx );
+
                 signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
-                console.log( signed )
+                console.log( signed );
 
                 return signed.response;
+                return {};
             break;
+
+
             // case 'mumbai':
-            //     const state = Storage.getState();
-            //     const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+            //     chainName = blockchainInfo[ chainId ].chain_name == 'mumbai'? 'polygon' : blockchainInfo[ chainId ].chain_name;
+            //     console.log( 'chn', chainName );
+            //     this.vault.changeNetwork( chainName );
+
+            //     state = Storage.getState();
+            //     decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             //     await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
                 
-            //     const acc = await this.vault.getAccounts( decKey );
-            //     const addr = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+            //     rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
-            //     console.log( addr, parseInt( pin ) );
+            //     signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
+            //     console.log( signed )
 
-            //     const privateKey = (await this.vault.exportPrivateKey( addr, parseInt( pin ) )).response;
-            //     console.log('pkey', privateKey );
-
-            //     const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
-            //     const common = Common.forCustomChain('goerli', customChainParams );
-            //     const tx = Transaction.fromTxData({ ...rawTx, nonce: rawTx.nonce }, { common })
-            //     const pkey = Buffer.from( privateKey, 'hex');
-
-            //     const signedTransaction = tx.sign( pkey );
-            //     console.log( 'signed', signedTransaction );
-            //     const signedTx = bufferToHex(signedTransaction.serialize());
-            //     return signedTx;
+            //     return signed.response;
             // break;
+            case 'mumbai':
+                const state = Storage.getState();
+                const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( state.vault, parseInt( pin ), decKey );
+                
+                const acc = await this.vault.getAccounts( decKey );
+                const addr = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
+
+                console.log( addr, parseInt( pin ) );
+
+                const privateKey = (await this.vault.exportPrivateKey( addr, parseInt( pin ) )).response;
+                console.log('pkey', privateKey );
+
+                const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
+                const common = Common.forCustomChain('goerli', customChainParams );
+                const tx = Transaction.fromTxData({ ...rawTx, nonce: rawTx.nonce }, { common })
+                const pkey = Buffer.from( privateKey, 'hex');
+
+                const signedTransaction = tx.sign( pkey );
+                console.log( 'signed', signedTransaction );
+                const signedTx = bufferToHex(signedTransaction.serialize());
+                return signedTx;
+            break;
 
             default: 
+                const dstate = Storage.getState();
+                const ddecKey = dstate.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
+                await this.vault.restoreKeyringState( dstate.vault, parseInt( pin ), ddecKey );
+
                 return (await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) )).response;
             break;
         }
@@ -610,19 +640,37 @@ class KeylessController {
             console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
 
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
-            this.vault.restoreKeyringState( state.vault, pin, decKey );
+            await this.vault.restoreKeyringState( state.vault, pin, decKey );
             console.log( this.vault.decryptedVault );
             
             const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
-            console.log(acc);
-
+            // console.log(acc);
             
+            try {
+                const trans = await this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
+                if( trans.hasOwnProperty('error') ){
+                    this.activeSignRequest.reject( {
+                        message: trans.error,
+                        code: 4200,
+                        method: 'Sign Message'
+                    } );
+                } else {
+                    this.activeSignRequest.resolve( trans.response );
+                }
+                this.keylessInstance._hideUI();
+                console.log( trans );
 
-            //const trans = this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
-
-            // console.log( trans );
-
-            return {};
+                return trans?.response;
+            } catch( e ){
+                this.activeSignRequest.reject( {
+                    message: e,
+                    code: 4200,
+                    method: 'Sign Message'
+                } );
+                this.keylessInstance._hideUI();
+                return false;
+            }
+            
         }
     }
 
@@ -653,7 +701,7 @@ class KeylessController {
 
     _setLoading( flag ){
         const inst = this.keylessInstance._activeScreen;
-        if( inst.hasOwnProperty('el') ){
+        if( inst && inst.hasOwnProperty('el') ){
             flag? inst.el.classList.add('loading') : inst.el.classList.remove('loading')
         }
     }
