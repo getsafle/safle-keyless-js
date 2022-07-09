@@ -4,7 +4,7 @@ import failedIconImg from './../images/failed-icon.svg';
 import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
 
 
 
@@ -30,7 +30,9 @@ class TxnFailedScreen extends UIScreen {
 
         this.el.querySelector('.txn-failed-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('txn failed continue');
+            // console.log('txn failed continue');
+            this.keyless._hideUI();
+            
         });
 
         this.el.querySelector('.logo').addEventListener('click', (e) => {

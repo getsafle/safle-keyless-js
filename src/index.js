@@ -28,6 +28,15 @@ window.onload = async() => {
     console.log('Chosen blockchains', chosenBlockchains );
     const env = process.env.ENV;
 
+    const rpcUrls = {
+        1: 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY,
+        3: 'https://ropsten.infura.io/v3/' + process.env.INFURA_KEY,
+        137: 'https://polygon-mainnet.infura.io/v3/' + process.env.INFURA_KEY,
+        80001: 'https://polygon-mumbai.infura.io/v3/' + process.env.INFURA_KEY
+    }
+    for( var i in chosenBlockchains ){
+        chosenBlockchains[ i ]['rpcURL'] = rpcUrls[ chosenBlockchains[i].chainId ];
+    }
 
     try { 
         // initialize keyless with the supported chains and networks in an array objects
@@ -96,6 +105,8 @@ window.onload = async() => {
             // });
             w3.currentProvider.on('transactionSuccess', ( receipt ) => {
                 console.log('transaction success', receipt );
+                //show toast with transaction success
+                
             });
             w3.currentProvider.on('transactionFailed', ( receipt ) => {
                 console.log('transaction failed', receipt );
@@ -167,7 +178,7 @@ window.onload = async() => {
             const transaction = {
                 'from': activeAddress,
                 'to': toAddress, // faucet address to return eth
-                'value': w3.utils.toWei( '0.001', 'ether'),
+                'value': w3.utils.toWei( '0.00001', 'ether'),
                 'gas': 30000,
                 // 'maxFeePerGas': 1000000108,
                 'nonce': nonce,

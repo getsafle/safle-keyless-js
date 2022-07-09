@@ -57,7 +57,8 @@ class DashboardScreen extends UIScreen {
         this.keyless.kctrl.getTokens().then( tokensData => {
             console.log( 'tokens', tokensData );
             if (!tokensData.error && tokensData.length) {
-                tokensData.forEach(({symbol, balance, decimal}) => {
+                tokensData.forEach( ({symbol, balance, decimal}) => {
+                    console.log( 'this?', this._renderTokenEl );
                     tokenHtmlList += this._renderTokenEl(symbol, balance, decimal);
                 })
             } else {
@@ -78,8 +79,7 @@ class DashboardScreen extends UIScreen {
     }
 
     async onShow() {
-        // on show > first retrieve data
-        await this.populateData();
+       
         
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
@@ -117,9 +117,11 @@ class DashboardScreen extends UIScreen {
             // this.keyless.selectChain();
         });
         
+        // on show > first retrieve data
+        await this.populateData();
     }
 
-    _renderTokenEL (symbol, balance, decimal) {
+    _renderTokenEl(symbol, balance, decimal) {
         const tokenBalance = balance / Number('1e'+decimal); // calculate 
         return (`
         <div>

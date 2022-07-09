@@ -51,7 +51,7 @@ class SignScreen extends UIScreen {
         clearInterval( this.feeTm );
 
         this.keyless.kctrl.activeSignRequest.reject( {
-            message: 'User rejected the transaction',
+            message: 'User rejected the request',
             code: 4200,
             method: 'User rejected'
         });
@@ -67,7 +67,7 @@ class SignScreen extends UIScreen {
             e.preventDefault();
             return new ConfirmationDialog(
                 this.el, 
-                `Are you sure you want to reject this transaction?`, 
+                `Are you sure you want to reject this request?`, 
                 `Accept`, 
                 this.rejectConfirmCallback
             );

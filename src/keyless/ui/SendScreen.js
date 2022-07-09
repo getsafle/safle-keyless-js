@@ -359,6 +359,7 @@ class SendScreen extends UIScreen {
             this.gasFees = await this.keyless.kctrl.estimateFees();
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
             // console.log('GAS', gas );
+            console.log( this.gasFees );
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];
@@ -456,11 +457,13 @@ class SendScreen extends UIScreen {
 
     setFeesLoading( flag ){
         if( flag ){
+            console.log('loading true');
             this.el.classList.add('fee_loading');
-            // this.setProceedActive( false );
+            this.checkCanProceed();
         } else {
+            console.log('loading stopped');
             this.el.classList.remove('fee_loading');
-            // this.setProceedActive( true );
+            this.checkCanProceed();
         }
     }
     setProceedActive( flag ){
