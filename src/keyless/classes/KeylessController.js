@@ -703,6 +703,10 @@ class KeylessController {
         }
     }
 
+    clearActiveTransaction(){
+        this.activeTransaction = null;
+        this.activeSignRequest = null;
+    }
 
 
 

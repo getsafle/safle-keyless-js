@@ -11,9 +11,13 @@ import {copyToClipboard, middleEllipsisMax } from '../helpers/helpers';
 class TxnSuccessScreen extends UIScreen {
     lastHash = '';
 
+    clearTransaction(){
+        this.keyless.kctrl.clearActiveTransaction();
+    }
     onShow(){
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
+            this.clearTransaction();
             this.keyless._hideUI();
         });
 
@@ -30,6 +34,7 @@ class TxnSuccessScreen extends UIScreen {
 
         this.el.querySelector('.txn-success-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
+            this.clearTransaction();
             // console.log('txn success continue');
             this.keyless._hideUI();
         });
