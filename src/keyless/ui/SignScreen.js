@@ -16,7 +16,7 @@ class SignScreen extends UIScreen {
     activeWalletUSDBalance = 0; // number
     
 
-    // Retrive sign transaction data for UI
+    // Retrive sign message data for UI
     async populateData() {
         this.keyless.kctrl._setLoading(true);
 
@@ -91,6 +91,7 @@ class SignScreen extends UIScreen {
         });
         this.el.querySelector('.confirm_btn').addEventListener('click', ( e ) => {
             e.preventDefault();
+            e.target.disabled = true;
             this.keyless._showUI('pin');
         });
 
@@ -113,7 +114,7 @@ class SignScreen extends UIScreen {
                 <a class="logo" href="#">
                     <img src="${logoImg}" alt="Safle Logo">
                 </a>
-                <h3 class="header_title">Sign Transaction</h3>
+                <h3 class="header_title">Sign Message</h3>
             </div>    
             
             <div class="dashboard__body">
