@@ -36,6 +36,7 @@ class PinScreen extends UIScreen {
         this.input = this.el.querySelector('.pin-codes input');
         this.error = this.el.querySelector('.error-boundary');
         this.input.value = '';
+        this.input.focus();
         this.el.querySelector('.input-areas').innerHTML = new Array(6).fill('').map( e => '<div class="input-cell"></div>').join('') ;
         this.pinHandlers();
 

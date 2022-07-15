@@ -104,7 +104,7 @@ class TxnFailedScreen extends UIScreen {
                 <h3><span>Txn#:</span></h3>
                 <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
             </div>
-            <button class="btn__tp--1 txn-failed-ok-btn">Click Ok to Continue</button>
+            <button class="btn__tp--1 txn-failed-ok-btn">GO TO DASHBOARD</button>
             <div class="powered-by">
                 <h4>powered by</h4>
                 <a href="#" class="safle_link" ><img src="${logoImg}" alt="Safle Logo"></a>

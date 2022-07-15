@@ -202,6 +202,7 @@ class SendScreen extends UIScreen {
 
             this.keyless._showUI('pin');
 
+            e.target.disabled = true;
             e.preventDefault();
             console.log('clicked confirm_btn');
         }); 

@@ -24,6 +24,7 @@ class TxnSuccessScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
+            e.target.disabled = true;
             console.log('copied to clipboard');
             copyToClipboard( this.lastHash );
         });
@@ -34,6 +35,7 @@ class TxnSuccessScreen extends UIScreen {
 
         this.el.querySelector('.txn-success-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
+            e.target.disabled = true;
             this.clearTransaction();
             // console.log('txn success continue');
             this.keyless._hideUI();
@@ -94,7 +96,7 @@ class TxnSuccessScreen extends UIScreen {
                 <h3><span>Txn#:</span></h3>
                 <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
             </div>
-            <button class="btn__tp--1 txn-success-ok-btn">Click Ok to Continue</button>
+            <button class="btn__tp--1 txn-success-ok-btn">GO TO DASHBOARD</button>
             <div class="powered-by">
                 <h4>powered by</h4>
                 <a href="#" class="safle_link" ><img src="${logoImg}" alt="Safle Logo"></a>

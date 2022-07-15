@@ -152,7 +152,9 @@ class KeylessWeb3 {
     }
    
     getCurrentChain(){
-        const chain =  this._activeChain? this.allowedChains.find( e => e.chainId == this._activeChain ) : this.allowedChains[ 0 ];
+        const storage = Storage.getState();
+        this._activeChain =  this._activeChain || storage.chainId || 1;
+        const chain =  this.allowedChains.find( e => e.chainId == this._activeChain );
         console.log('....getCurrentChain: ', this._activeChain)
         console.log('allowedChains', this.allowedChains )
         console.log('activechain', chain);
