@@ -1,21 +1,21 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
 import networkImg from './../images/network-icon.svg';
-import network2 from './../images/network-2.svg'
-import network3 from './../images/network-3.svg'
-import network4 from './../images/network-4.svg'
-import network5 from './../images/network-5.svg'
-import network6 from './../images/network-6.svg'
+// import network2 from './../images/network-2.svg'
+// import network3 from './../images/network-3.svg'
+// import network4 from './../images/network-4.svg'
+// import network5 from './../images/network-5.svg'
+// import network6 from './../images/network-6.svg'
 import tokenIcon from './../images/token-icon.webp'
-import user2 from './../images/user-2.webp'
-import user3 from './../images/user-3.webp'
-import user4 from './../images/user-4.webp'
+// import user2 from './../images/user-2.webp'
+// import user3 from './../images/user-3.webp'
+// import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis} from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, kl_log } from '../helpers/helpers';
 import blockchainInfo from '../helpers/blockchains';
 import ConnectedStatus from './components/ConnectedStatus';
 
@@ -55,11 +55,11 @@ class DashboardScreen extends UIScreen {
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
         await this.keyless.kctrl.getTokens().then( tokensData => {
-            console.log( 'tokens', tokensData );
+            kl_log( 'tokens', tokensData );
             if (!tokensData.hasOwnProperty('error') && tokensData.length ) {
                 tokensData.forEach( ( token ) => {
                     const {symbol, balance, decimal} = token;
-                    // console.log( 'this?', this._renderTokenEl );
+                    // kl_log( 'this?', this._renderTokenEl );
                     const tokenIcon = this.keyless.kctrl.getTokenIcon( token );
                     tokenHtmlList += this._renderTokenEl(symbol, balance, decimal, tokenIcon );
                 })
@@ -76,7 +76,7 @@ class DashboardScreen extends UIScreen {
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
 
-        // console.log( 'token cont', tokenHtmlList );
+        // kl_log( 'token cont', tokenHtmlList );
         this.setHTML('#token-list', tokenHtmlList );
 
         this.keyless.kctrl._setLoading(false);
@@ -92,14 +92,14 @@ class DashboardScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('copied to clipboard... ', this.activeWalletAddress);
+            kl_log('copied to clipboard... ', this.activeWalletAddress);
             copyToClipboard(this.activeWalletAddress);
         });
 
         // select network
         this.el.querySelector('.dashboard__network').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('change network');
+            kl_log('change network');
             // this.keyless._hideUI();
             this.keyless.selectChain();
         });
@@ -108,7 +108,7 @@ class DashboardScreen extends UIScreen {
         // select address / change
         this.el.querySelector('.change_wallet').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('change address');
+            kl_log('change address');
             // this.keyless._hideUI();
             this.keyless.selectChain();
         });
@@ -116,7 +116,7 @@ class DashboardScreen extends UIScreen {
         // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('open wallet');
+            kl_log('open wallet');
             // this.keyless._hideUI();
             // this.keyless.selectChain();
         });

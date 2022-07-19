@@ -5,7 +5,7 @@ import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
 import ConnectedStatus from './components/ConnectedStatus';
-import {copyToClipboard, middleEllipsisMax } from '../helpers/helpers';
+import { copyToClipboard, middleEllipsisMax, kl_log } from '../helpers/helpers';
 
 
 class TxnSuccessScreen extends UIScreen {
@@ -26,32 +26,32 @@ class TxnSuccessScreen extends UIScreen {
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
             e.target.disabled = true;
-            console.log('copied to clipboard');
+            kl_log('copied to clipboard');
             copyToClipboard( this.lastHash );
         });
         // this.el.querySelector('.etherscan_link').addEventListener('click', (e) => {
         //     e.preventDefault();
-        //     console.log('etherscan check');
+        //     kl_log('etherscan check');
         // });
 
         this.el.querySelector('.txn-success-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
             e.target.disabled = true;
             this.clearTransaction();
-            // console.log('txn success continue');
+            // kl_log('txn success continue');
             this.keyless._hideUI();
         });
 
         this.el.querySelector('.logo').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('logo click');
+            kl_log('logo click');
         });
         
        
         // open wallet 
         this.el.querySelector('.safle_link').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('open external safle link');
+            kl_log('open external safle link');
         });
 
         this.populateData();
@@ -72,7 +72,7 @@ class TxnSuccessScreen extends UIScreen {
     }
 
     render(){
-        console.log( 'this', this.explorerName );
+        kl_log( 'this', this.explorerName );
 
         return `<div class="txn">
 

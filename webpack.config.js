@@ -115,9 +115,9 @@ module.exports = [
     ],
     module: {
       rules: [
-        {
-          sideEffects: false
-        },
+        // {
+        //   sideEffects: false
+        // },
         {
           test: /\.s[ac]ss$/i,
           use: [

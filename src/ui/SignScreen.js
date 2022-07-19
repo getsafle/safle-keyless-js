@@ -5,7 +5,7 @@ import popoutImg from './../images/pop-out.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, maxChars } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, maxChars, kl_log } from '../helpers/helpers';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 
@@ -75,7 +75,7 @@ class SignScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('copied to clipboard... ', this.activeWalletAddress);
+            kl_log('copied to clipboard... ', this.activeWalletAddress);
             copyToClipboard(this.activeWalletAddress);
         });
 
@@ -98,7 +98,7 @@ class SignScreen extends UIScreen {
         // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('open wallet');
+            kl_log('open wallet');
         });
         
     }

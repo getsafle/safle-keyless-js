@@ -1,14 +1,15 @@
 import cryptoRandomString from 'get-random-values';
-import axios from 'axios';
+// import axios from 'axios';
 import crypto from 'crypto-browserify';
 import aes from 'aes-js';
 import APIS from '../helpers/apis';
-import Vault from '@getsafle/safle-vault';
+// import Vault from '@getsafle/safle-vault';
+import { kl_log } from './../helpers/helpers';
 const ethers = require('ethers');
 const KDFiterations = 10000;
 
 export const login = async ( safleID, password, token ) => {
-    // console.log( safleID, password );
+    // kl_log( safleID, password );
 
     let passwordDerivedKey = await generatePDKey({safleID, password});
     const pdkeyHash = await createPDKeyHash({ passwordDerivedKey });
@@ -62,7 +63,7 @@ export async function generateEncryptionKey() {
 // Method to generate pdkey
 export async function generatePDKey({ safleID, password }) {
     const passwordDerivedKey = crypto.pbkdf2Sync(password, safleID, 10000, 32, 'sha512');
-    // //console.log('DERIVED KEY', passwordDerivedKey.toString('hex') );
+    // //kl_log('DERIVED KEY', passwordDerivedKey.toString('hex') );
  
     const passwordDerivedKeyHash = crypto.createHash('sha256');
     passwordDerivedKeyHash.update( passwordDerivedKey, 'utf8' );
@@ -76,7 +77,7 @@ export async function encryptEncryptionKey({ passwordDerivedKey, encryptionKey }
     // const passBytes = aes.utils.hex.toBytes( passwordDerivedKey );
     const aesCBC = new aes.ModeOfOperation.cbc( Buffer.from( passwordDerivedKey ) );
     const encryptedEncryptionKey = aesCBC.encrypt( Object.values( encryptionKey ) );
-    //console.log("Encrypted Encryption Key : ", encryptedEncryptionKey);
+    //kl_log("Encrypted Encryption Key : ", encryptedEncryptionKey);
     return encryptedEncryptionKey
 }
 
@@ -85,7 +86,7 @@ export async function createPDKeyHash({ passwordDerivedKey }) {
     const passwordDerivedKeyHash = crypto.createHash('sha512');
     passwordDerivedKeyHash.update( passwordDerivedKey );
     const passwordDerivedKeyHashHex = passwordDerivedKeyHash.digest('hex')
-    //console.log("Password derived key hash : ", passwordDerivedKeyHashHex);
+    //kl_log("Password derived key hash : ", passwordDerivedKeyHashHex);
     return passwordDerivedKeyHashHex
 }
 
@@ -93,7 +94,7 @@ export async function createPDKeyHash({ passwordDerivedKey }) {
 export async function hashPassword({ password, passwordDerivedKey }) {
     const passwordHash = crypto.pbkdf2Sync(passwordDerivedKey, password, 1 , 32, 'sha512');
     const passwordHashHex = passwordHash.toString('hex')
-    //console.log('Password Hash : ', passwordHashHex);
+    //kl_log('Password Hash : ', passwordHashHex);
     return passwordHashHex
 }
 
@@ -151,13 +152,13 @@ export const retrieveEncryptionKey = async( PDKeyHash, authToken ) => {
             method: 'POST',
             body: JSON.stringify( { PDKeyHash } )
         }).then( resp => resp.json() ).catch(  ( e ) => { 
-            console.log( e );
+            kl_log( e );
             return Promise.reject( new Error( e.message ) );
         });
 
         return req.data?.encryptedEncryptionKey;
     } catch( e ){
-        console.log( e );
+        kl_log( e );
         return Promise.reject( new Error( e.message ) );
     }
 }

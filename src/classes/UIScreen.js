@@ -1,3 +1,4 @@
+import { kl_log } from './../helpers/helpers';
 
 class UIScreen {
     constructor(){
@@ -25,7 +26,7 @@ class UIScreen {
     // @htmlContent => string / html content
     setHTML (query, htmlContent) {
         const el = this.el.querySelector(query);
-        // console.log('QUERY', el );
+        // kl_log('QUERY', el );
         if (el && htmlContent) {
             el.innerHTML = htmlContent;
         }

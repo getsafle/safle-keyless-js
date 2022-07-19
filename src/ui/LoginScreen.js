@@ -1,4 +1,5 @@
 import UIScreen from './../classes/UIScreen.js';
+import { kl_log } from '../helpers/helpers.js';
 
 import closeImg from './../images/close.png';
 import logoImg from './../images/logo.png';
@@ -30,15 +31,15 @@ class LoginScreen extends UIScreen {
     //forgot-pass
     this.forgotPassBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('clicked forgot-pass');
+      kl_log('clicked forgot-pass');
     });
 
 
     // on login
     this.signinBtn.addEventListener('click', async ( e ) => {
       e.preventDefault();
-      console.log('click sign-in');
-      // console.log( window.grecaptcha );
+      kl_log('click sign-in');
+      // kl_log( window.grecaptcha );
       this.error.innerHTML = '';
 
       try {
@@ -46,7 +47,7 @@ class LoginScreen extends UIScreen {
         this.safleField.classList.remove('error');
         // this.submitBtn.removeAttribute('disabled');
       } catch( e ){
-        console.log( 'An error has occured', e );
+        kl_log( 'An error has occured', e );
         this.keyless.kctrl._setLoading( false );
         this.error.innerHTML = e.hasOwnProperty('message')? e.message : e.hasOwnProperty('details')? e.details[0].message : e.info[0].message;
         this.safleField.classList.add('error');
@@ -57,7 +58,7 @@ class LoginScreen extends UIScreen {
     //show/hide password
     this.shPassBtn.addEventListener('click', ( e ) => {
       e.preventDefault();
-      console.log('show hide password');
+      kl_log('show hide password');
       if(this.saflePass.value == ''){
         // leave this here type text vs password differs line-height / font-size
         return false;

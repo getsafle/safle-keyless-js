@@ -1,18 +1,19 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
 import network2 from './../images/network-2.svg'
-import network3 from './../images/network-3.svg'
-import network4 from './../images/network-4.svg'
-import network5 from './../images/network-5.svg'
-import network6 from './../images/network-6.svg'
+// import network3 from './../images/network-3.svg'
+// import network4 from './../images/network-4.svg'
+// import network5 from './../images/network-5.svg'
+// import network6 from './../images/network-6.svg'
 import tokenIcon from './../images/token-icon.webp'
-import user2 from './../images/user-2.webp'
-import user3 from './../images/user-3.webp'
-import user4 from './../images/user-4.webp'
+// import user2 from './../images/user-2.webp'
+// import user3 from './../images/user-3.webp'
+// import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import Dropdown from './components/DropDown';
 import AddressDropdown from './components/AddressDropdown';
+import { kl_log } from '../helpers/helpers';
 
 class SwitchChainScreen extends UIScreen {
     currentChain;
@@ -52,7 +53,7 @@ class SwitchChainScreen extends UIScreen {
             this.dropdown2.setLoading( false );
             this.keyless.kctrl._setLoading( false );
             // this.dropdown2.setOptions( addreses );
-            // console.log('PLM', this.keyless.getCurrentNativeToken() );
+            // kl_log('PLM', this.keyless.getCurrentNativeToken() );
             const nativeToken = await this.keyless.getNativeTokenFor( option.chainId );
             this.dropdown2.update( addreses, nativeToken.toUpperCase(), this.chosenAddress );
         });
@@ -64,7 +65,7 @@ class SwitchChainScreen extends UIScreen {
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
             this.keyless._hideUI();
-            console.log('CURR', this.currentChain );
+            kl_log('CURR', this.currentChain );
 
             this.keyless.switchNetwork( this.currentChain );
             this.keyless.switchWallet( this.activeWallet );

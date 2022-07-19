@@ -5,7 +5,7 @@ import copyIcon from './../images/copy-icon.svg';
 
 import UIScreen from '../classes/UIScreen';
 import ConnectedStatus from './components/ConnectedStatus';
-import {copyToClipboard, middleEllipsisMax} from '../helpers/helpers';
+import { copyToClipboard, middleEllipsisMax, kl_log } from '../helpers/helpers';
 import Storage from '../classes/Storage';
 
 
@@ -20,32 +20,32 @@ class TxnFailedScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('copied to clipboard');
+            kl_log('copied to clipboard');
             copyToClipboard('0x1deaA720C9Be705D47CB05B30E549CC9b0E5128D');
         });
 
         this.el.querySelector('.etherscan_link').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('etherscan check');
+            kl_log('etherscan check');
         });
 
         this.el.querySelector('.txn-failed-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
-            // console.log('txn failed continue');
+            // kl_log('txn failed continue');
             this.keyless._hideUI();
             
         });
 
         this.el.querySelector('.logo').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('logo click');
+            kl_log('logo click');
         });
         
        
         // open wallet 
         this.el.querySelector('.safle_link').addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('open external safle link');
+            kl_log('open external safle link');
         });
         const state = Storage.getState();
         if( state.lastError ){

@@ -1,5 +1,5 @@
 import Web3Provider from './Web3Provider';
-import { inlineS } from './../helpers/helpers';
+import { inlineS, kl_log } from './../helpers/helpers';
 import KeylessController from './KeylessController';
 import Storage from './Storage';
 
@@ -31,14 +31,14 @@ class KeylessWeb3 {
     // public functions
 
     login(){
-        console.log('login');
+        kl_log('login');
 
         this._connected = true;
         const { chainId } = this.getCurrentChain();
         this.provider.emit('connected', { chainId } );
 
         if( this._loggedin ){
-            console.log('Already loggedin');
+            kl_log('Already loggedin');
         } else {
             this._showUI('login');
         }
@@ -53,7 +53,7 @@ class KeylessWeb3 {
             // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
 
-            // console.log( vault, decriptionKey );
+            // kl_log( vault, decriptionKey );
 
             if (!vault || !decriptionKey) {
                 return false;
@@ -87,28 +87,28 @@ class KeylessWeb3 {
         this._showUI('sign');
     }
     txnSuccess(){
-        console.log('to be removed');
+        kl_log('to be removed');
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
         this._showUI('txnSuccess');
     }
     txnFailed(){
-        console.log('to be removed');
+        kl_log('to be removed');
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
         this._showUI('txnFailed');
     } 
     enterPin(){
-        console.log('to be removed');
+        kl_log('to be removed');
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
         this._showUI('pin');
     }
     scanQR(){
-        console.log('to be removed');
+        kl_log('to be removed');
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
@@ -156,9 +156,9 @@ class KeylessWeb3 {
         const storage = Storage.getState();
         this._activeChain =  this._activeChain || storage.chainId || 1;
         const chain =  this.allowedChains.find( e => e.chainId == this._activeChain );
-        console.log('....getCurrentChain: ', this._activeChain)
-        console.log('allowedChains', this.allowedChains )
-        console.log('activechain', chain);
+        kl_log('....getCurrentChain: ', this._activeChain)
+        kl_log('allowedChains', this.allowedChains )
+        kl_log('activechain', chain);
         return {
             chainId: chain.chainId,
             chain
@@ -166,12 +166,12 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
-        // console.log( 'getnativetoken', currChain );
+        // kl_log( 'getnativetoken', currChain );
         return currChain.chain.symbol;
     }
     async getNativeTokenFor( chainId ){
         let activeChain = this.allowedChains.find( e => e.chainId == chainId );
-        console.log('CHAIN', activeChain );
+        kl_log('CHAIN', activeChain );
         return activeChain.symbol.toLowerCase();
     }
 
@@ -183,7 +183,7 @@ class KeylessWeb3 {
         const className = screenName.slice(0, 1).toUpperCase()+screenName.slice(1)+'Screen';
         this._activeScreen = await this._getInstance( className );
         
-        console.log('KeylessWeb3._showUI', this._activeScreen );
+        kl_log('KeylessWeb3._showUI', this._activeScreen );
         this.root = document.createElement('div');
         this.root.setAttribute('class', process.env.KEYLESS_UI_CLASSNAME );
         this.root.style.cssText = inlineS( {
@@ -212,7 +212,7 @@ class KeylessWeb3 {
             try {
                 document.body.removeChild( this._activeScreen.el );
             } catch( e ){
-                console.log('ignored child that doens\'t exist')
+                kl_log('ignored child that doens\'t exist')
             }
             this._activeScreen = null;
         }
@@ -231,7 +231,7 @@ class KeylessWeb3 {
             return !isNaN( num )? Math.max( acc, num ) : acc;
         }, 0 );
 
-        // console.log( this._zIndex)
+        // kl_log( this._zIndex)
         //}
         return this._zIndex + 10;
     }

@@ -1,6 +1,6 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
-import networkImg from './../images/network-icon.svg';
+// import networkImg from './../images/network-icon.svg';
 import user4 from './../images/user-4.webp'
 import tokenIcon from './../images/token-icon.webp'
 import editPenIcon from './../images/edit-pen.svg'
@@ -11,7 +11,7 @@ import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
-import {middleEllipsisMax, formatXDecimals } from '../helpers/helpers';
+import { middleEllipsisMax, formatXDecimals, kl_log } from '../helpers/helpers';
 
 
 class SendScreen extends UIScreen {
@@ -52,7 +52,7 @@ class SendScreen extends UIScreen {
         //transaction__pop-up__close
         this.el.querySelector('.transaction__pop-up__close').addEventListener('click', (e) => {
           e.preventDefault();
-          console.log('clicked close modal');
+          kl_log('clicked close modal');
           
           if(edit_popup.classList.contains('closed')){
             edit_popup.classList.remove('closed');
@@ -69,7 +69,7 @@ class SendScreen extends UIScreen {
         //transaction__checkout__input__edit
         this.el.querySelector('.transaction__checkout__input__edit').addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('clicked edit pen');
+              kl_log('clicked edit pen');
               
               if(edit_popup.classList.contains('closed')){
                 edit_popup.classList.remove('closed');
@@ -88,7 +88,7 @@ class SendScreen extends UIScreen {
         // advanced options 
         adv_options_btn.addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('toggle adv options');
+              kl_log('toggle adv options');
               
               if(adv_options_content.classList.contains('hide')){
                 adv_options_content.classList.remove('hide');
@@ -130,7 +130,7 @@ class SendScreen extends UIScreen {
 
         this.el.querySelector('.proceed_popup_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('clicked proceed popup btn');
+              kl_log('clicked proceed popup btn');
 
             // this.gas_limit =  this.el.querySelector('.gas_limit').value;
             // this.priority_fee =  this.el.querySelector('.priority_fee').value;
@@ -148,7 +148,7 @@ class SendScreen extends UIScreen {
         Array.from( this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close') ).forEach( ( el ) => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                console.log('clicked cancel popup btn');
+                kl_log('clicked cancel popup btn');
                 // close popup 
                 edit_popup.classList.add('closed');
                 // close adv options 
@@ -178,12 +178,12 @@ class SendScreen extends UIScreen {
 
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('clicked tips_btn');
+              kl_log('clicked tips_btn');
         }); 
 
         this.el.querySelector('.open_wallet_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              console.log('clicked open_wallet_btn');
+              kl_log('clicked open_wallet_btn');
         });  
         this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
             clearInterval( this.feeTm );
@@ -198,13 +198,13 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas( trans.data );
                 this.keyless.kctrl.setGasForTransaction( gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas );
             }
-            // console.log( this.keyless.kctrl.activeTransaction );
+            // kl_log( this.keyless.kctrl.activeTransaction );
 
             this.keyless._showUI('pin');
 
             e.target.disabled = true;
             e.preventDefault();
-            console.log('clicked confirm_btn');
+            kl_log('clicked confirm_btn');
         }); 
 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
@@ -316,7 +316,7 @@ class SendScreen extends UIScreen {
         } else {
             this.chosenFee = this.advancedFee;
             const chosenGas = this.gasFees[ this.advancedFee ];
-            console.log('gas', chosenGas )
+            kl_log('gas', chosenGas )
             
             likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
@@ -331,9 +331,9 @@ class SendScreen extends UIScreen {
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
 
-        // console.log( this.chosenFee );
+        // kl_log( this.chosenFee );
         if( this.chosenFee == 'custom'){
-            console.log('calc. custom fee ', this.customGasLimit );
+            kl_log('calc. custom fee ', this.customGasLimit );
 
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'unknown';
             const chosenGas = this.gasFees[ 'medium' ];
@@ -342,8 +342,8 @@ class SendScreen extends UIScreen {
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
             const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
-            // console.log( 'chosenGas', gas, fee );
-            // console.log( feeETH, feeUSD );
+            // kl_log( 'chosenGas', gas, fee );
+            // kl_log( feeETH, feeUSD );
             this.el.querySelector('.transaction__checkout__input h3')
             .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
             '<span> $' + this.feeUSD + '</span>';
@@ -359,8 +359,8 @@ class SendScreen extends UIScreen {
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
-            // console.log('GAS', gas );
-            console.log( this.gasFees );
+            // kl_log('GAS', gas );
+            kl_log( this.gasFees );
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];
@@ -371,8 +371,8 @@ class SendScreen extends UIScreen {
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
                 const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
-                // console.log( 'chosenGas', gas, fee );
-                // console.log( feeETH, feeUSD );
+                // kl_log( 'chosenGas', gas, fee );
+                // kl_log( feeETH, feeUSD );
                 this.el.querySelector('.transaction__checkout__input h3')
                 .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
                 '<span> $' + this.feeUSD + '</span>';
@@ -439,7 +439,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount( trans ){
-        console.log( trans );
+        kl_log( trans );
         const amt = trans.data.value;
         this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
         
@@ -449,8 +449,8 @@ class SendScreen extends UIScreen {
 
         this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
         
-        console.log('populate amount ');
-        console.log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
+        kl_log('populate amount ');
+        kl_log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
         if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
             this.el.querySelector('.transaction__send').classList.add('low-balance');
         } else {
@@ -463,11 +463,11 @@ class SendScreen extends UIScreen {
 
     setFeesLoading( flag ){
         if( flag ){
-            console.log('loading true');
+            kl_log('loading true');
             this.el.classList.add('fee_loading');
             this.checkCanProceed();
         } else {
-            console.log('loading stopped');
+            kl_log('loading stopped');
             this.el.classList.remove('fee_loading');
             this.checkCanProceed();
         }
@@ -491,8 +491,8 @@ class SendScreen extends UIScreen {
     }
 
     checkCanProceed(){
-        console.log('check can proceed');
-        console.log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
+        kl_log('check can proceed');
+        kl_log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
 
         if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
            this.setProceedActive( false );

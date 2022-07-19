@@ -6,6 +6,7 @@ import Storage from './../classes/Storage';
 import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
 const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
+import { kl_log } from './../helpers/helpers';
 
 const { FeeMarketEIP1559Transaction, Transaction } = require('@ethereumjs/tx');
 const Common = require('@ethereumjs/common').default;
@@ -34,7 +35,7 @@ class KeylessController {
         const { chainId: sessionChainId = '', activeWallet: sessionActiveWallet = false } = state;
         if (sessionChainId) {
             this.activeChain = this.keylessInstance.allowedChains.find( e => e.chainId == sessionChainId );
-            console.log('CHAINID on signin', this.activeChain );
+            kl_log('CHAINID on signin', this.activeChain );
             this.activeWallet = sessionActiveWallet;
         }
         const nodeURI = this.getNodeURI(this.activeChain?.chainId);
@@ -56,13 +57,13 @@ class KeylessController {
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             try {
                 const acc = await this.vault.getAccounts( decKey );
-                console.log( acc );
+                kl_log( acc );
 
                 this.wallets = acc.response.map( e => { return { address: e.address }} ) || [];
-                console.log( this.wallets );
+                kl_log( this.wallets );
             } catch( e ){
                 this.wallets = [];
-                console.log( e );
+                kl_log( e );
             }
 
             if( this.wallets.length == 0 ){
@@ -77,14 +78,14 @@ class KeylessController {
 
     async login( user, pass ){
         this._setLoading( true );
-        console.log('login with user '+user+', pass '+pass );
+        kl_log('login with user '+user+', pass '+pass );
 
         this._isMobileVault = await this._getIsVaultMobile( user );
-        console.log( this._isMobileVault );
+        kl_log( this._isMobileVault );
 
         await grecaptcha.execute();
         let captchaToken = grecaptcha.getResponse();
-        // console.log( token );
+        // kl_log( token );
         const resp = await safleHelpers.login( user, pass, captchaToken );
         const safleToken = resp.data.token;
         
@@ -98,7 +99,7 @@ class KeylessController {
         const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });
         const vault = await safleHelpers.retrieveVaultFromCloud( pdkeyHash, authToken );
         const encKey = await safleHelpers.retrieveEncryptionKey( pdkeyHash, authToken );
-        // console.log( encKey );
+        // kl_log( encKey );
 
         Storage.saveState( { 
             vault, 
@@ -130,7 +131,7 @@ class KeylessController {
 
     // re-build web3 instance for the current blockchain
     switchNetwork( chainId){
-        console.log( 'rebuild web3 object for EVM chainId ', chainId );
+        kl_log( 'rebuild web3 object for EVM chainId ', chainId );
         this.web3 = this.generateWeb3Object(chainId);
         Storage.saveState({ chainId });
     }
@@ -219,7 +220,7 @@ class KeylessController {
     async getTokens(){
         const address = this.getAccounts().address;
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
-        console.log( 'gettokens', address, chain, this.getNodeURI() );
+        kl_log( 'gettokens', address, chain, this.getNodeURI() );
         const assets = new asset_controller.AssetController({ chain , rpcURL: this.getNodeURI() });
         const erc20Balance = await assets.detectTokens({ tokenType: 'erc20', userAddress: address });
 
@@ -229,7 +230,7 @@ class KeylessController {
     // option transformers
     getChainsOptions( options ){
         return options.map( chain => {
-            // console.log( chain );
+            // kl_log( chain );
             return {
                 ...chain,
                 label: blockchainInfo.hasOwnProperty( chain.chainId )? blockchainInfo[ chain.chainId ].name : chain.name+' - '+chain.network,
@@ -245,7 +246,7 @@ class KeylessController {
 
     async getAddressesOptions( options, web3Obj){
         const balances = await this._getWalletBalances( options.map( e => e.address ), web3Obj );
-        // console.log( balances );
+        // kl_log( balances );
 
         return options.map( wallet => {
             return {
@@ -262,7 +263,7 @@ class KeylessController {
         for( var i in addreses ){
             balances[ addreses[i] ] = await this.getWalletBalance( addreses[i].toLowerCase(), true, false, web3Obj );
         }
-        // console.log('KeylessController._getWalletBalances', balances );
+        // kl_log('KeylessController._getWalletBalances', balances );
         return balances;
     }
 
@@ -287,17 +288,17 @@ class KeylessController {
             const rate = res.data?.data[ nativeTokenName.toUpperCase() ]?.quote?.USD?.price;
             
             const priceUSD = isNaN( rate )? 0 : rate;
-            console.log( 'KeylessController.getBalanceInUSD',  balance, priceUSD );
+            kl_log( 'KeylessController.getBalanceInUSD',  balance, priceUSD );
             return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
         } catch( e ){
-            console.log('Error fetching usd balance', e.message );
+            kl_log('Error fetching usd balance', e.message );
             return 0;
         }
     }
 
     async getCurrentNativeToken(){
         let activeChain = await this.keylessInstance.getCurrentChain();
-        console.log('ACTIVE CHAIN', activeChain );
+        kl_log('ACTIVE CHAIN', activeChain );
         return activeChain.chain.symbol.toLowerCase();
     }
     
@@ -359,7 +360,7 @@ class KeylessController {
                     }
                 }
 
-                // console.log( resp );
+                // kl_log( resp );
 
                 response = {
                     estimatedBaseFee: '0',
@@ -391,7 +392,7 @@ class KeylessController {
             }
             return response;
         } catch( e ){
-            console.log('error', e );
+            kl_log('error', e );
             return null;
         }
     }
@@ -399,10 +400,10 @@ class KeylessController {
     async checkPin( pin ){
         try {
             const v = await this.vault.validatePin( parseInt( pin ) );
-            // console.log( v );
+            // kl_log( v );
             return v.response;
         } catch( e ){
-            // console.log( e.message );
+            // kl_log( e.message );
             return false;
         }
     }
@@ -411,10 +412,10 @@ class KeylessController {
         const chain = this.keylessInstance.getCurrentChain();
         const trans = this.activeTransaction;
         if( !trans ){
-            console.log('transaction does not exist');
+            kl_log('transaction does not exist');
             return;
         }
-        console.log( trans );
+        kl_log( trans );
         
         const rawTx = await this._createRawTransaction( trans );
         rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
@@ -427,22 +428,22 @@ class KeylessController {
         const chainName = chain.chain.rpcURL.indexOf('polygon') != -1? 'polygon' : 'ethereum';
         // this.vault.changeNetwork( chainName );
 
-        console.log('RAW', rawTx );
+        kl_log('RAW', rawTx );
 
         try {
             const signedTx = await this._signTransaction( rawTx, pin, chain.chainId );
-            console.log( 'signed', signedTx );
+            kl_log( 'signed', signedTx );
 
             const tx = this.web3.eth.sendSignedTransaction( signedTx );
         
             tx.once('transactionHash', ( hash ) => {
-                console.log( 'txn hash', hash );
+                kl_log( 'txn hash', hash );
                 this.transactionHashes.push( hash );
                 this.keylessInstance._showUI('txnSuccess');
 
             });
             const sub = tx.once('receipt', ( err, txnReceipt ) => {
-                console.log('receipt', receipt );
+                kl_log('receipt', receipt );
                 if( txnReceipt.status == 1 ){
                     this.keylessInstance.provider.emit('transactionSuccess', { receipt: txnReceipt } );
                 } else {
@@ -451,24 +452,24 @@ class KeylessController {
                 }
             });
             tx.on('confirmation', ( confNr, receipt ) => {
-                console.log('confirmations', confNr );
-                // console.log('receipt', receipt );
+                kl_log('confirmations', confNr );
+                // kl_log('receipt', receipt );
                 tx.off('receipt');
                 tx.off('confirmation');
                 this.keylessInstance.provider.emit('transactionComplete', { receipt: txnReceipt } );
             })/*.once('error', ( e, receipt ) => {
-                // console.log('errror', e );
-                console.log('txn', receipt );
+                // kl_log('errror', e );
+                kl_log('txn', receipt );
                 this.keylessInstance.provider.emit('transactionFailed', { receipt } );
 
                 this.keylessInstance._showUI('txnFailed');                 
             })*/
             tx.then( receipt => {
-                console.log('receipt', receipt );
+                kl_log('receipt', receipt );
                // this.keyless._showUI('txnSuccess');
                this.keylessInstance.provider.emit('transactionSuccess', { receipt } );
             }).catch( err => { 
-                console.log('uncaught', err )
+                kl_log('uncaught', err )
                 Storage.saveState( { lastError: err.message } );
                 this.keylessInstance._showUI('txnFailed');
                 this.keylessInstance.provider.emit('transactionFailed', { receipt: err.message });
@@ -477,14 +478,14 @@ class KeylessController {
             Storage.saveState( { lastError: e.message } );
             this.keylessInstance._showUI('txnFailed');
 
-            console.log('Error avoided', e ); 
+            kl_log('Error avoided', e ); 
         }
 
         return false;
     }
 
     async _signTransaction( rawTx, pin, chainId ){
-        // console.log('TX', rawTx );
+        // kl_log('TX', rawTx );
 
         let signedTx, chainName, signed, decKey;
         let state = {};
@@ -501,32 +502,32 @@ class KeylessController {
 
                 rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
-                console.log('before raw', rawTx );
+                kl_log('before raw', rawTx );
 
                 signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
-                console.log( signed );
+                kl_log( signed );
 
                 return signed.response;
             break;
 
             case 'polygon':
-                console.log("IN POLYGON FLOW");
+                kl_log("IN POLYGON FLOW");
                 const someState = Storage.getState();
 
                 chainName = blockchainInfo[ chainId ].chain_name;
                 this.vault.changeNetwork( chainName );
                 
-                console.log( someState );
+                kl_log( someState );
 
                 const pdecKey = someState.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
                 await this.vault.restoreKeyringState( someState.vault, parseInt( pin ), pdecKey );
 
                 rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
-                console.log('before raw', rawTx );
+                kl_log('before raw', rawTx );
 
                 signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
-                console.log( signed );
+                kl_log( signed );
 
                 return signed.response;
                 return {};
@@ -535,7 +536,7 @@ class KeylessController {
 
             // case 'mumbai':
             //     chainName = blockchainInfo[ chainId ].chain_name == 'mumbai'? 'polygon' : blockchainInfo[ chainId ].chain_name;
-            //     console.log( 'chn', chainName );
+            //     kl_log( 'chn', chainName );
             //     this.vault.changeNetwork( chainName );
 
             //     state = Storage.getState();
@@ -545,7 +546,7 @@ class KeylessController {
             //     rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
             //     signed = await this.vault.signTransaction( rawTx, pin, this.getNodeURI( chainId ) );
-            //     console.log( signed )
+            //     kl_log( signed )
 
             //     return signed.response;
             // break;
@@ -557,10 +558,10 @@ class KeylessController {
                 const acc = await this.vault.getAccounts( decKey );
                 const addr = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
 
-                console.log( addr, parseInt( pin ) );
+                kl_log( addr, parseInt( pin ) );
 
                 const privateKey = (await this.vault.exportPrivateKey( addr, parseInt( pin ) )).response;
-                console.log('pkey', privateKey );
+                kl_log('pkey', privateKey );
 
                 const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
                 const common = Common.forCustomChain('goerli', customChainParams );
@@ -568,7 +569,7 @@ class KeylessController {
                 const pkey = Buffer.from( privateKey, 'hex');
 
                 const signedTransaction = tx.sign( pkey );
-                console.log( 'signed', signedTransaction );
+                kl_log( 'signed', signedTransaction );
                 const signedTx = bufferToHex(signedTransaction.serialize());
                 return signedTx;
             break;
@@ -588,7 +589,7 @@ class KeylessController {
     async _createRawTransaction( trans ){
         const chain = this.keylessInstance.getCurrentChain();
         const count = await this.web3.eth.getTransactionCount( trans.data.from );
-        console.log( 'trans d', trans.data );
+        kl_log( 'trans d', trans.data );
 
         let config = {};
 
@@ -641,7 +642,7 @@ class KeylessController {
                     nonce: count,
                     chainId: chain.chainId
                 }
-                console.log( 'mumbai trans', config );
+                kl_log( 'mumbai trans', config );
             break;
         }
         return config;
@@ -656,15 +657,15 @@ class KeylessController {
         if( this.activeSignRequest ){
             const state = Storage.getState();
             const rpcUrl = this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
-            console.log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
+            kl_log( this.activeSignRequest.data, this.activeSignRequest.address, pin, rpcUrl );
 
             try {
                 const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
                 await this.vault.restoreKeyringState( state.vault, pin, decKey );
-                console.log( this.vault.decryptedVault );
+                kl_log( this.vault.decryptedVault );
                 
                 const acc = await this.vault.exportPrivateKey( this.activeSignRequest.address.toString(), parseInt( pin ) );
-                // console.log(acc);
+                // kl_log(acc);
             
             
                 const trans = await this.vault.sign( this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt( pin ), rpcUrl );
@@ -678,7 +679,7 @@ class KeylessController {
                     this.activeSignRequest.resolve( trans.response );
                 }
                 this.keylessInstance._hideUI();
-                console.log( trans );
+                kl_log( trans );
 
                 return trans?.response;
             } catch( e ){
@@ -696,13 +697,13 @@ class KeylessController {
 
     async getSafleIdFromAddress( address ){
         const node_uri = await this.getNodeURI( this.keylessInstance.getCurrentChain().chainId );
-        const safleId = new safleIdentity( this.keylessInstance._env == 'dev'? 'testnet' : 'mainnet' );
+        const safleId = new safleIdentity( this.keylessInstance._env == 'dev'? 'testnet' : 'mainnet', node_uri );
         try {
             const safleID = await safleId.getSafleId( address );
-            console.log('SafleID: ', safleID );
+            kl_log('SafleID: ', safleID );
             return safleID.indexOf('Invalid') != -1? false : safleID;
         } catch( e ){
-            console.log('error', e );
+            kl_log('error', e );
             return false;
         }
     }
@@ -717,7 +718,7 @@ class KeylessController {
 
     async getRequest( { url } ){
         const resp = await fetch( url ).then( e => e.json() ).catch( e => {
-            console.log('error fetching estimats', e );
+            kl_log('error fetching estimats', e );
             return null;
         });
         return resp;
@@ -755,7 +756,7 @@ class KeylessController {
     getTokenIcon( token ){
         const addr = token.tokenAddress;
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
-        // console.log('tokendata', this.tokenData );
+        // kl_log('tokendata', this.tokenData );
 
         if( Object.values( this.tokenData ).length == 0 ){
             return null;

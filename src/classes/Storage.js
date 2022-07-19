@@ -1,3 +1,4 @@
+import { kl_log } from './../helpers/helpers';
 const CryptoJS = require('crypto-js');
 
 let Storage = {
@@ -38,7 +39,7 @@ let Storage = {
 
         const buff = CryptoJS.AES.encrypt( JSON.stringify( obj ), sol ).toString();
         sessionStorage.setItem( k, buff );
-        console.log('saved state');
+        kl_log('saved state');
     },
     load: function( place ){
         const k = Storage.key;
@@ -52,7 +53,7 @@ let Storage = {
         try {
             dec = CryptoJS.AES.decrypt( buff, sol ).toString( CryptoJS.enc.Utf8 );
         } catch( e ){
-            console.log( 'error', e );
+            kl_log( 'error', e );
             dec = false;
         }
         return JSON.parse( dec );

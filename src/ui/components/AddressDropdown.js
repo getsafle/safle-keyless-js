@@ -6,7 +6,7 @@ import network4 from './../../images/network-4.svg'
 import network5 from './../../images/network-5.svg'
 import network6 from './../../images/network-6.svg'
 
-import { maxChars } from '../../helpers/helpers';
+import { maxChars, kl_log } from '../../helpers/helpers';
 
 let dropdownCounter = 0;
 
@@ -37,7 +37,7 @@ class AddressDropdown {
         this.nativeToken = nativeToken;
         this.options = options;
         this.initial = options?.length && initialValue ? options.find(item => item.address === initialValue) : false;
-        console.log(initialValue, options, this.initial);
+        kl_log(initialValue, options, this.initial);
         this.el.innerHTML = this.render();
         setTimeout( () => this.onInit(), 200 );
     }
@@ -51,7 +51,7 @@ class AddressDropdown {
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
                 const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // console.log( idx );
+                // kl_log( idx );
                 this.setOption( idx );
             }, false );
         })
@@ -75,7 +75,7 @@ class AddressDropdown {
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
                 const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // console.log( idx );
+                // kl_log( idx );
                 this.setOption( idx );
             }, false );
         })

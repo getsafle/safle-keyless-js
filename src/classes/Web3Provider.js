@@ -1,5 +1,6 @@
 import EventEmitter from './EventEmitter';
 import RPCError from './RPCError';
+import { kl_log } from './../helpers/helpers';
 
 class Web3Provider extends EventEmitter {
     connected = false;
@@ -8,12 +9,12 @@ class Web3Provider extends EventEmitter {
         super();
         
         this.keyless = config?.keylessInstance;
-        console.log('evt emitter');
+        kl_log('evt emitter');
 
         // this.emit('connected ');
         // return new Proxy( this, {
         //     get: async function( e ){
-        //         console.log( 'ok' );
+        //         kl_log( 'ok' );
 
         //         return Promise.resolve({ ok: true });
         //     }
@@ -90,7 +91,7 @@ class Web3Provider extends EventEmitter {
             break;
 
             default:
-                console.log('default');
+                kl_log('default');
 
             break;
         }

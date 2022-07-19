@@ -1,3 +1,8 @@
+export const kl_log = ( msg ) => {
+    if( process.env.ENABLE_LOGGING == 'true' ){
+        console.log( msg );
+    }
+}
 export const inlineS = ( styles ) => {
     const keys = Object.keys( styles );
     return Object.values( styles ).map( (el, idx) => ''+keys[idx]+':'+el ).join(';');
@@ -8,8 +13,8 @@ export const middleEllipsis = ( text, split=3 ) => {
         return;
     }
     const sz = Math.floor( text.length / split );
-    // console.log( text );
-    // console.log( text.slice( 0, sz ) + '...' + text.slice( -sz ) );
+    // kl_log( text );
+    // kl_log( text.slice( 0, sz ) + '...' + text.slice( -sz ) );
     return text.slice( 0, sz ) + '...' + text.slice( -sz );
 }
 export const middleEllipsisMax = ( text, maxLen ) => {
