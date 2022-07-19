@@ -1,0 +1,208 @@
+.#{$keyless_ui_class} {
+    .dropdown {
+
+        &_chain  {
+            
+            align-items:center;
+            .title_label{
+                max-width: calc(100% - 36px);
+                width: 100%;
+                
+                .title_icon{
+
+                }
+                h3 {
+                    overflow: hidden;
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                }
+            }
+            
+        }
+        &__tp {
+            &--1 {
+                color: $c--gray--second;
+                cursor: pointer;
+                background-color: $c--background;
+                border: solid 1px $c--blue--dark;
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+                padding: 0px 10px;
+                margin-bottom: 15px;
+                img {
+                    width: 24px;
+                    margin-right: 10px;
+                }
+                svg {
+                    cursor: pointer;
+                    color: $c--gray--second;
+                    margin-left: 10px;
+                    width: 16px;
+                }
+                div {
+                    display: flex;
+                    align-items: center;
+                }
+            }
+            &--4 {
+                background: transparent;
+                cursor: pointer;
+                color: $c--blue;
+                @include font-size(16px);
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                svg {
+                    position: relative;
+                    left: 5px;
+                    width: 14px;
+                }
+
+                &__content {
+                    &.hide{
+                        display:none;
+                    }
+                    .checkbox {
+                        &__ctn {
+                            h3 {
+                                @include font-size(14px);
+                                color: $c--gray;
+                                font-weight: 500;
+                                margin: 15px 0px 8px 0px;
+                            }
+                        }
+                        &--flex {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 20px;
+                            &__item {
+                                display: flex;
+                                align-items: center;
+                                justify-content: flex-start;
+                                border: 1px solid $c--blue--dark;
+                                border-radius: 10px;
+                                width: 110px;
+                                height: 58px;
+                                padding-left: 10px;
+                            }
+                            label{
+                                font-weight: 500;
+                                color: $c--gray--second;
+                                margin-left: 6px;
+                                line-height:18px;
+                                :first-child {
+                                    @include font-size(12px);
+                                }
+                                :last-child {
+                                    @include font-size(16px);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        &__content {
+            background-color: $c--background;
+            border: solid 1px $c--blue--dark;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            div:first-child {
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+            div:last-child {
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+            div {
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                img {
+                    width: 24px;
+                    margin-right: 10px;
+                }
+                &:hover {
+                    background-color: #131524;
+                }
+            }
+            .message {
+                padding: 20px 10px;
+                color: $c--gray--dark;
+                font-size: 90%;
+            }
+            .token_prefix {
+                text-transform:uppercase;
+            }
+            &--1 {
+                position: absolute;
+                width: 324px;
+                div {
+                    padding: 0px 10px;
+                }
+            }
+            &--2 {
+                position: absolute;
+                width: 324px;
+                max-height: 206px;
+                overflow-y: scroll;
+                div {
+                    padding: 0px 8px 0px 6px;
+                    justify-content: space-between;
+                }
+                &::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px !important;
+                }
+                 
+                &::-webkit-scrollbar-track {
+                    background-color: transparent;
+                    border-radius: 100px;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: $c--gray--third;
+                    border-radius: 100px;
+               }
+            }
+            &--3 {
+                color: $c--gray--second;
+                max-height: 134px;
+                overflow-y: scroll;
+                div {
+                    padding: 0px 8px 0px 6px;
+                    justify-content: space-between;
+                }
+                h3 {
+                    @include font-size(16px);
+                    font-weight: 500;
+                }
+                &::-webkit-scrollbar {
+                    width: 4px;
+                    height: 4px !important;
+                }
+                 
+                &::-webkit-scrollbar-track {
+                    background-color: transparent;
+                    border-radius: 100px;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: $c--gray--third;
+                    border-radius: 100px;
+               }
+            }
+        }
+
+        &_default {
+            &.loading {
+                cursor: no-drop;
+                pointer-events: none;
+                .title_label {
+                    opacity: 0.3;
+                }
+            }
+        }
+    }
+}

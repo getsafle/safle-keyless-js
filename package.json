@@ -6,6 +6,7 @@
   "engines": {
     "node": ">=12.22.9"
   },
+  "browser": "./lib/keyless.umd.min.js",
   "eslintConfig": {
     "env": {
       "browser": true
@@ -13,8 +14,8 @@
   },
   "scripts": {
     "start": "npm run dev",
-    "dev": "webpack serve --open --config-name webbuild",
-    "build": "webpack --config-name webbuild",
+    "dev": "webpack serve --open --config-name testapp-build",
+    "build": "webpack --config-name testapp-build",
     "build:lib": "webpack --config-name library"
   },
   "keywords": [],
@@ -43,6 +44,7 @@
     "assert": "^2.0.0",
     "axios": "^0.26.1",
     "buffer": "^6.0.3",
+    "clean-webpack-plugin": "^4.0.0",
     "crypto-browserify": "^3.12.0",
     "ethereumjs-tx": "^2.1.2",
     "ethereumjs-util": "^7.1.4",
