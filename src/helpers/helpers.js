@@ -1,5 +1,6 @@
 export const kl_log = ( msg ) => {
-    if( process.env.ENABLE_LOGGING == 'true' ){
+    // console.log( 'logging', process.env.ENABLE_LOGGING );
+    if( process.env.ENABLE_LOGGING === true ){
         console.log( msg );
     }
 }
