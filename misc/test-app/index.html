@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Safle Keyless TestDAPP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"><script defer src="main.js"></script></head>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=BenchNine:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<!-- 
+  <script>
+    function onSubmit(token) {
+      console.log( token );
+    }
+  </script> -->
+  <body>
+    <div class="g-recaptcha"
+      data-sitekey="6Lf8HVIaAAAAADBeZl94tnebAST20hEZOHWzQMBD"
+      data-size="invisible">
+</div>
+
+    <div id="app">
+      <header>
+        <div class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="96" height="40" viewBox="0 0 96 40">
+            <defs>
+                <linearGradient id="h1xjehveya" x1="70.004%" x2="18.474%" y1="-5.5%" y2="91.677%">
+                    <stop offset="0%" stop-color="#11BCE2"/>
+                    <stop offset="100%" stop-color="#0569F7"/>
+                </linearGradient>
+            </defs>
+            <g fill="none" fill-rule="evenodd">
+                <g>
+                    <g>
+                        <g fill="url(#h1xjehveya)" transform="translate(-91.000000, -90.000000) translate(91.000000, 90.000000) translate(44.969611, 0.000000)">
+                            <path d="M19.657 0v4.005H14.61l-.283.004C8.594 4.16 3.976 8.905 3.976 14.716v24.83H0v-24.83l.003-.315C.171 6.43 6.66 0 14.611 0h5.046zm5.691.048v39.235h-3.83V.048h3.83zM8.873 21.573l.117.007c.534.058.95.514.95 1.068v.854l-.006.117c-.058.539-.51.958-1.06.958H7.03l-.116-.006c-.535-.059-.95-.515-.95-1.069v-.854l.005-.117c.058-.539.511-.958 1.061-.958h1.842z"/>
+                        </g>
+                        <g>
+                            <g fill="#FFF">
+                                <path d="M9.388 0c4.455 0 7.287 2.433 8.06 3.19l.106.105c.073.075.11.117.11.117L15.002 6.19s-2.226-2.486-5.614-2.486c-2.855 0-4.259 1.414-4.259 2.876 0 1.706 1.743 2.632 5.42 3.412 4.26.926 7.89 2.534 7.89 7.116 0 4.338-4.55 6.58-8.857 6.58C3.291 23.688 0 18.96 0 18.96l2.807-2.632s2.371 3.656 6.775 3.656c2.275 0 4.84-.975 4.84-2.778 0-1.95-1.646-2.925-5.082-3.607-4.79-.975-8.178-2.876-8.178-7.116C1.162 3.217 4.404 0 9.388 0zM31.83 0c6.582 0 9.727 4.094 9.727 8.286v14.817h-3.726v-3.265s-2.517 3.85-7.598 3.85c-4.017 0-8.323-2.827-8.323-7.701 0-4.387 3.823-7.506 8.855-7.506 4.114 0 6.727 1.852 6.727 1.852V9.114c0-4.679-3.871-5.312-5.662-5.312-3.388 0-6.678 1.9-6.678 1.9l-1.694-3.411S26.943 0 31.83 0zm53.282 0C91.354 0 96 4.728 96 11.99c0 .439 0 .78-.048 1.316H77.9c.242 3.412 3.484 6.58 7.695 6.58 4.403 0 6.726-3.314 6.726-3.314l2.565 2.68-.016.021-.049.06c-.493.6-3.795 4.355-9.226 4.355-6.776 0-11.664-5.166-11.664-11.844C73.932 5.264 78.385 0 85.112 0zM31.637 11.893c-3.485 0-5.662 1.755-5.662 4.094 0 2.925 2.613 4.094 5.13 4.094 3.968 0 6.387-3.412 6.387-3.412v-3.168s-2.226-1.608-5.855-1.608zm53.475-8.091c-4.84 0-6.824 3.753-7.114 6.092h14.034c-.146-2.534-2.42-6.092-6.92-6.092z" transform="translate(-91.000000, -90.000000) translate(91.000000, 90.000000) translate(0.000000, 16.312065)"/>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </svg>
+        
+        </div>
+        <div class="buttons">
+          <button id="login-btn">Init</button>
+          <button id="dash-btn" class=" long active_when_logged">Dashboard</button>
+          <button id="balance-btn" class=" long active_when_logged">Get balance</button>
+          <button id="nw-switch" class=" long active_when_logged">Network switch</button>
+          <button id="send-btn" class=" long active_when_logged">Send Transaction</button>
+          <button id="txn-success-btn" class=" long active_when_logged" style="display:none;">Txn Success</button>
+          <button id="txn-failed-btn" class=" long active_when_logged" style="display:none;">Txn Failed</button>
+          <button id="pin-btn" class=" long active_when_logged" style="display:none;">Pin</button>
+          <button id="qr-btn" class=" long active_when_logged" style="display:none;">QR</button>
+          <button id="sign-btn" class=" long active_when_logged">Sign Message</button>
+  
+          <button id="disconnect_btn">Disconnect</button>
+
+        </div>
+        <div class="status">
+          <div class="balance"></div>
+          <div class="chain">Ethereum</div>
+          <div class="online-stat">
+            <div class="online-icon"><svg height="512" viewBox="0 0 512 512" width="32" xmlns="http://www.w3.org/2000/svg"><title/><path d="M396,432H136c-36.44,0-70.36-12.57-95.51-35.41C14.38,372.88,0,340,0,304c0-36.58,13.39-68.12,38.72-91.22,18.11-16.53,42.22-28.25,69.18-33.87a16,16,0,0,0,11.37-9.15,156.24,156.24,0,0,1,42.05-56C187.76,91.69,220.5,80,256,80a153.57,153.57,0,0,1,107.14,42.9c24.73,23.81,41.5,55.28,49.18,92a16,16,0,0,0,12.12,12.39C470,237.42,512,270.43,512,328c0,33.39-12.24,60.78-35.41,79.23C456.23,423.43,428.37,432,396,432Z"/></svg></div>
+            <div class="offline-icon"><svg height="512" viewBox="0 0 512 512" width="32" xmlns="http://www.w3.org/2000/svg"><title/><path d="M448,464a15.92,15.92,0,0,1-11.31-4.69l-384-384A16,16,0,0,1,75.31,52.69l384,384A16,16,0,0,1,448,464Z"/><path d="M38.72,196.78C13.39,219.88,0,251.42,0,288c0,36,14.38,68.88,40.49,92.59C65.64,403.43,99.56,416,136,416H328.8a8,8,0,0,0,5.66-13.66L100.88,168.76a8,8,0,0,0-8-2C72,173.15,53.4,183.38,38.72,196.78Z"/><path d="M476.59,391.23C499.76,372.78,512,345.39,512,312c0-57.57-42-90.58-87.56-100.75a16,16,0,0,1-12.12-12.39c-7.68-36.68-24.45-68.15-49.18-92A153.57,153.57,0,0,0,256,64c-31.12,0-60.12,9-84.62,26.1a8,8,0,0,0-1.14,12.26L461.68,393.8a8,8,0,0,0,10.2.93Q474.31,393.05,476.59,391.23Z"/></svg></div>
+              <div class="label">Disconnected</div>
+            </div>
+
+          </div>
+        </div>
+      </header>
+      <div id="notif"></div>
+      
+      <!-- test for high z-index  -->
+      <div style="position: absolute; z-index: 1004; width: 300px; height: 300px; left: 50%;top: 50%;margin-left:-150px;margin-top:-150px; background-color: #999; display: flex;justify-content: center; align-items: center; font-size: 18px; font-family: Arial; color: #fff;">HIGH DIV WITH 1000+ z-index</div>
+    </div>
+
+
+  </body>
+</html>

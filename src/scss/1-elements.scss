@@ -1,0 +1,90 @@
+@import './3-mixins.scss';
+// BUTTONS
+.#{$keyless_ui_class} {
+    .btn {
+        
+        &__tp {
+            &--1 {
+                @include button(
+                    $c--blue,
+                    none,
+                    $c--white,
+                    $ff--primary,
+                    500,
+                    20px,
+                    100%,
+                    50px,
+                    4px
+                );
+                @include font-size(16px);
+            }
+            &--2 {
+                @include button(
+                    transparent,
+                    none,
+                    $c--white,
+                    $ff--primary,
+                    500,
+                    10px,
+                    100%,
+                    50px,
+                    0px
+                );
+                img {
+                    margin-left: 4px;
+                }
+                @include font-size(16px);
+            }
+            &--3 {
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                @include button(
+                    $c--blue,
+                    none,
+                    $c--white,
+                    $ff--primary,
+                    600,
+                    none,
+                    92px,
+                    24px,
+                    12px
+                );
+                @include font-size(10px);
+                img {
+                    width: 12px;
+                }
+            }
+            &--4 {
+                @include button(
+                    $c--background--second,
+                    none,
+                    $c--gray--second,
+                    $ff--primary,
+                    600,
+                    16px,
+                    100%,
+                    50px,
+                    4px
+                );
+                &:hover {
+                    background-color:#26293a;
+                }
+            }
+        }
+    }
+    
+    // UTILS
+    .d {
+        &--none {
+            display: none;
+        }
+        &--block {
+            display: block;
+        }
+    }
+
+    .relative {
+        position: relative;
+    }
+}

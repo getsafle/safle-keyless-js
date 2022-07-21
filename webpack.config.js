@@ -1,14 +1,16 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+// const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const { CustomizedCleanWebpackPlugin } = require('./misc/custom-plugins/customCleanWebpackPlugin');
 const webpack = require('webpack');
 
 require('dotenv').config();
 
 module.exports = [
   {
-    name: 'webbuild',
+    name: 'testapp-build',
     mode: 'development',
-    entry: './src/index.js',
+    entry: './misc/test-app/index.js',
     output: {
       filename: 'main.js',
       path: path.resolve(__dirname, 'dist'),
@@ -24,7 +26,7 @@ module.exports = [
     plugins: [
       new HtmlWebpackPlugin({
         title: 'Development',
-        template: './src/index.html'
+        template: './misc/test-app/index.html'
       }),
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
@@ -77,27 +79,45 @@ module.exports = [
 
   {
     name: 'library',
-    mode: 'development',
-    entry: './src/keyless/index.js',
+    mode: 'production',
+    entry: './src/index.js',
     output: {
-      filename: 'keyless.js',
-      path: path.resolve(__dirname, 'library'),
+      filename: 'keyless.umd.min.js',
+      path: path.resolve(__dirname, 'lib'),
       clean: true,
+      library: "SafleKeyless",
+      libraryTarget: "umd",
     },
+    
     devtool: 'inline-source-map',
-    devServer: {
-      static: './library',
-      hot: true,
-      compress: true,
-      port: 9000,
-    },
+    // devServer: {
+    //   static: './src',
+    //   hot: true,
+    //   compress: true,
+    //   port: 9000,
+    // },
     plugins: [
-      new HtmlWebpackPlugin({
-        title: 'Development'
+      new CustomizedCleanWebpackPlugin(),
+      // new HtmlWebpackPlugin({
+      //   title: 'Development',
+      //   template: './src/index.html'
+      // }),
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer'],
+        process: ['process']
+      }),
+      new webpack.DefinePlugin({
+        'process.env': JSON.stringify(process.env)
+      }),
+      new webpack.optimize.LimitChunkCountPlugin({
+        maxChunks: 1,
       }),
     ],
     module: {
       rules: [
+        // {
+        //   sideEffects: false
+        // },
         {
           test: /\.s[ac]ss$/i,
           use: [
@@ -106,11 +126,16 @@ module.exports = [
             // Translates CSS into CommonJS
             "css-loader",
             // Compiles Sass to CSS
-            "sass-loader",
+            {
+              loader: "sass-loader",
+              options: {
+                additionalData: "$keyless_ui_class: " + process.env.KEYLESS_UI_CLASSNAME + ";",
+              },
+            }
           ],
         },
         {
-          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          test: /\.(png|svg|jpg|jpeg|gif|webp)$/i,
           type: 'asset/inline',
         },
       ],

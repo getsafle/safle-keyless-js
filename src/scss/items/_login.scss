@@ -1,0 +1,226 @@
+
+@import "../3-mixins.scss";
+// LOGIN
+.#{$keyless_ui_class} {
+    
+    &.loading {
+        .login {
+            &:after {
+                content: '';
+                z-index: 1000;
+                position: absolute;
+                border-radius: 20px;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba( 0, 0, 0, 0.8) url('./loading.svg') center center no-repeat;
+                background-size: 40px auto;
+            }
+        }
+    }
+
+    .login {
+        @include container(-280px, -40px, 360px, 450px);
+
+        &__header {
+            @include header;
+            h3 {
+                @include font-size(18px);
+                color: $c--gray;
+                margin-bottom: 2px;
+                margin-top:20px;
+            }
+        }
+        form {
+            .icon-inside {
+                position: relative;
+                .icon-left {
+                    position: absolute;
+                    top: 15px;
+                    left: 15px;
+                    width: 18px;
+                    z-index:1; 
+                    &.icon-left-pass{
+                        width: 18px;
+                    }
+                }
+                .icon-right {
+                    cursor: pointer;
+                    position: absolute;
+                    top: 17px;
+                    right: 22px;
+                    width: 20px;
+                    z-index:1;
+                    
+                }
+            }
+            .input-id,
+            .input-pass {
+                position: relative;
+                color: $c--white;
+                @include font-size(16px);
+                background-color: $c--background;
+                border: solid 1px $c--blue--dark;
+                margin-bottom: 14px;
+                border-radius: 10px;
+                width: 100%;
+                font-weight:500;
+                padding: 15px 47px;
+                font-family: $ff--primary;
+                color: $c--gray--second;
+                &::-webkit-input-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &::-moz-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &:-ms-input-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &:-moz-placeholder { 
+                    color: $c--gray--second;
+                    font-family: $ff--primary;
+                    font-weight:500;
+                    @include font-size(16px);
+                }
+                &:focus {
+                    outline: none;
+                    border: solid 1px $c--blue;
+                }
+            }
+            .input-pass {
+                letter-spacing: 3px;
+                font-size: 18px;
+                height: 50px;
+                &::-webkit-input-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &::-moz-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &:-ms-input-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &:-moz-placeholder { 
+                    color: $c--gray--third;
+                    @include font-size(28px);
+                    position: relative;
+                    letter-spacing: 1px;
+                    top: 1px;
+                }
+                &[type='text']{
+                    @include font-size(18px);
+                    letter-spacing:0px;
+                    &::-webkit-input-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &::-moz-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &:-ms-input-placeholder { 
+                        @include font-size(28px);
+                    }
+                    &:-moz-placeholder { 
+                        @include font-size(28px);
+                    }
+
+                }
+                &[type='password']{
+                    @include font-size(28px);
+                    &::-webkit-input-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+
+                        vertical-align:top;
+                    }
+                    &::-moz-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                    &:-ms-input-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                    &:-moz-placeholder { 
+                        @include font-size(28px);
+                        height: inherit;
+                        line-height: 28px;
+                        vertical-align:top;
+                    }
+                }
+               
+            }
+            input.error {
+                border: solid 1px #f0a2a2;
+            }
+            div.error {
+                position: absolute;
+                left: 0;
+                top: -24px;
+            }
+            .error_boundary {
+                line-height: 24px;
+                font-size: 14px;
+                color: #ff0000;
+            }
+            .signin-btn{
+                &[disabled='disabled']{
+                    opacity:0.5;
+                }
+            }
+        }
+        &__footer {
+            text-align: center;
+            h4 {
+                margin: 20px 0px;
+                color: $c--gray--second;
+                @include font-size(12px);
+                font-weight: 500;
+                a {
+                    margin-left: 10px;
+                    color: $c--blue;
+                    text-decoration: none;
+                }
+                svg {
+                    color: $c--blue;
+                    width: 6px;
+                }
+            }
+            .forgot-pass {
+                @include font-size(14px);
+                font-weight: 500;
+                color: $c--gray--second;
+                text-decoration: none;
+                border-bottom: 1px solid $c--gray--second;
+                padding-bottom: 6px;
+            }
+        }
+    }
+}
