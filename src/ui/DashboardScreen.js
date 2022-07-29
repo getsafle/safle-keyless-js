@@ -116,6 +116,7 @@ class DashboardScreen extends UIScreen {
         // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
+            window.open( process.env.OPEN_WALLET_LINK, '_blank' );
             kl_log('open wallet');
             // this.keyless._hideUI();
             // this.keyless.selectChain();

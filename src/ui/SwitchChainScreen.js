@@ -27,7 +27,8 @@ class SwitchChainScreen extends UIScreen {
 
         // on close
         this.el.querySelector('.close').addEventListener('click', () => {
-            this.keyless.kctrl._loginSuccess();
+            // this.keyless.kctrl._loginSuccess();
+            this.keyless._connected = false;
             this.keyless._hideUI();
         });
 

@@ -13,6 +13,15 @@ import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 import { middleEllipsisMax, formatXDecimals, kl_log } from '../helpers/helpers';
 
+const debounce = ( fn, delay ) => {
+    let tm = false;
+    return ( e ) => {
+        if( tm ){
+            clearTimeout( tm );
+        }
+        tm = setTimeout( fn, delay );
+    }
+}
 
 class SendScreen extends UIScreen {
 
@@ -230,12 +239,25 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
+            const update_val = ( event ) => {
+                input_val_total = parseInt(input_val.value);
+                setTimeout( () => {
+                    input_val.value = Math.max(input_val_total, 0 );
+                    this.calculateCustomFee();
+                }, 10 )    
+            };
+
+            input_val.addEventListener('change', update_val );
+            input_val.addEventListener('keyup', debounce( update_val, 500 ) );
+
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
                 // remove 10 points to this value
                 input_val_total -= 10;
-                input_val.value = Math.max(input_val_total, 0 )
+                input_val.value = Math.max(input_val_total, 0 );
+
+                this.calculateCustomFee();
             });
             up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -258,6 +280,19 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
+            const update_val = ( event ) => {
+                input_val_total = parseFloat(input_val.value);
+                setTimeout( () => {
+                    input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+                    this.calculateCustomFee();
+                }, 10 )    
+            };
+
+            
+
+            input_val.addEventListener('change', update_val );
+            input_val.addEventListener('keyup', debounce( update_val, 500 ) );
+            
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
@@ -277,6 +312,7 @@ class SendScreen extends UIScreen {
                 this.calculateCustomFee();
             });
         });
+        
 
         this.populateData();
         this.populateGasEstimate();

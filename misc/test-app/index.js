@@ -50,10 +50,15 @@ window.onload = async() => {
         function add_ui_events(){
             $('#login-btn').addEventListener('click', () => { keyless.login(); });
             $('#disconnect_btn').addEventListener('click', () => { keyless.disconnect(); });
-            $('#balance-btn').addEventListener('click', async () => { 
-                const bal = await w3.eth.getBalance( activeAddress );
-
-                console.log( bal );
+            $('#balance-btn').addEventListener('click', async () => {
+                try {
+                    const activeAddress = await w3.eth.personal.getAccounts();
+                    // console.log('addr', activeAddress );
+                    const bal = await w3.eth.getBalance( activeAddress[0] );
+                    console.log( bal );
+                } catch ( e ){
+                    console.error( e.message );
+                }
             });
             $('#dash-btn').addEventListener('click', ( e ) => {
                 keyless.openDashboard();
@@ -176,6 +181,10 @@ window.onload = async() => {
         }
 
         async function send_transaction(){
+            if( !activeAddress ){
+                console.error('Provider not connected');
+                return;
+            }
             const nonce = await w3.eth.getTransactionCount( activeAddress, 'latest'); // nonce starts counting from 0
 
             const transaction = {
@@ -192,6 +201,11 @@ window.onload = async() => {
         }
 
         async function sign_transaction(){
+            if( !activeAddress ){
+                console.error('Provider not connected');
+                return;
+            }
+
             const message = 'Hello world';
             const resp = await w3.eth.sign( message, activeAddress );
 

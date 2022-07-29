@@ -20,12 +20,12 @@ class KeylessWeb3 {
         this.provider = new Web3Provider( { keylessInstance: this } );
         this.kctrl = new KeylessController( this, this.allowedChains );
         const { chainId } = this.getCurrentChain();
-        this._connected = true;
+        this._connected = false;
         this._env = config.env || 'dev';
 
-        setTimeout( () => {
-            this.provider.emit('connected', { chainId } );
-        }, 100 );        
+        // setTimeout( () => {
+        //     this.provider.emit('connected', { chainId } );
+        // }, 100 );        
     }
 
     // public functions
@@ -33,9 +33,9 @@ class KeylessWeb3 {
     login(){
         kl_log('login');
 
-        this._connected = true;
+        // this._connected = true;
         const { chainId } = this.getCurrentChain();
-        this.provider.emit('connected', { chainId } );
+        // this.provider.emit('connected', { chainId } );
 
         if( this._loggedin ){
             kl_log('Already loggedin');
@@ -67,6 +67,9 @@ class KeylessWeb3 {
     }
 
     openDashboard(){
+        if( !this._connected ){
+            throw new Error('Provider not connected');
+        }
         if( !this._loggedin ){
             throw new Error('Please login first!');
         }
@@ -154,7 +157,10 @@ class KeylessWeb3 {
    
     getCurrentChain(){
         const storage = Storage.getState();
-        this._activeChain =  this._activeChain || storage.chainId || 1;
+        this._activeChain =  this._activeChain || storage.chainId || undefined;
+        if( !this._activeChain ){
+            this._activeChain = 1;
+        }
         const chain =  this.allowedChains.find( e => e.chainId == this._activeChain );
         kl_log('....getCurrentChain: ', this._activeChain)
         kl_log('allowedChains', this.allowedChains )

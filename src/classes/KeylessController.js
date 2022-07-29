@@ -37,6 +37,11 @@ class KeylessController {
             this.activeChain = this.keylessInstance.allowedChains.find( e => e.chainId == sessionChainId );
             kl_log('CHAINID on signin', this.activeChain );
             this.activeWallet = sessionActiveWallet;
+            
+            this.loadVault().then( () => {
+                this.keylessInstance._loggedin = true;
+                this._loginSuccess( false );
+            });
         }
         const nodeURI = this.getNodeURI(this.activeChain?.chainId);
         
@@ -124,9 +129,13 @@ class KeylessController {
         Storage.clear();
     }
 
-    _loginSuccess(){
+    _loginSuccess( openDashboard = true ){
         const addreses = this.getAccounts();
+        this.keylessInstance._connected = true;
         this.keylessInstance.provider.emit('login successful', addreses );
+        if( openDashboard ){
+            this.keylessInstance.openDashboard();
+        }
     }
 
     // re-build web3 instance for the current blockchain

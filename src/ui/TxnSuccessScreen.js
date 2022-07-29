@@ -39,7 +39,8 @@ class TxnSuccessScreen extends UIScreen {
             e.target.disabled = true;
             this.clearTransaction();
             // kl_log('txn success continue');
-            this.keyless._hideUI();
+            // this.keyless._hideUI();
+            this.keyless.openDashboard();
         });
 
         this.el.querySelector('.logo').addEventListener('click', (e) => {
@@ -100,7 +101,7 @@ class TxnSuccessScreen extends UIScreen {
                 <h3><span>Txn#:</span></h3>
                 <img class="copy-to-clipboard" src="${copyIcon}" alt="Copy to clipboard icon">
             </div>
-            <button class="btn__tp--1 txn-success-ok-btn">OK</button>
+            <button class="btn__tp--1 txn-success-ok-btn">GO TO DASHBOARD</button>
             <div class="powered-by">
                 <h4>powered by</h4>
                 <a href="#" class="safle_link" ><img src="${logoImg}" alt="Safle Logo"></a>

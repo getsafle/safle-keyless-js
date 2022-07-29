@@ -25,6 +25,9 @@ class Web3Provider extends EventEmitter {
         if( !e.method ){
             return new RPCError('Method not described');
         } 
+        if( !this.keyless.isConnected() ){
+            return new RPCError('Provider not connected');
+        }
         
         switch( e.method ){
 
