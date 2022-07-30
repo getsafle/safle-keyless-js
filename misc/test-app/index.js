@@ -191,11 +191,11 @@ window.onload = async() => {
                 'from': activeAddress,
                 'to': toAddress, // faucet address to return eth
                 'value': w3.utils.toWei( '0.00001', 'ether'),
-                // 'gas': 30000,
-                // 'gasPrice': 10,
+                'gas': 30000,
+                'gasPrice': 10,
                 'nonce': nonce,
-                'maxPriorityFeePerGas': 10,
-                'maxFeePerGas': 10,
+                // 'maxPriorityFeePerGas': 10,
+                // 'maxFeePerGas': 10,
                 'data': null,
                 'type': '0x2',
             };
