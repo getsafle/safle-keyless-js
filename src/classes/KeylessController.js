@@ -180,8 +180,12 @@ class KeylessController {
 
     // send transaction func
     sendTransaction( config ){
+        const trans = this._sanitizeTransaction( config );
+        if( !trans ){
+            return;
+        }
         this.activeTransaction = {
-            data: config,
+            data: trans,
         };
         this.activeTransaction.promise = new Promise( ( res, rej ) => {
             if( this._isMobileVault ){
@@ -369,7 +373,7 @@ class KeylessController {
                     }
                 }
 
-                // kl_log( resp );
+                // kl_log( 'FEES', resp );
 
                 response = {
                     estimatedBaseFee: '0',
@@ -399,6 +403,7 @@ class KeylessController {
                 const url = `https://gas-api.metaswap.codefi.network/networks/${chainId}/suggestedGasFees`;
                 response = await this.getRequest({ url });
             }
+            console.log('FEES', response );
             return response;
         } catch( e ){
             kl_log('error', e );
@@ -429,6 +434,9 @@ class KeylessController {
         const rawTx = await this._createRawTransaction( trans );
         rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
         rawTx.to = rawTx.to.substr(0, 2)+ rawTx.to.substr(-40).toLowerCase();
+
+        console.log("TRANS", trans );
+        // return false;
         
         const state = Storage.getState();
         const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
@@ -755,6 +763,25 @@ class KeylessController {
             return null;
         }
         return res.data?.vaultStorage?.mobile == true;
+    }
+
+    _sanitizeTransaction( config ){
+        try {
+            const allowedParams = ['from', 'to', 'value', 'gas', 'gasPrice', 'nonce', 'maxPriorityFeePerGas', 'maxFeePerGas', 'data', 'type', 'chainId'];
+            let illegalAttr = false;
+            for( var i in config ){
+                if( allowedParams.indexOf( i ) == -1 ){
+                    illegalAttr = i;
+                };
+            }
+            if( illegalAttr ){
+                throw new Error(`Invalid transaction attribute "${illegalAttr}"`);
+            }
+            return config;
+        } catch ( e ){
+            console.error( e.message );
+            return false;
+        }
     }
 
     async loadTokenData() {

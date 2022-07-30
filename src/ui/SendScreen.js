@@ -201,7 +201,8 @@ class SendScreen extends UIScreen {
             const chosenGas = this.gasFees[ this.advancedFee ];
             
             if( this.advancedFee == 'custom'){
-                this.keyless.kctrl.setGasForTransaction( this.customGasLimit, this.gasFees['medium'].suggestedMaxFeePerGas, this.customPrioFee );
+                const maxFee = this.gasFees['medium'].suggestedMaxFeePerGas < this.customPrioFee? this.customPrioFee+0.000001 : this.gasFees['medium'].suggestedMaxFeePerGas;
+                this.keyless.kctrl.setGasForTransaction( this.customGasLimit, maxFee, this.customPrioFee );
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
                 const gas = await this.keyless.kctrl.estimateGas( trans.data );
@@ -340,10 +341,14 @@ class SendScreen extends UIScreen {
         
 
         if( this.advancedFee == 'custom'){
+            console.log('FEE', this.gasFees['medium'] );
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
             fee = ( parseInt( this.gasFees['medium'].suggestedMaxFeePerGas ) + parseInt( priorityFee ) ) * gasLimit;
+            if( this.gasFees['medium'].suggestedMaxFeePerGas < priorityFee ){
+                fee = ( parseInt( priorityFee ) + parseInt( priorityFee ) ) * gasLimit;
+            }
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.chosenFee = 'custom';
             this.customGasLimit = gasLimit;
@@ -377,7 +382,12 @@ class SendScreen extends UIScreen {
             const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
-            const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+            let maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+            //if customPriorityFee is bigger than maxFee, make maxFee same as customPrio
+            if( chosenGas.suggestedMaxFeePerGas < chosenGas.customPrioFee ){
+                maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.customPrioFee ) );
+            }
+
             // kl_log( 'chosenGas', gas, fee );
             // kl_log( feeETH, feeUSD );
             this.el.querySelector('.transaction__checkout__input h3')
