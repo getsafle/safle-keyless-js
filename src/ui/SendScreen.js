@@ -12,6 +12,7 @@ import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 import { middleEllipsisMax, formatXDecimals, kl_log } from '../helpers/helpers';
+import txEstimates from '../helpers/txEstimates';
 
 const debounce = ( fn, delay ) => {
     let tm = false;
@@ -87,7 +88,7 @@ class SendScreen extends UIScreen {
               }
 
               this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = this.feeETH;
-              this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime + ' Sec';
+              this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = this.likeTime;
 
               this.populateOptions();
 
@@ -359,14 +360,15 @@ class SendScreen extends UIScreen {
             const chosenGas = this.gasFees[ this.advancedFee ];
             kl_log('gas', chosenGas )
             
-            likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+            // likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+            likeTime = this.getTimeEstimate( this.advancedFee );
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
             fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
         }        
 
         this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = formatXDecimals( feeETH, 6 );
-        this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? 'Likely in < '+ likeTime + ' Sec' : 'Unkown Sec';
+        this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
     async populateGasEstimate(){
@@ -376,7 +378,7 @@ class SendScreen extends UIScreen {
         if( this.chosenFee == 'custom'){
             kl_log('calc. custom fee ', this.customGasLimit );
 
-            this.el.querySelector('.transaction__checkout__time').innerHTML = 'unknown';
+            this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
             const chosenGas = this.gasFees[ 'medium' ];
             
             const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
@@ -410,8 +412,9 @@ class SendScreen extends UIScreen {
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];
-                this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
-                this.el.querySelector('.transaction__checkout__time').innerHTML = 'Likely in < '+ this.likeTime +' Sec';
+                // this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
+                this.likeTime = this.getTimeEstimate( this.chosenFee );
+                this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
                 const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
@@ -547,6 +550,21 @@ class SendScreen extends UIScreen {
         }
     }
 
+    getTimeEstimate( kind ){
+        if( !kind ){
+            return;
+        }
+        console.log('Show time estimate for ', kind);
+        let chainName = (this.keyless.getCurrentChain()).chain.network;
+        if( chainName == 'ropsten'){
+            chainName = 'ethereum';
+        }
+        if( chainName == 'mumbai'){
+            chainName = 'polygon';
+        }
+        return txEstimates.hasOwnProperty( chainName )? txEstimates[ chainName ][ kind ] : 'Unknown Sec';
+    }
+
     render(){
 
         return `<div class="transaction">
@@ -639,6 +657,10 @@ class SendScreen extends UIScreen {
                             <img class='transaction__pop-up-item-icon' src="${eth2Icon}" alt="ETH ICON">
                             <div>
                                 <h2>0.000823</h2>
+                            </div>
+                        </div>
+                        <div class="transaction__pop-up__body--flex">
+                            <div style="width: 100%">
                                 <div class="transaction__checkout__time">
                                     Likely in &lt; 30 Sec
                                 </div>
