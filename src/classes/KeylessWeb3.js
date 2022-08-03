@@ -23,6 +23,10 @@ class KeylessWeb3 {
         this._connected = false;
         this._env = config.env || 'dev';
 
+        if( !window.grecaptcha ){
+            this.injectScripts();
+        }
+
         // setTimeout( () => {
         //     this.provider.emit('connected', { chainId } );
         // }, 100 );        
@@ -179,6 +183,19 @@ class KeylessWeb3 {
         let activeChain = this.allowedChains.find( e => e.chainId == chainId );
         kl_log('CHAIN', activeChain );
         return activeChain.symbol.toLowerCase();
+    }
+
+    injectScripts(){
+        const el = document.createElement('div');
+        el.className = 'g-recaptcha';
+        el.setAttribute('data-sitekey', process.env.RECAPTCHA_SITE_KEY );
+        el.setAttribute('data-size', 'invisible');
+        document.body.appendChild( el );
+        var script= document.createElement('script');
+        script.setAttribute('async', true );
+        script.setAttribute('defer', true );
+        script.src = "https://www.google.com/recaptcha/api.js";
+        document.head.appendChild(script);
     }
 
 

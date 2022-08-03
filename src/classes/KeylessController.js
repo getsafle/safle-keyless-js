@@ -82,6 +82,9 @@ class KeylessController {
     }
 
     async login( user, pass ){
+        if( !window.grecaptcha ){
+            kl_log('Recaptcha not available.');
+        }
         this._setLoading( true );
         kl_log('login with user '+user+', pass '+pass );
 
