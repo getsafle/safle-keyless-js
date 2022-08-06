@@ -135,10 +135,15 @@ class KeylessController {
     _loginSuccess( openDashboard = true ){
         const addreses = this.getAccounts();
         this.keylessInstance._connected = true;
-        this.keylessInstance.provider.emit('login successful', addreses );
-        if( openDashboard ){
-            this.keylessInstance.openDashboard();
-        }
+        const chainId = this.keylessInstance.getCurrentChain()?.chainId;
+        this.keylessInstance.provider.emit('connect', { chainId });
+
+        setTimeout( () => {
+            this.keylessInstance.provider.emit('login successful', addreses );
+            if( openDashboard ){
+                this.keylessInstance.openDashboard();
+            }
+        }, 50 );
     }
 
     // re-build web3 instance for the current blockchain

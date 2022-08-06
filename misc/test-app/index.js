@@ -89,7 +89,7 @@ window.onload = async() => {
         }
 
         function add_events(){
-            w3.currentProvider.on('connected', connected_handler );
+            w3.currentProvider.on('connect', connected_handler );
             w3.currentProvider.on('disconnect', disconnect_handler );
             w3.currentProvider.on('login successful', update_loggedin );
 
