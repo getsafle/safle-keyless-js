@@ -346,7 +346,7 @@ class SendScreen extends UIScreen {
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
-            fee = ( parseInt( this.gasFees['medium'].suggestedMaxFeePerGas ) + parseInt( priorityFee ) ) * gasLimit;
+            fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( priorityFee ) ) * gasLimit;
             if( this.gasFees['medium'].suggestedMaxFeePerGas < priorityFee ){
                 fee = ( parseInt( priorityFee ) + parseInt( priorityFee ) ) * gasLimit;
             }
@@ -363,7 +363,7 @@ class SendScreen extends UIScreen {
             // likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
             likeTime = this.getTimeEstimate( this.advancedFee );
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
-            fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+            fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
         }        
 
@@ -380,8 +380,10 @@ class SendScreen extends UIScreen {
 
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
             const chosenGas = this.gasFees[ 'medium' ];
+
+            // console.log('FEE', this.gasFees ); 
             
-            const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
+            const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
             let maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
@@ -416,7 +418,7 @@ class SendScreen extends UIScreen {
                 this.likeTime = this.getTimeEstimate( this.chosenFee );
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = ( parseInt( chosenGas.suggestedMaxFeePerGas ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+                const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
                 const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
@@ -554,15 +556,16 @@ class SendScreen extends UIScreen {
         if( !kind ){
             return;
         }
-        console.log('Show time estimate for ', kind);
-        let chainName = (this.keyless.getCurrentChain()).chain.network;
-        if( chainName == 'ropsten'){
-            chainName = 'ethereum';
-        }
-        if( chainName == 'mumbai'){
-            chainName = 'polygon';
-        }
-        return txEstimates.hasOwnProperty( chainName )? txEstimates[ chainName ][ kind ] : 'Unknown Sec';
+        console.log( (this.keyless.getCurrentChain()).chain );
+        let chainId = (this.keyless.getCurrentChain()).chain.chainId;
+        // if( chainName == 'ropsten'){
+        //     chainName = 'ethereum';
+        // }
+        // if( chainName == 'mumbai'){
+        //     chainName = 'polygon';
+        // }
+        console.log('Show time estimate for ', kind, chainId, txEstimates );
+        return txEstimates.hasOwnProperty( chainId )? txEstimates[ chainId ][ kind ] : 'Unknown Sec';
     }
 
     render(){
