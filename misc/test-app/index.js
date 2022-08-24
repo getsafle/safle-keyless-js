@@ -23,7 +23,7 @@ window.onload = async() => {
     const networks = await getNetworks();
 
     const chosenBlockchains = networks;
-    console.log('Chosen blockchains', chosenBlockchains );
+    // console.log('Chosen blockchains', chosenBlockchains );
     const env = process.env.SAFLE_ENV;
 
     const rpcUrls = {
@@ -53,11 +53,10 @@ window.onload = async() => {
             $('#balance-btn').addEventListener('click', async () => {
                 try {
                     const activeAddress = await w3.eth.personal.getAccounts();
-                    // console.log('addr', activeAddress );
                     const bal = await w3.eth.getBalance( activeAddress[0] );
                     console.log( bal );
                 } catch ( e ){
-                    console.error( e.message );
+                    console.error( e );
                 }
             });
             $('#dash-btn').addEventListener('click', ( e ) => {
@@ -182,7 +181,12 @@ window.onload = async() => {
 
         async function send_transaction(){
             if( !activeAddress ){
-                console.error('Provider not connected');
+                // console.error({ 
+                //     message: 'Provider not connected', 
+                //     code: 4200,
+                //     method: 'User denied the request'
+                // });
+                keyless.selectChain();
                 return;
             }
             const nonce = await w3.eth.getTransactionCount( activeAddress, 'latest'); // nonce starts counting from 0
@@ -206,7 +210,12 @@ window.onload = async() => {
 
         async function sign_transaction(){
             if( !activeAddress ){
-                console.error('Provider not connected');
+                // console.error({ 
+                //     message: 'Provider not connected', 
+                //     code: 4200,
+                //     method: 'User denied the request'
+                // });
+                keyless.selectChain();
                 return;
             }
 

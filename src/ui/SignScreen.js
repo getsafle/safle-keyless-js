@@ -5,7 +5,7 @@ import popoutImg from './../images/pop-out.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, maxChars, kl_log } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, maxChars, kl_log, formatMoney } from '../helpers/helpers';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 
@@ -21,8 +21,8 @@ class SignScreen extends UIScreen {
         this.keyless.kctrl._setLoading(true);
 
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true, 6 );
-        this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true, 5 );
+        this.activeWalletUSDBalance = formatMoney( await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance) );
         
         // Define html elems
         this.activeBalanceEl = this.el.querySelector('#active-balance');

@@ -11,7 +11,7 @@ import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
-import { middleEllipsisMax, formatXDecimals, kl_log } from '../helpers/helpers';
+import { middleEllipsisMax, formatXDecimals, kl_log, formatMoney } from '../helpers/helpers';
 import txEstimates from '../helpers/txEstimates';
 
 const debounce = ( fn, delay ) => {
@@ -342,7 +342,7 @@ class SendScreen extends UIScreen {
         
 
         if( this.advancedFee == 'custom'){
-            console.log('FEE', this.gasFees['medium'] );
+            kl_log('FEE', this.gasFees['medium'] );
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
@@ -381,7 +381,7 @@ class SendScreen extends UIScreen {
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
             const chosenGas = this.gasFees[ 'medium' ];
 
-            // console.log('FEE', this.gasFees ); 
+            kl_log('FEE', this.gasFees ); 
             
             const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
@@ -483,7 +483,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateBalance(){
-        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 6 );
+        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
         // const trans = this.keyless.kctrl.getActiveTransaction();
         // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
         this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
@@ -508,7 +508,7 @@ class SendScreen extends UIScreen {
             this.el.querySelector('.transaction__send').classList.remove('low-balance');
         }
 
-        this.amountUSD = await this.keyless.kctrl.getBalanceInUSD( this.amt );
+        this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
         this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
     }
 
@@ -556,15 +556,10 @@ class SendScreen extends UIScreen {
         if( !kind ){
             return;
         }
-        console.log( (this.keyless.getCurrentChain()).chain );
+        // kl_log( (this.keyless.getCurrentChain()).chain );
         let chainId = (this.keyless.getCurrentChain()).chain.chainId;
-        // if( chainName == 'ropsten'){
-        //     chainName = 'ethereum';
-        // }
-        // if( chainName == 'mumbai'){
-        //     chainName = 'polygon';
-        // }
-        console.log('Show time estimate for ', kind, chainId, txEstimates );
+        
+        kl_log('Show time estimate for ', kind, chainId, txEstimates );
         return txEstimates.hasOwnProperty( chainId )? txEstimates[ chainId ][ kind ] : 'Unknown Sec';
     }
 

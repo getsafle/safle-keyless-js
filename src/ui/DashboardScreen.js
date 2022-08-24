@@ -15,7 +15,7 @@ import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, kl_log } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, kl_log, formatMoney } from '../helpers/helpers';
 import blockchainInfo from '../helpers/blockchains';
 import ConnectedStatus from './components/ConnectedStatus';
 
@@ -38,8 +38,8 @@ class DashboardScreen extends UIScreen {
         this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
         this.activeChainUrl = this.activeChain?.rpcURL;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
-        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 6);
-        this.activeWalletUSDBalance = await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance);
+        this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 5);
+        this.activeWalletUSDBalance = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance));
         
         // Define html elems
         const connectionEl = this.el.querySelector('#connection-status');

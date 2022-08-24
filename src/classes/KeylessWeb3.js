@@ -2,6 +2,7 @@ import Web3Provider from './Web3Provider';
 import { inlineS, kl_log } from './../helpers/helpers';
 import KeylessController from './KeylessController';
 import Storage from './Storage';
+import RPCError from './RPCError';
 
 class KeylessWeb3 {
     root = false
@@ -72,10 +73,10 @@ class KeylessWeb3 {
 
     openDashboard(){
         if( !this._connected ){
-            throw new Error('Provider not connected');
+            throw new RPCError('Provider not connected');
         }
         if( !this._loggedin ){
-            throw new Error('Please login first!');
+            throw new RPCError('Please login first!');
         }
         this._showUI('dashboard');
     }

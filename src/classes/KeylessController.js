@@ -343,30 +343,6 @@ class KeylessController {
 
         try {    
             let response;
-            if( eth_node.indexOf('polygon-mumbai') != -1 ){
-                return {
-                    estimatedBaseFee: 16,
-                    high: {
-                        maxWaitTimeEstimate: 10*1000,
-                        minWaitTimeEstimate: 5*1000,
-                        suggestedMaxFeePerGas: 250,
-                        suggestedMaxPriorityFeePerGas: 250
-                        
-                    },
-                    medium: {
-                        maxWaitTimeEstimate: 30*1000,
-                        minWaitTimeEstimate: 10*1000,
-                        suggestedMaxFeePerGas: 180,
-                        suggestedMaxPriorityFeePerGas: 180
-                    }, 
-                    low: {
-                        maxWaitTimeEstimate: 60*1000,
-                        minWaitTimeEstimate: 30*1000,
-                        suggestedMaxFeePerGas: 140,
-                        suggestedMaxPriorityFeePerGas: 140
-                    }
-                };
-            } 
 
             if( eth_node.indexOf('polygon') != -1 ){
                 //fetch gas for polygon
@@ -374,17 +350,19 @@ class KeylessController {
                 let resp = await this.getRequest( { url} );
 
                 if( !resp ){
+                    kl_log('get gas from polygonscan as backup');
+                    const backup = await this.getRequest({ url: 'https://api.polygonscan.com/api?module=gastracker&action=gasoracle'});
+
                     resp = {
-                        fastest: 0, 
-                        standard: 0, 
-                        fast: 0                       
+                        fastest: parseFloat( backup.result.FastGasPrice ), 
+                        standard: parseFloat( backup.result.ProposeGasPrice ), 
+                        safeLow: parseFloat( backup.result.SafeGasPrice )                 
                     }
+                    // kl_log('FEE backup', resp );
                 }
 
-                // kl_log( 'FEES', resp );
-
                 response = {
-                    estimatedBaseFee: '0',
+                    estimatedBaseFee: 0,
                     high: {
                         maxWaitTimeEstimate: 10*1000,
                         minWaitTimeEstimate: 5*1000,
@@ -395,14 +373,14 @@ class KeylessController {
                     medium: {
                         maxWaitTimeEstimate: 30*1000,
                         minWaitTimeEstimate: 10*1000,
-                        suggestedMaxFeePerGas: resp.fast,
-                        suggestedMaxPriorityFeePerGas: resp.fast
+                        suggestedMaxFeePerGas: resp.standard,
+                        suggestedMaxPriorityFeePerGas: resp.standard
                     }, 
                     low: {
                         maxWaitTimeEstimate: 60*1000,
                         minWaitTimeEstimate: 30*1000,
-                        suggestedMaxFeePerGas: resp.standard,
-                        suggestedMaxPriorityFeePerGas: resp.standard
+                        suggestedMaxFeePerGas: resp.safeLow,
+                        suggestedMaxPriorityFeePerGas: resp.safeLow
                     }
                 };
 
@@ -410,8 +388,33 @@ class KeylessController {
                 const chainId = activeChain.chainId;
                 const url = `https://gas-api.metaswap.codefi.network/networks/${chainId}/suggestedGasFees`;
                 response = await this.getRequest({ url });
+
+                if( !response ){
+                    //get gas from etherscan as backup
+                    const backup = await this.getRequest({ url: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle'});
+                    response = {
+                        "low": {
+                            suggestedMaxPriorityFeePerGas: parseFloat( backup.result.SafeGasPrice ),
+                            suggestedMaxFeePerGas: parseFloat( backup.result.SafeGasPrice ),
+                            minWaitTimeEstimate: 15000,
+                            maxWaitTimeEstimate: 30000
+                        },
+                        "medium": {
+                            suggestedMaxPriorityFeePerGas: parseFloat( backup.result.ProposeGasPrice ),
+                            suggestedMaxFeePerGas: parseFloat( backup.result.ProposeGasPrice ),
+                            minWaitTimeEstimate: 15000,
+                            maxWaitTimeEstimate: 45000
+                        },
+                        "high": {
+                            suggestedMaxPriorityFeePerGas: parseFloat( backup.result.FastGasPrice ),
+                            suggestedMaxFeePerGas: parseFloat( backup.result.FastGasPrice ),
+                            minWaitTimeEstimate: 15000,
+                            maxWaitTimeEstimate: 60000
+                        },
+                        "estimatedBaseFee": parseFloat( backup.result.suggestBaseFee ),
+                    }
+                }
             }
-            console.log('FEES', response );
             return response;
         } catch( e ){
             kl_log('error', e );
@@ -443,7 +446,7 @@ class KeylessController {
         rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
         rawTx.to = rawTx.to.substr(0, 2)+ rawTx.to.substr(-40).toLowerCase();
 
-        console.log("TRANS", trans );
+        kl_log("TRANS", trans );
         // return false;
         
         const state = Storage.getState();
