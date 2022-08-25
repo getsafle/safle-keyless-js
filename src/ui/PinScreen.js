@@ -137,11 +137,12 @@ class PinScreen extends UIScreen {
             // }
             // kl_log( this.input.get(0).value );
 
-            var val = this.input.value.trim();
-            // kl_log( val );
+            let val = this.input.value.trim();
             if( val.length > 6 ){
-                return false;
+                val = val.slice( 0, 6 );
+                this.input.value = val;
             }
+            console.log( val );
             if( val.length == 6 ){
                 this.submitBtn.removeAttribute('disabled');
             } else {
