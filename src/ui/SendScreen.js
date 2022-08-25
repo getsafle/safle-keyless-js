@@ -11,7 +11,7 @@ import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
-import { middleEllipsisMax, formatXDecimals, kl_log, formatMoney } from '../helpers/helpers';
+import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/helpers';
 import txEstimates from '../helpers/txEstimates';
 
 const debounce = ( fn, delay ) => {
@@ -59,10 +59,9 @@ class SendScreen extends UIScreen {
         let adv_options_content = this.el.querySelector('.dropdown__tp--4__content');
         let adv_options_btn = this.el.querySelector('.adv_option-btn');
 
-        //transaction__pop-up__close
         this.el.querySelector('.transaction__pop-up__close').addEventListener('click', (e) => {
           e.preventDefault();
-          kl_log('clicked close modal');
+          
           
           if(edit_popup.classList.contains('closed')){
             edit_popup.classList.remove('closed');
@@ -70,16 +69,14 @@ class SendScreen extends UIScreen {
           }else{
 
             edit_popup.classList.add('closed');
-            // close adv option btn and content
              adv_options_btn.classList.remove('dropdown-open');
              adv_options_content.classList.add('hide');
           }
         });
 
-        //transaction__checkout__input__edit
         this.el.querySelector('.transaction__checkout__input__edit').addEventListener('click', (e) => {
               e.preventDefault();
-              kl_log('clicked edit pen');
+              
               
               if(edit_popup.classList.contains('closed')){
                 edit_popup.classList.remove('closed');
@@ -95,10 +92,10 @@ class SendScreen extends UIScreen {
               clearInterval( this.feeTm );
         });
 
-        // advanced options 
+        
         adv_options_btn.addEventListener('click', (e) => {
               e.preventDefault();
-              kl_log('toggle adv options');
+              
               
               if(adv_options_content.classList.contains('hide')){
                 adv_options_content.classList.remove('hide');
@@ -109,8 +106,7 @@ class SendScreen extends UIScreen {
                 adv_options_btn.classList.remove('dropdown-open');
               }
         });
-        // clicked options
-        // check if custom else disable
+        
         let radioVal;
         const radios = document.querySelectorAll('input[name="fee_gwei"]');
         const gas_limit =  this.el.querySelector('.gas_limit');
@@ -120,13 +116,13 @@ class SendScreen extends UIScreen {
             radio.addEventListener('click', () => {
                 radioVal = radio.value;
                 if(radioVal != 'custom'){
-                    //add disable
+                    
                     gas_limit.setAttribute('disabled', 'disabled');
                     priority_fee.setAttribute('disabled', 'disabled');
                     radio_parent[0].classList.add('inactive');
                     radio_parent[1].classList.add('inactive');
                 }else{
-                    //remove disable
+                    
                     gas_limit.removeAttribute('disabled');
                     priority_fee.removeAttribute('disabled');
                     radio_parent[0].classList.remove('inactive');
@@ -140,45 +136,35 @@ class SendScreen extends UIScreen {
 
         this.el.querySelector('.proceed_popup_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              kl_log('clicked proceed popup btn');
-
-            // this.gas_limit =  this.el.querySelector('.gas_limit').value;
-            // this.priority_fee =  this.el.querySelector('.priority_fee').value;
+              
             this.calculateCustomFee();
             this.populateGasEstimate();
 
-              // close popup 
+              
               edit_popup.classList.add('closed');
-              // close adv options 
+              
               adv_options_content.classList.add('hide');
               adv_options_btn.classList.remove('dropdown-open');
-              // save your options
+              
             this.addFeeInterval();
         });
         Array.from( this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close') ).forEach( ( el ) => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                kl_log('clicked cancel popup btn');
-                // close popup 
+                
                 edit_popup.classList.add('closed');
-                // close adv options 
                 adv_options_content.classList.add('hide');
                 adv_options_btn.classList.remove('dropdown-open');
                 
-                // remove values and checkboxes
                 radioVal = '';
                 gas_limit.setAttribute('disabled', 'disabled');
                 priority_fee.setAttribute('disabled', 'disabled');
                 radio_parent[0].classList.add('inactive');
                 radio_parent[1].classList.add('inactive');
     
-                //uncheck all checkboxes
                 radios.forEach(function(radio, index){
                 radios[index].checked = false;
                 });
-                //remove any modifcation ro gas_limit / priority fee [ set them back to default]
-                // gas_limit.value = '21000';
-                // priority_fee.value = '1.5';
 
                 if( this.chosenFee != 'custom'){
                     this.addFeeInterval();
@@ -188,17 +174,15 @@ class SendScreen extends UIScreen {
 
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              kl_log('clicked tips_btn');
+              
         }); 
 
         this.el.querySelector('.open_wallet_btn').addEventListener('click', (e) => {
               e.preventDefault();
-              kl_log('clicked open_wallet_btn');
+              
         });  
         this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
             clearInterval( this.feeTm );
-            // this.keyless.kctrl.activeTransaction.resolve({ status: 'sent' });
-            // this.keyless._hideUI();
             const chosenGas = this.gasFees[ this.advancedFee ];
             
             if( this.advancedFee == 'custom'){
@@ -209,18 +193,17 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas( trans.data );
                 this.keyless.kctrl.setGasForTransaction( gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas );
             }
-            // kl_log( this.keyless.kctrl.activeTransaction );
+            // 
 
             this.keyless._showUI('pin');
 
             e.target.disabled = true;
             e.preventDefault();
-            kl_log('clicked confirm_btn');
+            
         }); 
 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
             e.preventDefault();
-            // Show reject confirmation modal
             return new ConfirmationDialog(
                 this.el, 
                 `Are you sure you want to reject this transaction?`, 
@@ -229,13 +212,10 @@ class SendScreen extends UIScreen {
             );
         });
 
-        // inputs values up and down
         const inputs_arrow_gas = document.querySelectorAll('.gas_limit_wrp');
-        // .transaction__select__arrow
 
         inputs_arrow_gas.forEach(up_down => {
 
-            // find if up click or down click do stuff
             let down_arrow = up_down.querySelector('.input_down');
             let up_arrow = up_down.querySelector('.input_up');
             let input_val = up_down.querySelector('input[type="number"]');
@@ -255,7 +235,6 @@ class SendScreen extends UIScreen {
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
-                // remove 10 points to this value
                 input_val_total -= 10;
                 input_val.value = Math.max(input_val_total, 0 );
 
@@ -264,19 +243,14 @@ class SendScreen extends UIScreen {
             up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
-                input_val_total += 10;
-                // add 10 points to this value                
+                input_val_total += 10;            
                 input_val.value = Math.max(input_val_total, 0 )
                 this.calculateCustomFee();
             });
         });
-        // inputs values up and down
         const inputs_arrow_fee = document.querySelectorAll('.priority_fee_wrp');
-        // .transaction__select__arrow
 
         inputs_arrow_fee.forEach(up_down => {
-
-            // find if up click or down click do stuff
             let down_arrow = up_down.querySelector('.input_down');
             let up_arrow = up_down.querySelector('.input_up');
             let input_val = up_down.querySelector('input[type="number"]');
@@ -298,7 +272,6 @@ class SendScreen extends UIScreen {
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
-                // remove 10 points to this value
                 input_val_total -= 1;
                 input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
 
@@ -307,8 +280,7 @@ class SendScreen extends UIScreen {
             up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
-                input_val_total += 1;
-                // add 10 points to this value                
+                input_val_total += 1;            
                 input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
 
                 this.calculateCustomFee();
@@ -342,7 +314,7 @@ class SendScreen extends UIScreen {
         
 
         if( this.advancedFee == 'custom'){
-            kl_log('FEE', this.gasFees['medium'] );
+            
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
@@ -358,9 +330,7 @@ class SendScreen extends UIScreen {
         } else {
             this.chosenFee = this.advancedFee;
             const chosenGas = this.gasFees[ this.advancedFee ];
-            kl_log('gas', chosenGas )
             
-            // likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
             likeTime = this.getTimeEstimate( this.advancedFee );
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
             fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
@@ -374,26 +344,23 @@ class SendScreen extends UIScreen {
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
 
-        // kl_log( this.chosenFee );
+        // 
         if( this.chosenFee == 'custom'){
-            kl_log('calc. custom fee ', this.customGasLimit );
+            
 
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
             const chosenGas = this.gasFees[ 'medium' ];
 
-            kl_log('FEE', this.gasFees ); 
+            
             
             const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
             let maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
-            //if customPriorityFee is bigger than maxFee, make maxFee same as customPrio
             if( chosenGas.suggestedMaxFeePerGas < chosenGas.customPrioFee ){
                 maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.customPrioFee ) );
             }
 
-            // kl_log( 'chosenGas', gas, fee );
-            // kl_log( feeETH, feeUSD );
             this.el.querySelector('.transaction__checkout__input h3')
             .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
             '<span> $' + this.feeUSD + '</span>';
@@ -409,8 +376,6 @@ class SendScreen extends UIScreen {
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
             const gas = await this.keyless.kctrl.estimateGas( trans.data );
-            // kl_log('GAS', gas );
-            kl_log( this.gasFees );
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];
@@ -422,8 +387,7 @@ class SendScreen extends UIScreen {
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
                 const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
-                // kl_log( 'chosenGas', gas, fee );
-                // kl_log( feeETH, feeUSD );
+
                 this.el.querySelector('.transaction__checkout__input h3')
                 .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
                 '<span> $' + this.feeUSD + '</span>';
@@ -456,10 +420,10 @@ class SendScreen extends UIScreen {
         if( trans ){
             this.populateAddresses( trans );
             this.keyless.kctrl._setLoading( true );
-            // await Promise.all( [
+            
                 await this.populateBalance(),
                 await this.populateAmount( trans )
-            // ] );
+            
             this.keyless.kctrl._setLoading( false );
         }
 
@@ -484,24 +448,18 @@ class SendScreen extends UIScreen {
 
     async populateBalance(){
         this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
-        // const trans = this.keyless.kctrl.getActiveTransaction();
-        // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
         this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
     }
 
     async populateAmount( trans ){
-        kl_log( trans );
+        
         const amt = trans.data.value;
         this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-        
-        // if( this.amt > this.balance ){
-        //     this.setProceedActive( false );
-        // }
 
         this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
         
-        kl_log('populate amount ');
-        kl_log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
+        
+        
         if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
             this.el.querySelector('.transaction__send').classList.add('low-balance');
         } else {
@@ -514,11 +472,11 @@ class SendScreen extends UIScreen {
 
     setFeesLoading( flag ){
         if( flag ){
-            kl_log('loading true');
+            
             this.el.classList.add('fee_loading');
             this.checkCanProceed();
         } else {
-            kl_log('loading stopped');
+            
             this.el.classList.remove('fee_loading');
             this.checkCanProceed();
         }
@@ -542,9 +500,6 @@ class SendScreen extends UIScreen {
     }
 
     checkCanProceed(){
-        kl_log('check can proceed');
-        kl_log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
-
         if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
            this.setProceedActive( false );
         } else {
@@ -556,10 +511,10 @@ class SendScreen extends UIScreen {
         if( !kind ){
             return;
         }
-        // kl_log( (this.keyless.getCurrentChain()).chain );
+        // 
         let chainId = (this.keyless.getCurrentChain()).chain.chainId;
         
-        kl_log('Show time estimate for ', kind, chainId, txEstimates );
+        
         return txEstimates.hasOwnProperty( chainId )? txEstimates[ chainId ][ kind ] : 'Unknown Sec';
     }
 

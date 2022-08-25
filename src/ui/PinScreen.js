@@ -3,7 +3,7 @@ import closeImg from './../images/close.png';
 import tokenIconImg from './../images/token-icon.webp';
 import copyIcon from './../images/copy-icon.svg';
 import UIScreen from '../classes/UIScreen';
-import { copyToClipboard, middleEllipsisMax, kl_log } from '../helpers/helpers';
+import { copyToClipboard, middleEllipsisMax } from '../helpers/helpers';
 import ConfirmationDialog from './components/ConfirmationDialog';
 
 
@@ -43,7 +43,7 @@ class PinScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('copied to clipboard');
+            
             const address = this.getAddress();
             copyToClipboard( address );
         });
@@ -84,7 +84,7 @@ class PinScreen extends UIScreen {
                 } else if( this.keyless.kctrl.activeSignRequest ){
                     const encMsg = await this.keyless.kctrl._signMessage( parseInt( pin ) );
 
-                    kl_log( encMsg );
+                    
                 } else {
                     throw new Error('Invalid invocation of PinConfirm Screen');
                 }
@@ -130,15 +130,15 @@ class PinScreen extends UIScreen {
 
         //add event listner
         this.el.addEventListener('keyup', ( e ) => {
-            // kl_log( e.keyCode );
+            // 
             // if( !( (e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 8) ){
-            //     kl_log('prevented');
+            //     
             //     e.preventDefault();
             // }
-            // kl_log( this.input.get(0).value );
+            // 
 
             var val = this.input.value.trim();
-            // kl_log( val );
+            // 
             if( val.length > 6 ){
                 return false;
             }

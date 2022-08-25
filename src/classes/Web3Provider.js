@@ -1,6 +1,5 @@
 import EventEmitter from './EventEmitter';
 import RPCError from './RPCError';
-import { kl_log } from './../helpers/helpers';
 
 class Web3Provider extends EventEmitter {
     connected = false;
@@ -9,16 +8,6 @@ class Web3Provider extends EventEmitter {
         super();
         
         this.keyless = config?.keylessInstance;
-        kl_log('evt emitter');
-
-        // this.emit('connected ');
-        // return new Proxy( this, {
-        //     get: async function( e ){
-        //         kl_log( 'ok' );
-
-        //         return Promise.resolve({ ok: true });
-        //     }
-        // });
     }
 
     async request( e ){
@@ -82,7 +71,7 @@ class Web3Provider extends EventEmitter {
 
             case 'eth_getTransactionReceipt':
                 return {
-                    transactionHash: '0xb903239f8543d04b5dc1ba6579132b143087c68db1b2168786408fcbce568238',
+                    transactionHash: this.keyless.kctrl._lastReceipt
                 }
             break;
 
@@ -94,7 +83,7 @@ class Web3Provider extends EventEmitter {
             break;
 
             default:
-                kl_log('default');
+                
 
             break;
         }

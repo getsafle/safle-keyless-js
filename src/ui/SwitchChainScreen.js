@@ -1,19 +1,11 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
 import network2 from './../images/network-2.svg'
-// import network3 from './../images/network-3.svg'
-// import network4 from './../images/network-4.svg'
-// import network5 from './../images/network-5.svg'
-// import network6 from './../images/network-6.svg'
 import tokenIcon from './../images/token-icon.webp'
-// import user2 from './../images/user-2.webp'
-// import user3 from './../images/user-3.webp'
-// import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import Dropdown from './components/DropDown';
 import AddressDropdown from './components/AddressDropdown';
-import { kl_log } from '../helpers/helpers';
 
 class SwitchChainScreen extends UIScreen {
     currentChain;
@@ -25,9 +17,7 @@ class SwitchChainScreen extends UIScreen {
         this.chosenAddress = this.keyless.kctrl.wallets[this.activeWallet].address;
         this.currentChain = this.keyless.getCurrentChain().chainId;
 
-        // on close
         this.el.querySelector('.close').addEventListener('click', () => {
-            // this.keyless.kctrl._loginSuccess();
             this.keyless._connected = false;
             this.keyless._hideUI();
         });
@@ -39,7 +29,6 @@ class SwitchChainScreen extends UIScreen {
         let addreses = [{ label: '', balance: ''}];
 
         const initial =  chains.find( e => this.keyless.getCurrentChain().chainId == e.chainId )
-        // const initial = this.keyless.getCurrentChain().chain
 
         this.dropdown1 = new Dropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--1', chains, { initial } );
         this.dropdown2 = new AddressDropdown( this.mount, 'dropdown__tp--1', 'dropdown__content--2', addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
@@ -53,8 +42,7 @@ class SwitchChainScreen extends UIScreen {
             const addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.wallets, localWeb3Obj );
             this.dropdown2.setLoading( false );
             this.keyless.kctrl._setLoading( false );
-            // this.dropdown2.setOptions( addreses );
-            // kl_log('PLM', this.keyless.getCurrentNativeToken() );
+            
             const nativeToken = await this.keyless.getNativeTokenFor( option.chainId );
             this.dropdown2.update( addreses, nativeToken.toUpperCase(), this.chosenAddress );
         });
@@ -66,7 +54,7 @@ class SwitchChainScreen extends UIScreen {
 
         this.el.querySelector('#proceed_btn').addEventListener('click', () => {
             this.keyless._hideUI();
-            kl_log('CURR', this.currentChain );
+        
 
             this.keyless.switchNetwork( this.currentChain );
             this.keyless.switchWallet( this.activeWallet );

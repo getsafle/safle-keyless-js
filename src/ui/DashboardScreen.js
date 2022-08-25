@@ -1,65 +1,52 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
 import networkImg from './../images/network-icon.svg';
-// import network2 from './../images/network-2.svg'
-// import network3 from './../images/network-3.svg'
-// import network4 from './../images/network-4.svg'
-// import network5 from './../images/network-5.svg'
-// import network6 from './../images/network-6.svg'
 import tokenIcon from './../images/token-icon.webp'
-// import user2 from './../images/user-2.webp'
-// import user3 from './../images/user-3.webp'
-// import user4 from './../images/user-4.webp'
 import popoutImg from './../images/pop-out.svg'
 import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, kl_log, formatMoney } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, formatMoney } from '../helpers/helpers';
 import blockchainInfo from '../helpers/blockchains';
 import ConnectedStatus from './components/ConnectedStatus';
+import config from './../config/config';
 
 class DashboardScreen extends UIScreen {
     connectionStatus;
     activeChain = '';
     activeChainUrl = '';
-    activeWalletAddress = ''; // string
-    activeWalletBalance = 0; // number
-    activeWalletUSDBalance = 0; // number
+    activeWalletAddress = '';
+    activeWalletBalance = 0;
+    activeWalletUSDBalance = 0;
     
-
-    // Retrive dashboard data for UI
     async populateData() {
         let tokenHtmlList = '';
         const activeChainId = this.keyless.getCurrentChain().chainId;
         this.keyless.kctrl._setLoading(true);
 
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.connectionStatus = this.keyless.isConnected();
         this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
         this.activeChainUrl = this.activeChain?.rpcURL;
-        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
+        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 5);
         this.activeWalletUSDBalance = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance));
         
-        // Define html elems
         const connectionEl = this.el.querySelector('#connection-status');
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
 
-        // Update connection status
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
-        // Attribute values to html elems
         this.activeBalanceEl.value = this.activeWalletBalance || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
         await this.keyless.kctrl.getTokens().then( tokensData => {
-            kl_log( 'tokens', tokensData );
+            
             if (!tokensData.hasOwnProperty('error') && tokensData.length ) {
                 tokensData.forEach( ( token ) => {
                     const {symbol, balance, decimal} = token;
-                    // kl_log( 'this?', this._renderTokenEl );
                     const tokenIcon = this.keyless.kctrl.getTokenIcon( token );
                     tokenHtmlList += this._renderTokenEl(symbol, balance, decimal, tokenIcon );
                 })
@@ -68,66 +55,48 @@ class DashboardScreen extends UIScreen {
             }
         });
         
-        // Define html elems
-        // this.setHTML('#connection-status', this._renderConnectionEl());
         this.setHTML('#active-chain', this.activeChain.name);
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 7));
         this.setHTML('#active-balance', this.activeWalletBalance || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
-
-        // kl_log( 'token cont', tokenHtmlList );
         this.setHTML('#token-list', tokenHtmlList );
 
         this.keyless.kctrl._setLoading(false);
     }
 
     async onShow() {
-       
-        
-        // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('copied to clipboard... ', this.activeWalletAddress);
+            
             copyToClipboard(this.activeWalletAddress);
         });
 
-        // select network
         this.el.querySelector('.dashboard__network').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('change network');
-            // this.keyless._hideUI();
             this.keyless.selectChain();
         });
         
-
-        // select address / change
         this.el.querySelector('.change_wallet').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('change address');
-            // this.keyless._hideUI();
+            
             this.keyless.selectChain();
         });
 
-        // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            window.open( process.env.OPEN_WALLET_LINK, '_blank' );
-            kl_log('open wallet');
-            // this.keyless._hideUI();
-            // this.keyless.selectChain();
+            window.open( config.OPEN_WALLET_LINK, '_blank' );
+            
         });
-        
-        // on show > first retrieve data
         await this.populateData();
     }
 
     _renderTokenEl(symbol, balance, decimal, icon = null ) {
-        const tokenBalance = balance / Number('1e'+decimal); // calculate 
+        const tokenBalance = balance / Number('1e'+decimal);
         return (`
         <div>
             <div>
