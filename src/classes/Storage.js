@@ -18,8 +18,6 @@ let Storage = {
 
     saveState: function( data ){
         Storage.state = { ...Storage.state, ...data };
-        //let cont = JSON.stringify( Storage.state );
-        //sessionStorage.setItem( Storage.key, cont );
         this.commit('state', Storage.state );
     },
 

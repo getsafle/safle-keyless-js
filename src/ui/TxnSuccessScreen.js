@@ -57,7 +57,7 @@ class TxnSuccessScreen extends UIScreen {
         this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
         this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
 
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.connectionStatus = this.keyless.isConnected();
         const connectionEl = this.el.querySelector('#connection-status');
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }

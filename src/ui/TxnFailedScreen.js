@@ -12,7 +12,6 @@ import Storage from '../classes/Storage';
 class TxnFailedScreen extends UIScreen {
 
     onShow(){
-        // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
@@ -31,7 +30,6 @@ class TxnFailedScreen extends UIScreen {
 
         this.el.querySelector('.txn-failed-ok-btn').addEventListener('click', (e) => {
             e.preventDefault();
-            // 
             this.keyless._hideUI();
             
         });
@@ -41,8 +39,6 @@ class TxnFailedScreen extends UIScreen {
             
         });
         
-       
-        // open wallet 
         this.el.querySelector('.safle_link').addEventListener('click', (e) => {
             e.preventDefault();
             
@@ -71,7 +67,7 @@ class TxnFailedScreen extends UIScreen {
             this.el.querySelector('.etherscan_link').setAttribute('href', explorer + this.lastHash );
             this.el.querySelector('.copy-address h3').innerHTML = '<span>Txn#:</span> '+ middleEllipsisMax( this.lastHash, 8 );
         }
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.connectionStatus = this.keyless.isConnected();
         const connectionEl = this.el.querySelector('#connection-status');
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }

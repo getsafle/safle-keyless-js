@@ -30,7 +30,6 @@ class Web3Provider extends EventEmitter {
                 const addrs = await this.keyless.kctrl.getAccounts();
                 if( !addrs ){
                     throw new RPCError('Please connect to DAP');
-                    // return Promise.reject( addr );
                 }
                 return Promise.resolve( [ addrs.address ] );
 
@@ -40,7 +39,6 @@ class Web3Provider extends EventEmitter {
                 if( !this.keyless._loggedin ){
                     return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
                 }
-                // const addr = this.keyless.kctrl.getAccounts();
                 return this.keyless.kctrl.getWalletBalance( e.params[0] );
             break;
 

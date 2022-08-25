@@ -51,7 +51,6 @@ class AddressDropdown {
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
                 const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // 
                 this.setOption( idx );
             }, false );
         })
@@ -74,8 +73,7 @@ class AddressDropdown {
 
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
-                const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // 
+                const idx = parseInt( e.currentTarget.getAttribute('data-option') ); 
                 this.setOption( idx );
             }, false );
         })
@@ -84,8 +82,6 @@ class AddressDropdown {
     setOption( idx ){
         if( this.options[ idx ] ){
             this.activeOption = this.options[ idx ];
-            //update icon
-            // this.el.querySelector('.title_label .icon').setAttribute('src', this.activeOption.icon );
             this.opened = false;
             this.el.querySelector( '.'+this.opContClass ).classList.add('d--none');
             this.el.querySelector('.title_label h3').innerHTML = this.activeOption.label;

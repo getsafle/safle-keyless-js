@@ -1,6 +1,6 @@
 import logoImg from './../images/logo.svg';
 import closeImg from './../images/close.png';
-// import networkImg from './../images/network-icon.svg';
+
 import user4 from './../images/user-4.webp'
 import tokenIcon from './../images/token-icon.webp'
 import editPenIcon from './../images/edit-pen.svg'
@@ -42,19 +42,12 @@ class SendScreen extends UIScreen {
 
     onShow(){
         this.setProceedActive( false );
-        // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval( this.feeTm );
             this.keyless._hideUI();
             this.keyless.kctrl.clearActiveTransaction( true );
         });
         
-        //transaction__account__address
-        // this.el.querySelector('.transaction__account__address').addEventListener('click', (e) => {
-        //       e.preventDefault();
-        //       this.keyless.selectChain();
-        // });
-        //used in 2 places
         let edit_popup = this.el.querySelector('.transaction__pop-up--overlay');
         let adv_options_content = this.el.querySelector('.dropdown__tp--4__content');
         let adv_options_btn = this.el.querySelector('.adv_option-btn');
@@ -193,8 +186,6 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas( trans.data );
                 this.keyless.kctrl.setGasForTransaction( gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas );
             }
-            // 
-
             this.keyless._showUI('pin');
 
             e.target.disabled = true;
@@ -343,8 +334,7 @@ class SendScreen extends UIScreen {
 
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
-
-        // 
+ 
         if( this.chosenFee == 'custom'){
             
 
@@ -379,7 +369,6 @@ class SendScreen extends UIScreen {
 
             if( this.gasFees ){
                 const chosenGas = this.gasFees[ this.chosenFee ];
-                // this.likeTime = Math.round( chosenGas.minWaitTimeEstimate + ( chosenGas.maxWaitTimeEstimate - chosenGas.minWaitTimeEstimate )/2)/1000;
                 this.likeTime = this.getTimeEstimate( this.chosenFee );
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
@@ -427,7 +416,7 @@ class SendScreen extends UIScreen {
             this.keyless.kctrl._setLoading( false );
         }
 
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.connectionStatus = this.keyless.isConnected();
         const connectionEl = this.el.querySelector('#connection-status');
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }
@@ -511,7 +500,6 @@ class SendScreen extends UIScreen {
         if( !kind ){
             return;
         }
-        // 
         let chainId = (this.keyless.getCurrentChain()).chain.chainId;
         
         

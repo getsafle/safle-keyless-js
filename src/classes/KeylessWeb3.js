@@ -27,21 +27,11 @@ class KeylessWeb3 {
 
         if( !window.grecaptcha ){
             this.injectScripts();
-        }
-
-        // setTimeout( () => {
-        //     this.provider.emit('connected', { chainId } );
-        // }, 100 );        
+        }     
     }
 
-    // public functions
-
     login(){
-        
-
-        // this._connected = true;
         const { chainId } = this.getCurrentChain();
-        // this.provider.emit('connected', { chainId } );
 
         if( !this._loggedin ){
             this._showUI('login');
@@ -54,10 +44,7 @@ class KeylessWeb3 {
 
     async isLoggedIn() {
         if (!this._loggedin) {
-            // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
-
-            // 
 
             if (!vault || !decriptionKey) {
                 return false;
@@ -66,7 +53,6 @@ class KeylessWeb3 {
                 this._loggedin = true;
             }
         }
-        // user is logged in
         return true
     }
 
@@ -165,7 +151,6 @@ class KeylessWeb3 {
     }
 
 
-    // private functions
     async _showUI( screenName ){
         this._hideUI();
 
@@ -214,14 +199,11 @@ class KeylessWeb3 {
     }
 
     _getZIndex(){
-        //if( !this._zIndex ){
         this._zIndex = Array.from(document.querySelectorAll('body *')).reduce( (acc, el) => {
             const num = parseFloat( window.getComputedStyle(el, null).zIndex);
             return !isNaN( num )? Math.max( acc, num ) : acc;
         }, 0 );
 
-        // 
-        //}
         return this._zIndex + 10;
     }
 

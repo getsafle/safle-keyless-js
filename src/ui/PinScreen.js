@@ -10,7 +10,6 @@ import ConfirmationDialog from './components/ConfirmationDialog';
 class PinScreen extends UIScreen {
 
     onShow(){
-        // on close
         this.el.querySelector('.close').addEventListener('click', ( e ) => {
             e.preventDefault();
             return new ConfirmationDialog(
@@ -122,26 +121,18 @@ class PinScreen extends UIScreen {
         this.submitBtn = this.el.querySelector('.proceed_btn');
         this.submitBtn.setAttribute('disabled', 'disabled');
         this.pinDisplay = this.el.querySelector('.input-areas');
-        //add event listner
         this.input.addEventListener('click', () => {
             this.cursorHandler();       
             this.showError('');
         });
 
-        //add event listner
         this.el.addEventListener('keyup', ( e ) => {
-            // 
-            // if( !( (e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 8) ){
-            //     
-            //     e.preventDefault();
-            // }
-            // 
-
-            var val = this.input.value.trim();
-            // 
+            let val = this.input.value.trim();
             if( val.length > 6 ){
-                return false;
+                val = val.slice( 0, 6 );
+                this.input.value = val;
             }
+            console.log( val );
             if( val.length == 6 ){
                 this.submitBtn.removeAttribute('disabled');
             } else {

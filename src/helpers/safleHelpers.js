@@ -52,14 +52,12 @@ export function generateRandomNumber() {
     return { response: { firstNumber, secondNumber } };
 };
 
-// Method to generate encryption key
 export async function generateEncryptionKey() {
     const bytes = new Uint8Array(64);
     const encryptionKey = cryptoRandomString(bytes);
     return encryptionKey
 }
 
-// Method to generate pdkey
 export async function generatePDKey({ safleID, password }) {
     const passwordDerivedKey = crypto.pbkdf2Sync(password, safleID, 10000, 32, 'sha512');
     
@@ -72,7 +70,6 @@ export async function generatePDKey({ safleID, password }) {
 }
 
 export async function encryptEncryptionKey({ passwordDerivedKey, encryptionKey }) {
-    // const passBytes = aes.utils.hex.toBytes( passwordDerivedKey );
     const aesCBC = new aes.ModeOfOperation.cbc( Buffer.from( passwordDerivedKey ) );
     const encryptedEncryptionKey = aesCBC.encrypt( Object.values( encryptionKey ) );
     
