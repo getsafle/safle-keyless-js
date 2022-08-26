@@ -132,7 +132,6 @@ class PinScreen extends UIScreen {
                 val = val.slice( 0, 6 );
                 this.input.value = val;
             }
-            console.log( val );
             if( val.length == 6 ){
                 this.submitBtn.removeAttribute('disabled');
             } else {
