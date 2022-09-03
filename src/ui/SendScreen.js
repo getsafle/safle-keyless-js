@@ -39,6 +39,7 @@ class SendScreen extends UIScreen {
     amountUSD = 0;
     balance = 0;
     feeTm = false;
+    tokenIcon = '';
 
     onShow(){
         this.setProceedActive( false );
@@ -477,6 +478,13 @@ class SendScreen extends UIScreen {
         const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
         const toAddress = activeTrans.data.to;
 
+        const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
+        console.log( nativeToken );
+        // let coinURL = activeTrans.hasOwnProperty('data') && activeTrans.data? '' : nativeToken.
+        const tokenName = (activeTrans.data.hasOwnProperty('data') && activeTrans.data.data)? '' : nativeToken.toUpperCase();
+        this.el.querySelector('#send_icon').src = this.keyless.kctrl.getTokenIcon( nativeToken );
+        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName}`;
+
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
         toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
         toCont.parentNode.querySelector('.hover-info--1').innerText = toAddress;
@@ -598,9 +606,9 @@ class SendScreen extends UIScreen {
         </div>
 
         <div class="transaction__send">
-            <h3>SEND ${this.nativeTokenName}</h3>
+            <h3 id="send_name">SEND ${this.nativeTokenName}</h3>
             <div class="transaction__send__flex">
-                <img src="${ethIcon}" alt="ETH Icon">
+                <img src="${tokenIcon}" alt="ETH Icon" id="send_icon">
                 <div>
                     <input type="number" value='' readonly class="transaction_amount">
                     <div class="h3 balance-usd">$0</div>

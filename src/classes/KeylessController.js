@@ -801,6 +801,12 @@ class KeylessController {
     }
 
     getTokenIcon( token ){
+        if( token == 'eth'){
+            return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
+        }
+        if( token == 'matic'){
+            return 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
+        }
         const addr = token.tokenAddress;
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
         // kl_log('tokendata', this.tokenData );
