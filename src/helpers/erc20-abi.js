@@ -1,4 +1,4 @@
-const contractABI = [
+const ERC20ABI = [
     {
         "constant": true,
         "inputs": [],
@@ -221,4 +221,4 @@ const contractABI = [
     }
 ]
 
-export default contractABI;
+export default ERC20ABI;

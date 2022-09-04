@@ -2,6 +2,7 @@ const { KeylessWeb3, getNetworks } = require('./../../src');
 import './style/app.scss';
 const Web3 = require('web3');
 import blockchainInfo from './../../src/helpers/blockchains';
+import tokenDataAbi from './../../src/helpers/erc20-abi.js';
 
 window.onload = async() => {
 
@@ -24,7 +25,7 @@ window.onload = async() => {
 
     const chosenBlockchains = networks;
     // console.log('Chosen blockchains', chosenBlockchains );
-    const env = process.env.SAFLE_ENV;
+    // const env = process.env.SAFLE_ENV;
 
     const rpcUrls = {
         1: 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY,
@@ -38,7 +39,7 @@ window.onload = async() => {
 
     try { 
         // initialize keyless with the supported chains and networks in an array objects
-        const keyless = new KeylessWeb3({ blockchain: chosenBlockchains, env });
+        const keyless = new KeylessWeb3({ blockchain: chosenBlockchains });
 
         // initialize web3 using keyless as a provider
         const w3 = new Web3( keyless.provider );
@@ -64,6 +65,9 @@ window.onload = async() => {
             });
             $('#send-btn').addEventListener('click', ( e ) => {
                 send_transaction();
+            });
+            $('#send-txn-btn').addEventListener('click', ( e ) => {
+                send_token_transaction();
             });
             $('#sign-btn').addEventListener('click', ( e ) => {
                 // keyless.openSignTransaction();
@@ -202,6 +206,48 @@ window.onload = async() => {
                 // 'maxFeePerGas': 10,
                 'data': null,
                 'type': '0x2',
+            };
+            const resp = await w3.eth.sendTransaction( transaction );
+            
+            console.log( resp );
+        }
+
+        async function send_token_transaction(){
+            if( !activeAddress ){
+                // console.error({ 
+                //     message: 'Provider not connected', 
+                //     code: 4200,
+                //     method: 'User denied the request'
+                // });
+                keyless.selectChain();
+                return;
+            }
+            const nonce = await w3.eth.getTransactionCount( activeAddress, 'latest'); // nonce starts counting from 0
+
+            // const val = w3.utils.toWei( '0.00001', 'ether'),;
+            const chain = keyless.getCurrentChain();
+            let contractAddress;
+            if( chain.chainId == 137 || chain.chainId == 90001 ){
+                contractAddress = '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'; //-- POLYGON
+            } else {
+                contractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
+            }
+
+            const calculatedValue = w3.utils.toBN( 0.00001 * Math.pow( 10, 6 ) );
+            const contractInstance = new w3.eth.Contract( tokenDataAbi, contractAddress );
+            const tokenData = await contractInstance.methods.transfer(toAddress, calculatedValue).encodeABI();
+
+            const transaction = {
+                'from': activeAddress,
+                'to': contractAddress, // faucet address to return eth
+                'value': '0x0', 
+                // 'gas': 30000,
+                'nonce': nonce,
+                // 'maxPriorityFeePerGas': 10,
+                // 'maxFeePerGas': 10,
+                'data': tokenData,
+                'type': '0x2',
+                'chainId': 137
             };
             const resp = await w3.eth.sendTransaction( transaction );
             

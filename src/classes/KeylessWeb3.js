@@ -22,7 +22,7 @@ class KeylessWeb3 {
         this.kctrl = new KeylessController( this, this.allowedChains );
         const { chainId } = this.getCurrentChain();
         this._connected = false;
-        this._env = config.env || 'dev';
+        // this._env = config.env || 'dev';
 
         if( !window.grecaptcha ){
             this.injectScripts();

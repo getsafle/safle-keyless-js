@@ -12,6 +12,7 @@ import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 import { middleEllipsisMax, formatXDecimals, kl_log, formatMoney } from '../helpers/helpers';
+import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
 
 const debounce = ( fn, delay ) => {
@@ -40,6 +41,8 @@ class SendScreen extends UIScreen {
     balance = 0;
     feeTm = false;
     tokenIcon = '';
+    isToken = false;
+    tokenValue = 0;
 
     onShow(){
         this.setProceedActive( false );
@@ -455,8 +458,9 @@ class SendScreen extends UIScreen {
         this.nativeTokenName = (await this.keyless.kctrl.getCurrentNativeToken()).toUpperCase();
         const trans = this.keyless.kctrl.getActiveTransaction();
         if( trans ){
-            this.populateAddresses( trans );
             this.keyless.kctrl._setLoading( true );
+            await this.populateAmount( trans )
+            await this.populateAddresses( trans );
             // await Promise.all( [
                 await this.populateBalance(),
                 await this.populateAmount( trans )
@@ -479,11 +483,22 @@ class SendScreen extends UIScreen {
         const toAddress = activeTrans.data.to;
 
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
-        console.log( nativeToken );
-        // let coinURL = activeTrans.hasOwnProperty('data') && activeTrans.data? '' : nativeToken.
-        const tokenName = (activeTrans.data.hasOwnProperty('data') && activeTrans.data.data)? '' : nativeToken.toUpperCase();
-        this.el.querySelector('#send_icon').src = this.keyless.kctrl.getTokenIcon( nativeToken );
-        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName}`;
+        
+        let decodedData = {};
+        if( activeTrans.data.hasOwnProperty('data') && activeTrans.data.data.length > 0 ){
+            let chain = this.keyless.getCurrentChain();
+            const rpcURL = chain.chain.rpcURL;
+            decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
+            this.tokenValue = decodedData.value;
+            this.isToken = true;
+        }
+        console.log( decodedData );
+        
+        const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
+        const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
+
+        this.el.querySelector('#send_icon').src = tokenLogo;
+        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName==undefined? 'Token' : tokenName}`;
 
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
         toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
@@ -500,13 +515,13 @@ class SendScreen extends UIScreen {
     async populateAmount( trans ){
         kl_log( trans );
         const amt = trans.data.value;
-        this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-        
+        const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        this.amt = this.isToken? this.tokenValue : amtSend;
+        console.log( this.amt );
         // if( this.amt > this.balance ){
         //     this.setProceedActive( false );
         // }
-
-        this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
+        this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;        
         
         kl_log('populate amount ');
         kl_log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )

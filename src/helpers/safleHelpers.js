@@ -1,3 +1,7 @@
+import abiDecoder from 'abi-decoder';
+import TokenController from '@getsafle/custom-token-controller';
+import erc20ABI from './erc20-abi';
+
 import cryptoRandomString from 'get-random-values';
 // import axios from 'axios';
 import crypto from 'crypto-browserify';
@@ -186,4 +190,68 @@ export const decryptEncryptionKey = ( safleID, password, encryptedEncryptionKey,
         return Object.values( decriptedKey );
     }
     return decriptedKey;
+}
+
+
+
+export async function decodeInput(input, rpcUrl, contractAddress) {
+    abiDecoder.addABI(erc20ABI);
+    
+    const functionName = await extractFunctionName(input);
+
+    const decodedData = abiDecoder.decodeMethod(input);
+    const chain = rpcUrl.indexOf('polygon')!=-1? 'polygon' : 'ethereum';
+    const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
+  
+    const tokenDetails = await tokenController.getTokenDetails(contractAddress);
+    // if( tokenDetails.hasOwnProperty('error') ){
+    //     return null;
+    // }
+  
+    let output;
+  
+    switch (functionName) {
+  
+      case 'Transfer':
+        output = {
+          tokenSymbol: tokenDetails?.symbol,
+          decimals: tokenDetails?.decimal,
+          recepient: decodedData.params[0].value,
+          value: decodedData.params[1].value/10**parseInt(tokenDetails.decimal),
+        }
+  
+        break;
+  
+      case 'Transfer From':
+        output = {
+          from: decodedData.params[0].value,
+          tokenSymbol: tokenDetails?.symbol,
+          decimals: tokenDetails?.decimal,
+          recepient: decodedData.params[1].value,
+          value: decodedData.params[2].value/10**parseInt(tokenDetails.decimal),
+        }
+  
+        break;
+  
+    }
+    return output;
+}
+
+export async function extractFunctionName(input) {
+    let functionName;
+
+    const sigs = {
+        '0xa9059cbb': 'Transfer',
+        '0x23b872dd': 'Transfer From',
+    }
+  
+    const signature = input.substring(0, 10);
+  
+    if (sigs[signature] === undefined) {
+        functionName = signature;
+    } else {
+        functionName = sigs[signature];
+    }
+  
+    return functionName;
 }
