@@ -225,7 +225,14 @@ window.onload = async() => {
             const nonce = await w3.eth.getTransactionCount( activeAddress, 'latest'); // nonce starts counting from 0
 
             // const val = w3.utils.toWei( '0.00001', 'ether'),;
-            const contractAddress = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F';
+            const chain = keyless.getCurrentChain();
+            let contractAddress;
+            if( chain.chainId == 137 || chain.chainId == 90001 ){
+                contractAddress = '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'; //-- POLYGON
+            } else {
+                contractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
+            }
+
             const calculatedValue = w3.utils.toBN( 0.00001 * Math.pow( 10, 6 ) );
             const contractInstance = new w3.eth.Contract( tokenDataAbi, contractAddress );
             const tokenData = await contractInstance.methods.transfer(toAddress, calculatedValue).encodeABI();

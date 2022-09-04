@@ -200,10 +200,13 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
     const functionName = await extractFunctionName(input);
 
     const decodedData = abiDecoder.decodeMethod(input);
-    
-    const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: 'polygon' });
+    const chain = rpcUrl.indexOf('polygon')!=-1? 'polygon' : 'ethereum';
+    const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
   
     const tokenDetails = await tokenController.getTokenDetails(contractAddress);
+    // if( tokenDetails.hasOwnProperty('error') ){
+    //     return null;
+    // }
   
     let output;
   
@@ -211,7 +214,8 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
   
       case 'Transfer':
         output = {
-          tokenSymbol: tokenDetails.symbol,
+          tokenSymbol: tokenDetails?.symbol,
+          decimals: tokenDetails?.decimal,
           recepient: decodedData.params[0].value,
           value: decodedData.params[1].value/10**parseInt(tokenDetails.decimal),
         }
@@ -221,7 +225,8 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
       case 'Transfer From':
         output = {
           from: decodedData.params[0].value,
-          tokenSymbol: tokenDetails.symbol,
+          tokenSymbol: tokenDetails?.symbol,
+          decimals: tokenDetails?.decimal,
           recepient: decodedData.params[1].value,
           value: decodedData.params[2].value/10**parseInt(tokenDetails.decimal),
         }

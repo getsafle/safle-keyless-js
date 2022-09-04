@@ -335,9 +335,10 @@ class KeylessController {
                 let chain = this.keylessInstance.getCurrentChain();
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
-                // console.log( decodedData );
+                
+                const decimals = parseInt( decodedData?.decimals );
                 const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
-                const tokenValue = decodedData.value * Math.pow( 10, 6 );
+                const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
                 let gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
 
                 return parseInt( gas * 1.5 );
@@ -462,6 +463,7 @@ class KeylessController {
         rawTx.to = rawTx.to.substr(0, 2)+ rawTx.to.substr(-40).toLowerCase();
 
         kl_log("TRANS", trans );
+        console.log('TRANS', rawTx );
         // return false;
         
         const state = Storage.getState();
@@ -688,6 +690,9 @@ class KeylessController {
                 kl_log( 'mumbai trans', config );
             break;
         }
+        if( trans.data.hasOwnProperty('data') && trans.data.data.length > 0 ){
+            config.data = trans.data.data;
+        }
         return config;
     }
 
@@ -830,7 +835,14 @@ class KeylessController {
             return null;
         }
 
-        const found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : null;
+        let found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : '';
+        if( found.indexOf('github.com') != -1 ){
+            found = found.replace('https://github.com/', 'https://raw.githubusercontent.com/');
+            found = found.replace('contract-metadata/blob', 'contract-metadata');
+        }
+        if( found == ''){
+            return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
+        }
         return found;
     }
 }

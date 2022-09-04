@@ -492,12 +492,13 @@ class SendScreen extends UIScreen {
             this.tokenValue = decodedData.value;
             this.isToken = true;
         }
+        console.log( decodedData );
         
         const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
 
         this.el.querySelector('#send_icon').src = tokenLogo;
-        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName}`;
+        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName==undefined? 'Token' : tokenName}`;
 
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
         toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
