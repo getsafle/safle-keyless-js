@@ -16,9 +16,11 @@ class DashboardScreen extends UIScreen {
     connectionStatus;
     activeChain = '';
     activeChainUrl = '';
+
     activeWalletAddress = '';
     activeWalletBalance = 0;
     activeWalletUSDBalance = 0;
+    chainIcon = '';
     
     async populateData() {
         let tokenHtmlList = '';
@@ -36,6 +38,9 @@ class DashboardScreen extends UIScreen {
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
+        this.chainIconEl = this.el.querySelector('#chain_icon');
+        const chainName = this.activeChain.chain_name;
+        this.chainIconEl.src = ( chainName == 'ethereum'|| chainName == 'ropsten')? 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' : 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
 
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
@@ -146,7 +151,7 @@ class DashboardScreen extends UIScreen {
 
                 <div class="h4">Balance</div>
                 <div class="dashboard__balance"> 
-                    <img src="${ethIcon}" alt="ETH Icon">
+                    <img src="https://assets.coingecko.com/coins/images/279/large/ethereum.png" alt="ETH Icon" id="chain_icon">
                     <div>
                         <div id="active-balance" class="input"></div>
                         <h3>\$
