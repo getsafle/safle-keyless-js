@@ -7,6 +7,7 @@ import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
 const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 import config from './../config/config';
+import erc20ABI from './../helpers/erc20-abi';
 
 const { FeeMarketEIP1559Transaction, Transaction } = require('@ethereumjs/tx');
 const Common = require('@ethereumjs/common').default;
@@ -62,10 +63,7 @@ class KeylessController {
             const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
             try {
                 const acc = await this.vault.getAccounts( decKey );
-                
-
-                this.wallets = acc.response.map( e => { return { address: e.address }} ) || [];
-                
+                this.wallets = acc.response.filter( acc => acc.isDeleted != true ).map( e => { return { address: e.address }} ) || [];
             } catch( e ){
                 this.wallets = [];
                 
@@ -317,11 +315,25 @@ class KeylessController {
         return this.web3.utils.fromWei( this.web3.utils.toWei( number.toString(), 'gwei').toString(), 'ether');
     }
 
-    async estimateGas( { to, from, value } ){
+    async estimateGas( { to, from, value, data=null } ){
         try {
+            if( data.length ){
+                let chain = this.keylessInstance.getCurrentChain();
+                const rpcURL = chain.chain.rpcURL;
+                const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
+                
+                const decimals = parseInt( decodedData?.decimals );
+                const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
+                const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
+                let gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
+
+                return parseInt( gas * 1.5 );
+            }
+
             const res = await this.web3.eth.estimateGas( { to, from, value } );
             return res;
         } catch ( e ){
+            console.log( e );
             return 21000;
         }
     }
@@ -425,11 +437,10 @@ class KeylessController {
             return;
         }
         
-        
         const rawTx = await this._createRawTransaction( trans );
         rawTx.from = rawTx.from.substr(0, 2)+ rawTx.from.substr(-40).toLowerCase();
         rawTx.to = rawTx.to.substr(0, 2)+ rawTx.to.substr(-40).toLowerCase();
-        
+
         const state = Storage.getState();
         const decKey = state.decriptionKey.reduce( ( acc, el, idx ) => { acc[idx]=el;return acc;}, {} );
         this.vault.restoreKeyringState( state.vault, pin, decKey );
@@ -624,6 +635,9 @@ class KeylessController {
                 
             break;
         }
+        if( trans.data.hasOwnProperty('data') && trans.data.data.length > 0 ){
+            config.data = trans.data.data;
+        }
         return config;
     }
 
@@ -750,6 +764,12 @@ class KeylessController {
     }
 
     getTokenIcon( token ){
+        if( token == 'eth'){
+            return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
+        }
+        if( token == 'matic'){
+            return 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
+        }
         const addr = token.tokenAddress;
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
 
@@ -757,7 +777,14 @@ class KeylessController {
             return null;
         }
 
-        const found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : null;
+        let found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : '';
+        if( found.indexOf('github.com') != -1 ){
+            found = found.replace('https://github.com/', 'https://raw.githubusercontent.com/');
+            found = found.replace('contract-metadata/blob', 'contract-metadata');
+        }
+        if( found == ''){
+            return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
+        }
         return found;
     }
 }

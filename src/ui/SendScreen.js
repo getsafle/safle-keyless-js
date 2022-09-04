@@ -12,6 +12,7 @@ import UIScreen from '../classes/UIScreen';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/helpers';
+import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
 
 const debounce = ( fn, delay ) => {
@@ -39,6 +40,9 @@ class SendScreen extends UIScreen {
     amountUSD = 0;
     balance = 0;
     feeTm = false;
+    tokenIcon = '';
+    isToken = false;
+    tokenValue = 0;
 
     onShow(){
         this.setProceedActive( false );
@@ -407,11 +411,11 @@ class SendScreen extends UIScreen {
         this.nativeTokenName = (await this.keyless.kctrl.getCurrentNativeToken()).toUpperCase();
         const trans = this.keyless.kctrl.getActiveTransaction();
         if( trans ){
-            this.populateAddresses( trans );
             this.keyless.kctrl._setLoading( true );
-            
-                await this.populateBalance(),
-                await this.populateAmount( trans )
+            await this.populateAmount( trans );
+            await this.populateAddresses( trans );
+            await this.populateBalance();
+            await this.populateAmount( trans );
             
             this.keyless.kctrl._setLoading( false );
         }
@@ -430,6 +434,24 @@ class SendScreen extends UIScreen {
         const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
         const toAddress = activeTrans.data.to;
 
+        const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
+        
+        let decodedData = {};
+        if( activeTrans.data.hasOwnProperty('data') && activeTrans.data.data.length > 0 ){
+            let chain = this.keyless.getCurrentChain();
+            const rpcURL = chain.chain.rpcURL;
+            decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
+            this.tokenValue = decodedData.value;
+            this.isToken = true;
+        }
+        console.log( decodedData );
+        
+        const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
+        const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
+
+        this.el.querySelector('#send_icon').src = tokenLogo;
+        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName==undefined? 'Token' : tokenName}`;
+
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
         toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
         toCont.parentNode.querySelector('.hover-info--1').innerText = toAddress;
@@ -441,13 +463,10 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount( trans ){
-        
         const amt = trans.data.value;
-        this.amt = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-
+        const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
+        this.amt = this.isToken? this.tokenValue : amtSend;
         this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
-        
-        
         
         if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
             this.el.querySelector('.transaction__send').classList.add('low-balance');
@@ -541,9 +560,9 @@ class SendScreen extends UIScreen {
         </div>
 
         <div class="transaction__send">
-            <h3>SEND ${this.nativeTokenName}</h3>
+            <h3 id="send_name">SEND ${this.nativeTokenName}</h3>
             <div class="transaction__send__flex">
-                <img src="${ethIcon}" alt="ETH Icon">
+                <img src="${tokenIcon}" alt="ETH Icon" id="send_icon">
                 <div>
                     <input type="number" value='' readonly class="transaction_amount">
                     <div class="h3 balance-usd">$0</div>
