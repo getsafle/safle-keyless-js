@@ -7,6 +7,7 @@ import Vault from '@getsafle/safle-vault';
 import asset_controller  from '@getsafle/asset-controller';
 const safleIdentity = require('@getsafle/safle-identity-wallet').SafleID;
 import { kl_log } from './../helpers/helpers';
+import erc20ABI from './../helpers/erc20-abi';
 
 const { FeeMarketEIP1559Transaction, Transaction } = require('@ethereumjs/tx');
 const Common = require('@ethereumjs/common').default;
@@ -328,11 +329,24 @@ class KeylessController {
         return this.web3.utils.fromWei( this.web3.utils.toWei( number.toString(), 'gwei').toString(), 'ether');
     }
 
-    async estimateGas( { to, from, value } ){
+    async estimateGas( { to, from, value, data=null } ){
         try {
+            if( data.length ){
+                let chain = this.keylessInstance.getCurrentChain();
+                const rpcURL = chain.chain.rpcURL;
+                const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
+                // console.log( decodedData );
+                const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
+                const tokenValue = decodedData.value * Math.pow( 10, 6 );
+                let gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
+
+                return parseInt( gas * 1.5 );
+            }
+
             const res = await this.web3.eth.estimateGas( { to, from, value } );
             return res;
         } catch ( e ){
+            console.log( e );
             return 21000;
         }
     }
@@ -440,6 +454,7 @@ class KeylessController {
             kl_log('transaction does not exist');
             return;
         }
+        console.log( trans );
         kl_log( trans );
         
         const rawTx = await this._createRawTransaction( trans );
