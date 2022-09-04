@@ -3,6 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 // const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { CustomizedCleanWebpackPlugin } = require('./misc/custom-plugins/customCleanWebpackPlugin');
 const webpack = require('webpack');
+const config = require('./src/config/config');
 
 require('dotenv').config();
 
@@ -49,7 +50,7 @@ module.exports = [
             {
               loader: "sass-loader",
               options: {
-                additionalData: "$keyless_ui_class: " + process.env.KEYLESS_UI_CLASSNAME + ";",
+                additionalData: "$keyless_ui_class: " + config.KEYLESS_UI_CLASSNAME + ";",
               },
             }
             

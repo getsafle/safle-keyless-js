@@ -5,7 +5,6 @@ import network3 from './../../images/network-3.svg'
 import network4 from './../../images/network-4.svg'
 import network5 from './../../images/network-5.svg'
 import network6 from './../../images/network-6.svg'
-import { kl_log } from '../../helpers/helpers';
 
 let dropdownCounter = 0;
 
@@ -42,7 +41,6 @@ class Dropdown {
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
                 const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // kl_log( idx );
                 this.setOption( idx );
             }, false );
         })
@@ -61,7 +59,6 @@ class Dropdown {
         Array.from( this.el.querySelectorAll('.dd_option') ).forEach( ( el ) => {
             el.addEventListener('click', ( e ) => {
                 const idx = parseInt( e.currentTarget.getAttribute('data-option') );
-                // kl_log( idx );
                 this.setOption( idx );
             }, false );
         })
@@ -70,8 +67,6 @@ class Dropdown {
     setOption( idx ){
         if( this.options[ idx ] ){
             this.activeOption = this.options[ idx ];
-            //update icon
-            // this.el.querySelector('.title_label .icon').setAttribute('src', this.activeOption.icon );
             this.opened = false;
             this.el.querySelector( '.'+this.opContClass ).classList.add('d--none');
             this.el.querySelector('.title_label h3').innerHTML = this.activeOption.label;

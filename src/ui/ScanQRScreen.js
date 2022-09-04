@@ -7,7 +7,6 @@ import QRCode from 'qrcode';
 class ScanQRScreen extends UIScreen {
 
     onShow(){
-        // on close
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
@@ -19,12 +18,10 @@ class ScanQRScreen extends UIScreen {
         let url;
 
         if( this.keyless.kctrl.activeTransaction ){
-            //generate required transaction data
             const data = JSON.stringify( this.keyless.kctrl.activeTransaction );
             url = await QRCode.toDataURL( data );
             this.el.querySelector('.mobile-or__code img').setAttribute('src', url );
         } else if( this.keyless.kctrl.activeSignRequest ){
-            //generate required sign data
             const data = JSON.stringify( this.keyless.kctrl.activeSignRequest );
             url = await QRCode.toDataURL( data );
             this.el.querySelector('.mobile-or__code img').setAttribute('src', url );
