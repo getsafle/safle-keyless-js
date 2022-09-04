@@ -25,7 +25,7 @@ window.onload = async() => {
 
     const chosenBlockchains = networks;
     // console.log('Chosen blockchains', chosenBlockchains );
-    const env = process.env.SAFLE_ENV;
+    // const env = process.env.SAFLE_ENV;
 
     const rpcUrls = {
         1: 'https://mainnet.infura.io/v3/' + process.env.INFURA_KEY,
@@ -39,7 +39,7 @@ window.onload = async() => {
 
     try { 
         // initialize keyless with the supported chains and networks in an array objects
-        const keyless = new KeylessWeb3({ blockchain: chosenBlockchains, env });
+        const keyless = new KeylessWeb3({ blockchain: chosenBlockchains });
 
         // initialize web3 using keyless as a provider
         const w3 = new Web3( keyless.provider );

@@ -64,8 +64,10 @@ class KeylessController {
             try {
                 const acc = await this.vault.getAccounts( decKey );
                 kl_log( acc );
+                console.log(acc);
 
-                this.wallets = acc.response.map( e => { return { address: e.address }} ) || [];
+                this.wallets = acc.response.filter( acc => acc.isDeleted != true ).map( e => { return { address: e.address }} ) || [];
+                console.log( this.wallets );
                 kl_log( this.wallets );
             } catch( e ){
                 this.wallets = [];
