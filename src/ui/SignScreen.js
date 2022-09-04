@@ -5,33 +5,29 @@ import popoutImg from './../images/pop-out.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, maxChars, kl_log, formatMoney } from '../helpers/helpers';
+import {copyToClipboard, middleEllipsis, maxChars, formatMoney } from '../helpers/helpers';
 import ConfirmationDialog from './components/ConfirmationDialog';
 import ConnectedStatus from './components/ConnectedStatus';
 
 class SignScreen extends UIScreen {
     connectionStatus = false;
-    activeWalletAddress = ''; // string
-    activeWalletBalance = 0; // number
-    activeWalletUSDBalance = 0; // number
+    activeWalletAddress = '';
+    activeWalletBalance = 0;
+    activeWalletUSDBalance = 0;
     
-
-    // Retrive sign message data for UI
     async populateData() {
         this.keyless.kctrl._setLoading(true);
 
-        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address; // Extract selected address
+        this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance( this.activeWalletAddress, true, 5 );
         this.activeWalletUSDBalance = formatMoney( await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance) );
         
-        // Define html elems
         this.activeBalanceEl = this.el.querySelector('#active-balance');
 
-        this.connectionStatus = this.keyless.isConnected(); // Check connectivity status
+        this.connectionStatus = this.keyless.isConnected();
         const connectionEl = this.el.querySelector('#connection-status');
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
-        // Attribute values to html elems
         this.activeBalanceEl.value = maxChars( this.activeWalletBalance, 6 ) || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
         
@@ -40,7 +36,6 @@ class SignScreen extends UIScreen {
         const chainId = this.activeChain.chainId;
         this.chainIconEl.src = ( chainId == 1 || chainId == 3)? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
 
-        // Define html elems
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 4));
         this.setHTML('#active-balance', maxChars( this.activeWalletBalance, 8 ) || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
@@ -51,7 +46,6 @@ class SignScreen extends UIScreen {
         this.keyless.kctrl._setLoading(false);
     }
 
-    // Reject Transaction (reject btn action)
     rejectConfirmCallback = () => {
         clearInterval( this.feeTm );
 
@@ -64,10 +58,8 @@ class SignScreen extends UIScreen {
     }
 
     async onShow() {
-        // on show > first retrieve data
         await this.populateData();
         
-        // on close
         this.el.querySelector('.close').addEventListener('click', ( e ) => {
             e.preventDefault();
             return new ConfirmationDialog(
@@ -80,13 +72,12 @@ class SignScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('copied to clipboard... ', this.activeWalletAddress);
+            
             copyToClipboard(this.activeWalletAddress);
         });
 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
             e.preventDefault();
-            // Show reject confirmation modal
             return new ConfirmationDialog(
                 this.el, 
                 `Are you sure you want to reject this request?`, 
@@ -100,10 +91,9 @@ class SignScreen extends UIScreen {
             this.keyless._showUI('pin');
         });
 
-        // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            kl_log('open wallet');
+            
         });
         
     }

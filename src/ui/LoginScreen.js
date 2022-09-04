@@ -1,5 +1,4 @@
 import UIScreen from './../classes/UIScreen.js';
-import { kl_log } from '../helpers/helpers.js';
 
 import closeImg from './../images/close.png';
 import logoImg from './../images/logo.png';
@@ -7,6 +6,7 @@ import userImg from './../images/user.png';
 import lockBtn from './../images/lock.png';
 import hiddenIcon from './../images/eye-slash-solid.png';
 import visibleIcon from './../images/eye-solid.png';
+import config from './../config/config';
 
 class LoginScreen extends UIScreen {
 
@@ -31,22 +31,21 @@ class LoginScreen extends UIScreen {
     //signup
     this.signupBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open( process.env.SIGNUP_URL, '_blank' );
-      kl_log('clicked signup');
+      window.open( config.SIGNUP_URL, '_blank' );
+      
     });
     //forgot-pass
     this.forgotPassBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      window.open( process.env.FORGOTPASS_URL, '_blank' );
-      kl_log('clicked forgot-pass');
+      window.open( config.FORGOTPASS_URL, '_blank' );
+      
     });
 
 
     // on login
     this.signinBtn.addEventListener('click', async ( e ) => {
       e.preventDefault();
-      kl_log('click sign-in');
-      // kl_log( window.grecaptcha );
+      
       this.error.innerHTML = '';
 
       try {
@@ -54,20 +53,17 @@ class LoginScreen extends UIScreen {
         this.safleField.classList.remove('error');
         // this.submitBtn.removeAttribute('disabled');
       } catch( e ){
-        kl_log( 'An error has occured', e );
+        
         this.keyless.kctrl._setLoading( false );
         this.error.innerHTML = e.hasOwnProperty('message')? e.message : e.hasOwnProperty('details')? e.details[0].message : e.info[0].message;
         this.safleField.classList.add('error');
-        // this.submitBtn.setAttribute('disabled', 'disabled');
       }
     });
 
-    //show/hide password
     this.shPassBtn.addEventListener('click', ( e ) => {
       e.preventDefault();
-      kl_log('show hide password');
+      
       if(this.saflePass.value == ''){
-        // leave this here type text vs password differs line-height / font-size
         return false;
       }
       if(this.saflePass.type == 'password'){

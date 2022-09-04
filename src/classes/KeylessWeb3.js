@@ -1,5 +1,6 @@
 import Web3Provider from './Web3Provider';
-import { inlineS, kl_log } from './../helpers/helpers';
+import { inlineS } from './../helpers/helpers';
+import config from './../config/config';
 import KeylessController from './KeylessController';
 import Storage from './Storage';
 import RPCError from './RPCError';
@@ -26,25 +27,13 @@ class KeylessWeb3 {
 
         if( !window.grecaptcha ){
             this.injectScripts();
-        }
-
-        // setTimeout( () => {
-        //     this.provider.emit('connected', { chainId } );
-        // }, 100 );        
+        }     
     }
 
-    // public functions
-
     login(){
-        kl_log('login');
-
-        // this._connected = true;
         const { chainId } = this.getCurrentChain();
-        // this.provider.emit('connected', { chainId } );
 
-        if( this._loggedin ){
-            kl_log('Already loggedin');
-        } else {
+        if( !this._loggedin ){
             this._showUI('login');
         }
 
@@ -55,10 +44,7 @@ class KeylessWeb3 {
 
     async isLoggedIn() {
         if (!this._loggedin) {
-            // Try to retrieve user session from storage
             const { vault, decriptionKey } = Storage.getState() || {};
-
-            // kl_log( vault, decriptionKey );
 
             if (!vault || !decriptionKey) {
                 return false;
@@ -67,7 +53,6 @@ class KeylessWeb3 {
                 this._loggedin = true;
             }
         }
-        // user is logged in
         return true
     }
 
@@ -88,40 +73,6 @@ class KeylessWeb3 {
         this._showUI('send');
     }
 
-    openSignTransaction(){
-        if( !this._loggedin ){
-            throw new Error('Please login first!');
-        }
-        this._showUI('sign');
-    }
-    txnSuccess(){
-        kl_log('to be removed');
-        if( !this._loggedin ){
-            throw new Error('Please login first!');
-        }
-        this._showUI('txnSuccess');
-    }
-    txnFailed(){
-        kl_log('to be removed');
-        if( !this._loggedin ){
-            throw new Error('Please login first!');
-        }
-        this._showUI('txnFailed');
-    } 
-    enterPin(){
-        kl_log('to be removed');
-        if( !this._loggedin ){
-            throw new Error('Please login first!');
-        }
-        this._showUI('pin');
-    }
-    scanQR(){
-        kl_log('to be removed');
-        if( !this._loggedin ){
-            throw new Error('Please login first!');
-        }
-        this._showUI('scanQR');
-    }
     selectChain(){
         if( !this._loggedin ){
             throw new Error('Please login first!');
@@ -167,9 +118,9 @@ class KeylessWeb3 {
             this._activeChain = 1;
         }
         const chain =  this.allowedChains.find( e => e.chainId == this._activeChain );
-        kl_log('....getCurrentChain: ', this._activeChain)
-        kl_log('allowedChains', this.allowedChains )
-        kl_log('activechain', chain);
+        
+        
+        
         return {
             chainId: chain.chainId,
             chain
@@ -177,19 +128,19 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
-        // kl_log( 'getnativetoken', currChain );
+        // 
         return currChain.chain.symbol;
     }
     async getNativeTokenFor( chainId ){
         let activeChain = this.allowedChains.find( e => e.chainId == chainId );
-        kl_log('CHAIN', activeChain );
+        
         return activeChain.symbol.toLowerCase();
     }
 
     injectScripts(){
         const el = document.createElement('div');
         el.className = 'g-recaptcha';
-        el.setAttribute('data-sitekey', process.env.RECAPTCHA_SITE_KEY );
+        el.setAttribute('data-sitekey', config.RECAPTCHA_SITE_KEY );
         el.setAttribute('data-size', 'invisible');
         document.body.appendChild( el );
         var script= document.createElement('script');
@@ -200,16 +151,15 @@ class KeylessWeb3 {
     }
 
 
-    // private functions
     async _showUI( screenName ){
         this._hideUI();
 
         const className = screenName.slice(0, 1).toUpperCase()+screenName.slice(1)+'Screen';
         this._activeScreen = await this._getInstance( className );
         
-        kl_log('KeylessWeb3._showUI', this._activeScreen );
+        
         this.root = document.createElement('div');
-        this.root.setAttribute('class', process.env.KEYLESS_UI_CLASSNAME );
+        this.root.setAttribute('class', config.KEYLESS_UI_CLASSNAME );
         this.root.style.cssText = inlineS( {
             'z-index': this._getZIndex(),
             'position': 'absolute',
@@ -236,7 +186,7 @@ class KeylessWeb3 {
             try {
                 document.body.removeChild( this._activeScreen.el );
             } catch( e ){
-                kl_log('ignored child that doens\'t exist')
+                
             }
             this._activeScreen = null;
         }
@@ -249,14 +199,11 @@ class KeylessWeb3 {
     }
 
     _getZIndex(){
-        //if( !this._zIndex ){
         this._zIndex = Array.from(document.querySelectorAll('body *')).reduce( (acc, el) => {
             const num = parseFloat( window.getComputedStyle(el, null).zIndex);
             return !isNaN( num )? Math.max( acc, num ) : acc;
         }, 0 );
 
-        // kl_log( this._zIndex)
-        //}
         return this._zIndex + 10;
     }
 

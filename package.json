@@ -13,9 +13,7 @@
     }
   },
   "scripts": {
-    "start": "npm run dev",
-    "dev": "webpack serve --open --config-name testapp-build",
-    "build": "webpack --config-name testapp-build",
+    "start": "npm run build:lib",
     "build:lib": "webpack --config-name library"
   },
   "keywords": [],

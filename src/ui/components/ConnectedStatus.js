@@ -18,7 +18,6 @@ class ConnectedStatus {
     }
 
     beforeInit() {
-        // Update status to connected
         if (this.connectionStatus) {
             this.statusClass = 'connected';
             this.statusLabel = 'Connected';
