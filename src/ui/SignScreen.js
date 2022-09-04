@@ -31,6 +31,11 @@ class SignScreen extends UIScreen {
         this.activeBalanceEl.value = maxChars( this.activeWalletBalance, 6 ) || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
         
+        this.chainIconEl = this.el.querySelector('#chain_icon');
+        this.activeChain = this.keyless.getCurrentChain();
+        const chainId = this.activeChain.chainId;
+        this.chainIconEl.src = ( chainId == 1 || chainId == 3)? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
+
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 4));
         this.setHTML('#active-balance', maxChars( this.activeWalletBalance, 8 ) || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
@@ -123,7 +128,7 @@ class SignScreen extends UIScreen {
 
                 <div class="h4">Balance</div>
                 <div class="dashboard__balance"> 
-                    <img src="${ethIcon}" alt="ETH Icon">
+                    <img src="https://assets.coingecko.com/coins/images/279/large/ethereum.png" alt="ETH Icon" id="chain_icon">
                     <div>
                         <div id="active-balance" class="input"></div>
                         <h3>\$
