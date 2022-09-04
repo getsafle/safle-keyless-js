@@ -48,7 +48,7 @@ class DashboardScreen extends UIScreen {
         this.tokenListEl = this.el.querySelector('#token-list');
         this.chainIconEl = this.el.querySelector('#chain_icon');
         const chainName = this.activeChain.chain_name;
-        this.chainIconEl.src = ( chainName == 'ethereum'|| chainName == 'ropsten')? 'https://assets.coingecko.com/coins/images/279/large/ethereum.png' : 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
+        this.chainIconEl.src = ( chainName == 'ethereum'|| chainName == 'ropsten')? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
 
         // Update connection status
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
