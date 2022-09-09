@@ -769,7 +769,7 @@ class KeylessController {
         if( token == 'matic'){
             return 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
         }
-        const addr = token.tokenAddress;
+        const addr = token.tokenAddress.toLowerCase();
         const chain = blockchainInfo[ this.keylessInstance.getCurrentChain()?.chainId ].chain_name;
 
         if( Object.values( this.tokenData ).length == 0 ){
