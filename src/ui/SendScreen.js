@@ -494,7 +494,7 @@ class SendScreen extends UIScreen {
             this.isToken = true;
             this.decodedData = decodedData;
         }
-        console.log( decodedData );
+        // console.log( 'da', activeTrans.data.to );
         
         const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );

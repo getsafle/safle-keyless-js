@@ -838,8 +838,16 @@ class KeylessController {
         if( Object.values( this.tokenData ).length == 0 ){
             return null;
         }
-
-        let found = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP.hasOwnProperty( addr )? this.tokenData.chains[chain].CONTRACT_MAP[ addr ].logo : '';
+        let chainTokens = this.tokenData.chains.hasOwnProperty( chain ) && this.tokenData.chains[chain].CONTRACT_MAP;
+        if( chainTokens ){
+            const keys = Object.keys( chainTokens );
+            chainTokens = Object.values( chainTokens ).reduce( ( acc,item, k ) => {
+                acc[ keys[k].toLowerCase() ] = item;
+                return acc;
+            }, {} );
+        }
+        
+        let found = this.tokenData.chains.hasOwnProperty( chain ) && chainTokens.hasOwnProperty( addr )? chainTokens[ addr ].logo : '';
         if( found.indexOf('github.com') != -1 ){
             found = found.replace('https://github.com/', 'https://raw.githubusercontent.com/');
             found = found.replace('contract-metadata/blob', 'contract-metadata');
