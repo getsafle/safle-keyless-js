@@ -11,19 +11,19 @@ import APIS from '../helpers/apis';
 const ethers = require('ethers');
 const KDFiterations = 10000;
 
-export const login = async ( safleID, password, token ) => {
-    
+export const login = async ( safleID, password, token='' ) => {
 
     let passwordDerivedKey = await generatePDKey({safleID, password});
     const pdkeyHash = await createPDKeyHash({ passwordDerivedKey });
 
     let params = {
         "userName": safleID,
-        "password": pdkeyHash,
-        "g-recaptcha-response": token
+        "PDKeyHash": pdkeyHash
+        // "password": pdkeyHash, // use this for auth api with recaptcha
+        // "g-recaptcha-response": token
     };
 
-    const resp = await fetch( APIS.login, {
+    const resp = await fetch( APIS.login_keyless, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -98,13 +98,13 @@ export const getCloudToken = async( user, pass, gtoken ) => {
         const derivedKey = await generatePDKey({safleID: user, password: pass });
         const PDKeyHash = await createPDKeyHash( { passwordDerivedKey: derivedKey } );
 
-        const jwtToken = await fetch( APIS.login, {
+        const jwtToken = await fetch( APIS.login_keyless, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
             },
             method: 'POST',
-            body: JSON.stringify( { userName: user, password: PDKeyHash, 'g-recaptcha-response': gtoken.toString() } )
+            body: JSON.stringify( { userName: user, PDKeyHash: PDKeyHash })//, 'g-recaptcha-response': gtoken.toString() } )
         } ).then( resp => resp.json() );
         
         if( jwtToken.statusCode == 201 ){

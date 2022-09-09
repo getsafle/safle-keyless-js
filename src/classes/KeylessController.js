@@ -87,17 +87,16 @@ class KeylessController {
 
         this._isMobileVault = await this._getIsVaultMobile( user );
         
-
-        await grecaptcha.execute();
-        let captchaToken = grecaptcha.getResponse();
+        // enable these to use recaptcha
+        // await grecaptcha.execute();
+        // let captchaToken = grecaptcha.getResponse();
+        let captchaToken = '';
         
         const resp = await safleHelpers.login( user, pass, captchaToken );
         const safleToken = resp.data.token;
         
-
-        
-        await grecaptcha.execute();
-        captchaToken = grecaptcha.getResponse();
+        // await grecaptcha.execute();
+        // captchaToken = grecaptcha.getResponse();
         const authToken = await safleHelpers.getCloudToken( user, pass, captchaToken );
 
         let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
@@ -317,7 +316,7 @@ class KeylessController {
 
     async estimateGas( { to, from, value, data=null } ){
         try {
-            if( data.length ){
+            if( data && data.length ){
                 let chain = this.keylessInstance.getCurrentChain();
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
@@ -635,7 +634,7 @@ class KeylessController {
                 
             break;
         }
-        if( trans.data.hasOwnProperty('data') && trans.data.data.length > 0 ){
+        if( trans.data.hasOwnProperty('data') && trans.data.data && trans.data.data.length > 0 ){
             config.data = trans.data.data;
         }
         return config;
@@ -786,6 +785,15 @@ class KeylessController {
             return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
         }
         return found;
+    }
+
+    async getTokenBalance( contractAddress, address ){
+        const contractInstance = new this.web3.eth.Contract( erc20ABI, contractAddress );
+        const tokenBalance = await contractInstance.methods.balanceOf( address ).call();
+
+        // console.log( 'tokenBalance', tokenBalance );
+
+        return tokenBalance;
     }
 }
 

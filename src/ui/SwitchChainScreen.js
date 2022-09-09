@@ -63,6 +63,13 @@ class SwitchChainScreen extends UIScreen {
             this.keyless.kctrl._loginSuccess();
         });
 
+        // open wallet 
+        this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.open( process.env.OPEN_WALLET_LINK, '_blank' );
+            // kl_log('open wallet');
+        });
+
         this.keyless.kctrl._setLoading( true );
         addreses = await this.keyless.kctrl.getAddressesOptions( this.keyless.kctrl.getAccounts(true) );
         this.dropdown2.update( addreses, this.keyless.getCurrentNativeToken(), this.chosenAddress );
@@ -123,7 +130,7 @@ class SwitchChainScreen extends UIScreen {
         <div id="mount_dropdowns"></div>
 
         <button class="btn__tp--1" id="proceed_btn">Proceed</button>
-        <button class="btn__tp--2 c--gray">
+        <button class="btn__tp--2 c--gray btn_open_webapp">
             Open Wallet
             <img src="${popoutImg}" alt="Open Wallet Pop Out Icon">
         </button>

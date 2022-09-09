@@ -25,9 +25,10 @@ class KeylessWeb3 {
         this._connected = false;
         // this._env = config.env || 'dev';
 
-        if( !window.grecaptcha ){
-            this.injectScripts();
-        }     
+        //enable this to use recaptcha login
+        // if( !window.grecaptcha ){
+        //     this.injectScripts();
+        // }
     }
 
     login(){

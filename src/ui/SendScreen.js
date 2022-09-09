@@ -43,6 +43,7 @@ class SendScreen extends UIScreen {
     tokenIcon = '';
     isToken = false;
     tokenValue = 0;
+    decodedData = null;
 
     onShow(){
         this.setProceedActive( false );
@@ -437,18 +438,24 @@ class SendScreen extends UIScreen {
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
         let decodedData = {};
-        if( activeTrans.data.hasOwnProperty('data') && activeTrans.data.data.length > 0 ){
+        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 ){
             let chain = this.keyless.getCurrentChain();
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
             this.tokenValue = decodedData.value;
             this.isToken = true;
+            this.decodedData = decodedData;
         }
         console.log( decodedData );
         
         const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
 
+        if( this.isToken ){
+            this.el.querySelector('#native-token-balance').innerHTML = tokenName;    
+        } else {
+            this.el.querySelector('#native-token-balance').innerHTML = this.nativeTokenName;
+        }
         this.el.querySelector('#send_icon').src = tokenLogo;
         this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName==undefined? 'Token' : tokenName}`;
 
@@ -458,24 +465,50 @@ class SendScreen extends UIScreen {
     }
 
     async populateBalance(){
-        this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
-        this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
+        if( this.isToken ){
+            console.log( 'get balance', this.decodedData );
+            const activeTrans = this.keyless.kctrl.getActiveTransaction();
+
+            const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, this.decodedData.recepient );
+            this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
+            this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
+        } else {
+            this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
+            // const trans = this.keyless.kctrl.getActiveTransaction();
+            // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
+            this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
+        }
     }
 
     async populateAmount( trans ){
         const amt = trans.data.value;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-        this.amt = this.isToken? this.tokenValue : amtSend;
-        this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
-        
-        if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
-            this.el.querySelector('.transaction__send').classList.add('low-balance');
-        } else {
-            this.el.querySelector('.transaction__send').classList.remove('low-balance');
-        }
+        if( this.isToken ){
+            this.amt = this.tokenValue;
+            this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
 
-        this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
-        this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+            if( parseFloat(this.tokenBalance) < ( parseFloat(this.amt) || parseFloat( this.balance ) < parseInt(this.feeETH ) ) ){
+                this.el.querySelector('.transaction__send').classList.add('low-balance');
+            } else {
+                this.el.querySelector('.transaction__send').classList.remove('low-balance');
+            }
+    
+            this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+        } else {
+            this.amt = amtSend;
+            this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
+            kl_log('populate amount ');
+            kl_log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
+            if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
+                this.el.querySelector('.transaction__send').classList.add('low-balance');
+            } else {
+                this.el.querySelector('.transaction__send').classList.remove('low-balance');
+            }
+    
+            this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+        }
     }
 
     setFeesLoading( flag ){
@@ -571,7 +604,7 @@ class SendScreen extends UIScreen {
         </div>
 
         <div class="transaction__balance">
-            <h3>${this.nativeTokenName} Balance : <span class="transaction__balance__span">3.0120</span></h3>
+            <h3><span id="native-token-balance">${this.nativeTokenName}</span> Balance : <span class="transaction__balance__span">3.0120</span></h3>
         </div>
 
         <div class="transaction__checkout">
