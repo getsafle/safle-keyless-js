@@ -1,5 +1,5 @@
-import { kl_log } from './../helpers/helpers';
 const CryptoJS = require('crypto-js');
+import config from './../config/config';
 
 let Storage = {
     key: 'safle_90852380598230958203958',
@@ -18,8 +18,6 @@ let Storage = {
 
     saveState: function( data ){
         Storage.state = { ...Storage.state, ...data };
-        //let cont = JSON.stringify( Storage.state );
-        //sessionStorage.setItem( Storage.key, cont );
         this.commit('state', Storage.state );
     },
 
@@ -34,17 +32,17 @@ let Storage = {
     },
 
     commit: function( place, obj ){
-        const sol = process.env.WALLET_WORD_SPLIT || 'safle241241024';
+        const sol = config.WALLET_WORD_SPLIT || 'safle241241024';
         const k = Storage.key;
 
         const buff = CryptoJS.AES.encrypt( JSON.stringify( obj ), sol ).toString();
         sessionStorage.setItem( k, buff );
-        kl_log('saved state');
+        
     },
     load: function( place ){
         const k = Storage.key;
 
-        const sol = process.env.WALLET_WORD_SPLIT || 'safle241241024';
+        const sol = config.WALLET_WORD_SPLIT || 'safle241241024';
         const buff = sessionStorage.getItem( k ) || null;
         if( !buff ){
             return false;
@@ -53,7 +51,7 @@ let Storage = {
         try {
             dec = CryptoJS.AES.decrypt( buff, sol ).toString( CryptoJS.enc.Utf8 );
         } catch( e ){
-            kl_log( 'error', e );
+            
             dec = false;
         }
         return JSON.parse( dec );
