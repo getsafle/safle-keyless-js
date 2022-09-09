@@ -498,8 +498,6 @@ class SendScreen extends UIScreen {
         } else {
             this.amt = amtSend;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
-            kl_log('populate amount ');
-            kl_log( parseFloat(this.balance), ( parseFloat(this.amt) + parseInt(this.feeETH ) ) )
             if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
             } else {

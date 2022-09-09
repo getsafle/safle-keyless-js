@@ -63,11 +63,9 @@ class SwitchChainScreen extends UIScreen {
             this.keyless.kctrl._loginSuccess();
         });
 
-        // open wallet 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
             window.open( process.env.OPEN_WALLET_LINK, '_blank' );
-            // kl_log('open wallet');
         });
 
         this.keyless.kctrl._setLoading( true );
