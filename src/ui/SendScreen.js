@@ -485,7 +485,7 @@ class SendScreen extends UIScreen {
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
         let decodedData = {};
-        if( activeTrans.data.hasOwnProperty('data') && activeTrans.data.data.length > 0 ){
+        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 ){
             let chain = this.keyless.getCurrentChain();
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );

@@ -333,7 +333,7 @@ class KeylessController {
 
     async estimateGas( { to, from, value, data=null } ){
         try {
-            if( data.length ){
+            if( data && data.length ){
                 let chain = this.keylessInstance.getCurrentChain();
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
@@ -692,7 +692,7 @@ class KeylessController {
                 kl_log( 'mumbai trans', config );
             break;
         }
-        if( trans.data.hasOwnProperty('data') && trans.data.data.length > 0 ){
+        if( trans.data.hasOwnProperty('data') && trans.data.data && trans.data.data.length > 0 ){
             config.data = trans.data.data;
         }
         return config;
