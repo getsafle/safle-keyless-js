@@ -94,16 +94,18 @@ class KeylessController {
         this._isMobileVault = await this._getIsVaultMobile( user );
         kl_log( this._isMobileVault );
 
-        await grecaptcha.execute();
-        let captchaToken = grecaptcha.getResponse();
-        // kl_log( token );
+        // enable these to use recaptcha
+        // await grecaptcha.execute();
+        // let captchaToken = grecaptcha.getResponse();
+        let captchaToken = '';
+        
         const resp = await safleHelpers.login( user, pass, captchaToken );
         const safleToken = resp.data.token;
         
 
         //pull vault from cloud
-        await grecaptcha.execute();
-        captchaToken = grecaptcha.getResponse();
+        // await grecaptcha.execute();
+        // captchaToken = grecaptcha.getResponse();
         const authToken = await safleHelpers.getCloudToken( user, pass, captchaToken );
 
         let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
@@ -846,6 +848,15 @@ class KeylessController {
             return 'https://assets.coingecko.com/coins/images/279/large/ethereum.png';
         }
         return found;
+    }
+
+    async getTokenBalance( contractAddress, address ){
+        const contractInstance = new this.web3.eth.Contract( erc20ABI, contractAddress );
+        const tokenBalance = await contractInstance.methods.balanceOf( address ).call();
+
+        // console.log( 'tokenBalance', tokenBalance );
+
+        return tokenBalance;
     }
 }
 
