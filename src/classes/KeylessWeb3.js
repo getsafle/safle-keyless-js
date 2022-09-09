@@ -24,13 +24,10 @@ class KeylessWeb3 {
         this._connected = false;
         // this._env = config.env || 'dev';
 
-        if( !window.grecaptcha ){
-            this.injectScripts();
-        }
-
-        // setTimeout( () => {
-        //     this.provider.emit('connected', { chainId } );
-        // }, 100 );        
+        //enable this to use recaptcha login
+        // if( !window.grecaptcha ){
+        //     this.injectScripts();
+        // }
     }
 
     // public functions
