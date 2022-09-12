@@ -517,9 +517,13 @@ class SendScreen extends UIScreen {
             console.log( 'get balance', this.decodedData );
             const activeTrans = this.keyless.kctrl.getActiveTransaction();
 
-            const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, this.decodedData.recepient );
-            this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
-            this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
+            try {
+                const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, this.decodedData.recepient );
+                this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
+                this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
+            } catch( e ){
+                console.log('invalid contract');
+            }
         } else {
             this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
             // const trans = this.keyless.kctrl.getActiveTransaction();

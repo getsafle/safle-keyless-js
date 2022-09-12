@@ -1,4 +1,4 @@
-const { KeylessWeb3, getNetworks } = require('./../../src');
+const { KeylessWeb3, getNetworks } = require('./../../src/');
 import './style/app.scss';
 const Web3 = require('web3');
 import blockchainInfo from './../../src/helpers/blockchains';
