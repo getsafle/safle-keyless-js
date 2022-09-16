@@ -481,7 +481,7 @@ class SendScreen extends UIScreen {
         fromCont.innerHTML = middleEllipsisMax( fromAddress, 4 );
         fromCont.parentNode.querySelector('.hover-info--1').innerText = fromAddress;
         const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
-        const toAddress = activeTrans.data.to;
+        let toAddress = activeTrans.data.to;
 
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
@@ -493,6 +493,7 @@ class SendScreen extends UIScreen {
             this.tokenValue = decodedData.value;
             this.isToken = true;
             this.decodedData = decodedData;
+            toAddress = decodedData?.recepient;
         }
         // console.log( 'da', activeTrans.data.to );
         
