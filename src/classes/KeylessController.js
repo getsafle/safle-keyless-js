@@ -778,7 +778,15 @@ class KeylessController {
         this.activeSignRequest = null;
     }
 
-
+    async ethCall( callObject, block ){
+        try {
+            const resp = await this.web3.eth.call( callObject, block );
+            return resp;
+        } catch( e ){
+            console.log('error in eth_call:', e );
+            return false;
+        }
+    }
 
 
     async getRequest( { url } ){

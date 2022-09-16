@@ -88,6 +88,19 @@ window.onload = async() => {
             $('#qr-btn').addEventListener('click', ( e ) => {
                 keyless.scanQR();
             });
+            $('#get-token-balance').addEventListener('click', async ( e ) => {
+                const contractAddress = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'.toLowerCase();
+                const fromAddr = '0xD3Cb067887C085Cb247A52550bB30fDb5CC69eF3'.toLowerCase();
+                const instance = new w3.eth.Contract( tokenDataAbi, contractAddress );
+
+                try {
+                    const b = await instance.methods.balanceOf( fromAddr ).call();
+
+                    console.log( 'balance', b / 10**6 );
+                } catch( e ){
+                    console.log('error', e );
+                }
+            })
             
         }
 
