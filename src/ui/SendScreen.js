@@ -453,7 +453,6 @@ class SendScreen extends UIScreen {
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
-        // console.log( 'da', activeTrans.data.to );
         
         const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
@@ -475,7 +474,6 @@ class SendScreen extends UIScreen {
         if( this.isToken ){
             this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
 
-            // console.log( 'get balance', this.decodedData );
             const activeTrans = this.keyless.kctrl.getActiveTransaction();
             const fromAddress = this.keyless.kctrl.getAccounts().address;
             try {
@@ -483,7 +481,7 @@ class SendScreen extends UIScreen {
                 this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
                 this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
             } catch( e ){
-                console.log('invalid contract');
+                // throw new Error( e );
             }
         } else {
             this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
@@ -553,7 +551,6 @@ class SendScreen extends UIScreen {
 
     checkCanProceed(){
         if( this.isToken ){
-            console.log('is token', this.balance, this.feeETH, this.tokenBalance, this.tokenValue );
             if( (parseFloat( this.balance ) < parseFloat( this.feeETH )) || (parseFloat(this.tokenBalance) < parseFloat( this.tokenValue ) ) ){
                 this.setProceedActive( false );
             } else {

@@ -312,10 +312,8 @@ class KeylessController {
            let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
             const rate = res.data?.data[ tokenSymbol.toUpperCase() ]?.quote?.USD?.price;
             const priceUSD = isNaN( rate )? 0 : rate;
-            kl_log( 'KeylessController.getTokenBalanceInUSD',  balance, priceUSD );
             return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
         } catch( e ){
-            kl_log('Error fetching usd balance', e.message );
             return 0;
         }
     }
@@ -338,8 +336,6 @@ class KeylessController {
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
 
-                console.log( decodedData );
-
                 const decimals = parseInt( decodedData?.decimals );
                 let gas;
                 try {
@@ -347,7 +343,6 @@ class KeylessController {
                     const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
                     gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
                 } catch(e) {
-                    console.log('contract error', e );
                     gas = 21000;
                 }  
 
@@ -362,7 +357,6 @@ class KeylessController {
             }
             
         } catch ( e ){
-            console.log( e );
             return 21000;
         }
     }
@@ -738,7 +732,6 @@ class KeylessController {
             const resp = await this.web3.eth.call( callObject, block );
             return resp;
         } catch( e ){
-            console.log('error in eth_call:', e );
             return false;
         }
     }
@@ -836,8 +829,6 @@ class KeylessController {
     async getTokenBalance( contractAddress, address ){
         const contractInstance = new this.web3.eth.Contract( erc20ABI, contractAddress );
         const tokenBalance = await contractInstance.methods.balanceOf( address ).call();
-
-        // console.log( 'tokenBalance', tokenBalance );
 
         return tokenBalance;
     }

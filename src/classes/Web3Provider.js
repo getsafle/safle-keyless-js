@@ -89,7 +89,7 @@ class Web3Provider extends EventEmitter {
             break;
 
             default:
-                // console.log( e );
+                
             break;
         }
     }
