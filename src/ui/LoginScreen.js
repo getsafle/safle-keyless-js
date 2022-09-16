@@ -100,7 +100,7 @@ class LoginScreen extends UIScreen {
 
       </div>
 
-      <form class="relative" onSubmit="">
+      <form class="relative" onSubmit="" autocomplete="off" aria-autocomplete="none">
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <div class="g-recaptcha" data-sitekey="6Lf8HVIaAAAAADBeZl94tnebAST20hEZOHWzQMBD" data-size="invisible"></div>
 
