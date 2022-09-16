@@ -468,9 +468,9 @@ class SendScreen extends UIScreen {
         if( this.isToken ){
             console.log( 'get balance', this.decodedData );
             const activeTrans = this.keyless.kctrl.getActiveTransaction();
-
+            const fromAddress = this.keyless.kctrl.getAccounts().address;
             try {
-                const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, this.decodedData.recepient );
+                const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, fromAddress );
                 this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
                 this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
             } catch( e ){
