@@ -28,10 +28,12 @@ class Web3Provider extends EventEmitter {
         if( !this.keyless.isConnected() ){
             return new RPCError('Provider not connected');
         }
+        console.log( e.method );
         
         switch( e.method ){
 
             case 'eth_request':
+            case 'eth_accounts':
             case 'eth_requestAccounts':
             case 'personal_listAccounts':
                 if( !this.keyless._loggedin ){

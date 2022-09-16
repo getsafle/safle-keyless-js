@@ -104,7 +104,17 @@ window.onload = async() => {
                 } catch( e ){
                     console.log('error', e );
                 }
-            })
+            });
+
+            $('#get-accounts').addEventListener('click', async ( e ) => {
+                try {
+                    const accts = await w3.eth.getAccounts();
+
+                    console.log('accounts', accts );
+                } catch( e ){
+
+                }
+            });
             
         }
 
