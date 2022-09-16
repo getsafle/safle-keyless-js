@@ -320,17 +320,30 @@ class KeylessController {
                 let chain = this.keylessInstance.getCurrentChain();
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
-                
+
+                console.log( decodedData );
+
                 const decimals = parseInt( decodedData?.decimals );
-                const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
-                const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
-                let gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
+                let gas;
+                try {
+                    const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
+                    const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
+                    gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
+                } catch(e) {
+                    console.log('contract error', e );
+                    gas = 21000;
+                }  
 
                 return parseInt( gas * 1.5 );
             }
 
-            const res = await this.web3.eth.estimateGas( { to, from, value } );
-            return res;
+            try {
+                const res = await this.web3.eth.estimateGas( { to, from, value } );
+                return res;
+            } catch( e ){
+                return parseInt( gas * 1.5 );
+            }
+            
         } catch ( e ){
             console.log( e );
             return 21000;
@@ -703,7 +716,15 @@ class KeylessController {
         this.activeSignRequest = null;
     }
 
-
+    async ethCall( callObject, block ){
+        try {
+            const resp = await this.web3.eth.call( callObject, block );
+            return resp;
+        } catch( e ){
+            console.log('error in eth_call:', e );
+            return false;
+        }
+    }
 
 
     async getRequest( { url } ){
