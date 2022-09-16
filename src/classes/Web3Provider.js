@@ -93,8 +93,13 @@ class Web3Provider extends EventEmitter {
                 return this.keyless.kctrl.signTransaction( e.params[0], e.params[1] );
             break;
 
+            case 'eth_call':
+                return await this.keyless.kctrl.ethCall( e.params[0], e.params[1] );
+            break;
+
             default:
-                kl_log('default');
+                // kl_log('default');
+                console.log( e );
 
             break;
         }
