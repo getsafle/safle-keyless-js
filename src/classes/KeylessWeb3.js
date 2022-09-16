@@ -41,6 +41,7 @@ class KeylessWeb3 {
 
         if( this._loggedin ){
             kl_log('Already loggedin');
+            this.openDashboard();
         } else {
             this._showUI('login');
         }
