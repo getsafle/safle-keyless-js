@@ -97,9 +97,13 @@ class Web3Provider extends EventEmitter {
                 return await this.keyless.kctrl.ethCall( e.params[0], e.params[1] );
             break;
 
+            case 'eth_estimateGas':
+                return await this.keyless.kctrl.estimateGas( e.params[0] );
+            break;
+
             default:
-                kl_log('default');
-                // console.log( e );
+                // kl_log('default');
+                console.log( e );
 
             break;
         }

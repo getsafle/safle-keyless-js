@@ -91,12 +91,16 @@ window.onload = async() => {
             $('#get-token-balance').addEventListener('click', async ( e ) => {
                 const contractAddress = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F'.toLowerCase();
                 const fromAddr = '0xD3Cb067887C085Cb247A52550bB30fDb5CC69eF3'.toLowerCase();
+                const toAddress = '0x4a1ba004e693c3a5e2f4c14c6a815597a4e47037'.toLowerCase();
                 const instance = new w3.eth.Contract( tokenDataAbi, contractAddress );
+                const sendValue = 0.01*(10**6);
 
                 try {
                     const b = await instance.methods.balanceOf( fromAddr ).call();
+                    const gas = await instance.methods.transfer( toAddress, sendValue ).estimateGas({ from: fromAddr });
 
                     console.log( 'balance', b / 10**6 );
+                    console.log( 'gas', gas );
                 } catch( e ){
                     console.log('error', e );
                 }
