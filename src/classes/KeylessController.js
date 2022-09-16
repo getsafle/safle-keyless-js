@@ -303,6 +303,23 @@ class KeylessController {
         }
     }
 
+    async getTokenBalanceInUSD( balance, tokenSymbol ){
+        try {
+            if (!process.env.SAFLE_TOKEN_API) {
+                throw new Error('Please check the environment variables...');
+            }
+            
+           let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
+            const rate = res.data?.data[ tokenSymbol.toUpperCase() ]?.quote?.USD?.price;
+            const priceUSD = isNaN( rate )? 0 : rate;
+            kl_log( 'KeylessController.getTokenBalanceInUSD',  balance, priceUSD );
+            return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
+        } catch( e ){
+            kl_log('Error fetching usd balance', e.message );
+            return 0;
+        }
+    }
+
     async getCurrentNativeToken(){
         let activeChain = await this.keylessInstance.getCurrentChain();
         
