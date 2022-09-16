@@ -98,8 +98,8 @@ class Web3Provider extends EventEmitter {
             break;
 
             default:
-                // kl_log('default');
-                console.log( e );
+                kl_log('default');
+                // console.log( e );
 
             break;
         }
