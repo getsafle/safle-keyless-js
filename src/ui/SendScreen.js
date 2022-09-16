@@ -446,13 +446,19 @@ class SendScreen extends UIScreen {
     }
 
     async populateFees(){
-        const totalAmt = parseFloat( this.amt ) + parseFloat( this.feeETH );
-        const totalUSD = formatXDecimals( parseFloat( this.amountUSD ) + parseFloat( this.feeUSD ), 4 );
+        let totalAmt, totalUSD;
+        if( this.isToken ){
+            totalAmt = parseFloat( this.feeETH );
+            totalUSD = formatXDecimals( parseFloat( this.feeUSD ), 4 );
+        } else {
+            totalAmt = parseFloat( this.amt ) + parseFloat( this.feeETH );
+            totalUSD = formatXDecimals( parseFloat( this.amountUSD ) + parseFloat( this.feeUSD ), 4 );
+        }
         this.el.querySelector('.transaction__checkout__total h3').innerHTML = 
             totalAmt+' '+ this.nativeTokenName + '<span>$' + totalUSD +'</span>';
         
-         this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: '+ totalAmt;
-         this.checkCanProceed();
+        this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: '+ totalAmt;
+        this.checkCanProceed();
     }
 
     async populateData(){
@@ -481,7 +487,7 @@ class SendScreen extends UIScreen {
         fromCont.innerHTML = middleEllipsisMax( fromAddress, 4 );
         fromCont.parentNode.querySelector('.hover-info--1').innerText = fromAddress;
         const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
-        const toAddress = activeTrans.data.to;
+        let toAddress = activeTrans.data.to;
 
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
@@ -493,6 +499,7 @@ class SendScreen extends UIScreen {
             this.tokenValue = decodedData.value;
             this.isToken = true;
             this.decodedData = decodedData;
+            toAddress = decodedData?.recepient;
         }
         // console.log( 'da', activeTrans.data.to );
         
@@ -514,7 +521,9 @@ class SendScreen extends UIScreen {
 
     async populateBalance(){
         if( this.isToken ){
-            console.log( 'get balance', this.decodedData );
+            this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
+
+            // console.log( 'get balance', this.decodedData );
             const activeTrans = this.keyless.kctrl.getActiveTransaction();
             const fromAddress = this.keyless.kctrl.getAccounts().address;
             try {
@@ -548,7 +557,7 @@ class SendScreen extends UIScreen {
                 this.el.querySelector('.transaction__send').classList.remove('low-balance');
             }
     
-            this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
+            this.amountUSD = formatMoney( await this.keyless.kctrl.getTokenBalanceInUSD( this.amt, this.decodedData.tokenSymbol ) );
             this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
         } else {
             this.amt = amtSend;
@@ -598,11 +607,19 @@ class SendScreen extends UIScreen {
     checkCanProceed(){
         kl_log('check can proceed');
         kl_log( (parseFloat( this.amt ) + parseFloat( this.feeETH )), parseFloat( this.balance ) );
-
-        if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
-           this.setProceedActive( false );
+        if( this.isToken ){
+            console.log('is token', this.balance, this.feeETH, this.tokenBalance, this.tokenValue );
+            if( (parseFloat( this.balance ) < parseFloat( this.feeETH )) || (parseFloat(this.tokenBalance) < parseFloat( this.tokenValue ) ) ){
+                this.setProceedActive( false );
+            } else {
+                this.setProceedActive( true );
+            }
         } else {
-            this.setProceedActive( true );
+            if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
+                this.setProceedActive( false );
+            } else {
+                this.setProceedActive( true );
+            }
         }
     }
 

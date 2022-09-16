@@ -250,7 +250,7 @@ window.onload = async() => {
                 contractAddress = '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48';
             }
 
-            const calculatedValue = w3.utils.toBN( 0.00001 * Math.pow( 10, 6 ) );
+            const calculatedValue = w3.utils.toBN( 0.0001 * Math.pow( 10, 6 ) );
             const contractInstance = new w3.eth.Contract( tokenDataAbi, contractAddress );
             const tokenData = await contractInstance.methods.transfer(toAddress, calculatedValue).encodeABI();
 
