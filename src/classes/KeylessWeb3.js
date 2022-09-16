@@ -34,7 +34,9 @@ class KeylessWeb3 {
     login(){
         const { chainId } = this.getCurrentChain();
 
-        if( !this._loggedin ){
+        if( this._loggedin ){
+            this.openDashboard();
+        } else {
             this._showUI('login');
         }
 

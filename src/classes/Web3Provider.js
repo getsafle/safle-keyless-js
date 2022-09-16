@@ -21,6 +21,7 @@ class Web3Provider extends EventEmitter {
         switch( e.method ){
 
             case 'eth_request':
+            case 'eth_accounts':
             case 'eth_requestAccounts':
             case 'personal_listAccounts':
                 if( !this.keyless._loggedin ){
