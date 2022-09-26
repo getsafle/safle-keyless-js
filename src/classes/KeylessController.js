@@ -305,11 +305,11 @@ class KeylessController {
 
     async getTokenBalanceInUSD( balance, tokenSymbol ){
         try {
-            if (!process.env.SAFLE_TOKEN_API) {
+            if (!config.SAFLE_TOKEN_API) {
                 throw new Error('Please check the environment variables...');
             }
             
-           let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
+           let res = await fetch(`${config.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
             const rate = res.data?.data[ tokenSymbol.toUpperCase() ]?.quote?.USD?.price;
             const priceUSD = isNaN( rate )? 0 : rate;
             return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
