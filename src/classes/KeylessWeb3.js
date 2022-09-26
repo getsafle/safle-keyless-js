@@ -23,12 +23,6 @@ class KeylessWeb3 {
         this.kctrl = new KeylessController( this, this.allowedChains );
         const { chainId } = this.getCurrentChain();
         this._connected = false;
-        // this._env = config.env || 'dev';
-
-        //enable this to use recaptcha login
-        // if( !window.grecaptcha ){
-        //     this.injectScripts();
-        // }
     }
 
     login(){
@@ -131,7 +125,7 @@ class KeylessWeb3 {
     }
     getCurrentNativeToken(){
         const currChain = this.getCurrentChain();
-        // 
+
         return currChain.chain.symbol;
     }
     async getNativeTokenFor( chainId ){

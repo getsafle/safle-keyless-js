@@ -11,6 +11,24 @@ const blockchainInfo = {
         explorer: 'https://ropsten.etherscan.io/tx/',
         chain_name: 'ropsten',
     },
+    4: {
+        name: 'Rinkeby Testnet',
+        rpcURL: 'https://rinkeby.infura.io/v3/',
+        explorer: 'https://rinkeby.etherscan.io/tx/',
+        chain_name: 'rinkeby',
+    },
+    42: {
+        name: 'Kovan Testnet',
+        rpcURL: 'https://kovan.infura.io/v3/',
+        explorer: 'https://kovan.etherscan.io/tx/',
+        chain_name: 'kovan',
+    },
+    420: {
+        name: 'Goerli Testnet',
+        rpcURL: 'https://goerli.infura.io/v3/',
+        explorer: 'https://goerli.etherscan.io/tx/',
+        chain_name: 'goerli',
+    },
     137: {
         name: 'Polygon Mainnet',
         rpcURL: 'https://polygon-mainnet.infura.io/v3/',
