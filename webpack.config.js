@@ -33,9 +33,9 @@ module.exports = [
         Buffer: ['buffer', 'Buffer'],
         process: ['process']
       }),
-      new webpack.DefinePlugin({
-        'process.env': JSON.stringify(process.env)
-     })
+    //   new webpack.DefinePlugin({
+    //     'process.env': JSON.stringify(process.env)
+    //  })
     ],
     module: {
       rules: [
@@ -107,9 +107,9 @@ module.exports = [
         Buffer: ['buffer', 'Buffer'],
         process: ['process']
       }),
-      new webpack.DefinePlugin({
-        'process.env': JSON.stringify(process.env)
-      }),
+      // new webpack.DefinePlugin({
+      //   'process.env': JSON.stringify(process.env)
+      // }),
       new webpack.optimize.LimitChunkCountPlugin({
         maxChunks: 1,
       }),
@@ -130,7 +130,7 @@ module.exports = [
             {
               loader: "sass-loader",
               options: {
-                additionalData: "$keyless_ui_class: " + process.env.KEYLESS_UI_CLASSNAME + ";",
+                additionalData: "$keyless_ui_class: " + config.KEYLESS_UI_CLASSNAME + ";",
               },
             }
           ],

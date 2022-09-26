@@ -204,6 +204,8 @@ class KeylessController {
             this.activeTransaction.data.gasLimit = gasLimit;
             this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
             this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+
+            console.log(`gas limit is #${gasLimit} and maxFeePerGas is #${maxFeePerGas} and maxPriorityFeePerGas is #${maxPriorityFee}`);
         }
     }
 
@@ -305,11 +307,11 @@ class KeylessController {
 
     async getTokenBalanceInUSD( balance, tokenSymbol ){
         try {
-            if (!process.env.SAFLE_TOKEN_API) {
+            if (!config.SAFLE_TOKEN_API) {
                 throw new Error('Please check the environment variables...');
             }
             
-           let res = await fetch(`${process.env.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
+           let res = await fetch(`${config.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e=>e.json());
             const rate = res.data?.data[ tokenSymbol.toUpperCase() ]?.quote?.USD?.price;
             const priceUSD = isNaN( rate )? 0 : rate;
             return formatXDecimals( parseFloat( balance ) * parseFloat( priceUSD ), 3 );
@@ -333,30 +335,38 @@ class KeylessController {
         try {
             if( data && data.length ){
                 let chain = this.keylessInstance.getCurrentChain();
+                console.log(`data is ${data}`);
                 const rpcURL = chain.chain.rpcURL;
                 const decodedData = await safleHelpers.decodeInput( data, rpcURL, to );
 
                 const decimals = parseInt( decodedData?.decimals );
+
+                console.log('decoded data : ', decodedData);
+
                 let gas;
                 try {
                     const contractInstance = new this.web3.eth.Contract( erc20ABI, to );
                     const tokenValue = decodedData.value * Math.pow( 10, decimals? decimals : 0 );
-                    gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue ).estimateGas({ from }); 
+                    gas = await contractInstance.methods.transfer( decodedData.recepient, tokenValue.toString() ).estimateGas({ from }); 
+
+                    console.log('gas : ', gas);
                 } catch(e) {
+                    console.log('error : ', e);
                     gas = 21000;
                 }  
 
-                return parseInt( gas * 1.5 );
+                return parseInt( gas );
             }
 
             try {
                 const res = await this.web3.eth.estimateGas( { to, from, value } );
                 return res;
             } catch( e ){
-                return parseInt( gas * 1.5 );
+                return parseInt( gas );
             }
             
         } catch ( e ){
+            console.log('error2 : ', e)
             return 21000;
         }
     }

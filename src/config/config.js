@@ -15,7 +15,5 @@ const config = {
     OPEN_WALLET_LINK: 'https://app.getsafle.com/dashboard',
     SIGNUP_URL: 'https://app.getsafle.com/sign-up',
     FORGOTPASS_URL: 'https://app.getsafle.com/forgot-pass'
-    
-
 }
 module.exports = config;

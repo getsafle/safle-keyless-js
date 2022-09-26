@@ -6,6 +6,7 @@ import popoutImg from './../images/pop-out.svg'
 import UIScreen from '../classes/UIScreen';
 import Dropdown from './components/DropDown';
 import AddressDropdown from './components/AddressDropdown';
+import config from './../config/config';
 
 class SwitchChainScreen extends UIScreen {
     currentChain;
@@ -65,7 +66,7 @@ class SwitchChainScreen extends UIScreen {
 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            window.open( process.env.OPEN_WALLET_LINK, '_blank' );
+            window.open( config.OPEN_WALLET_LINK, '_blank' );
         });
 
         this.keyless.kctrl._setLoading( true );
