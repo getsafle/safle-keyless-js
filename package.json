@@ -1,5 +1,5 @@
 {
-  "name": "@getsafle/safle-keyless-sdk",
+  "name": "@getsafle/safle-keyless-js",
   "version": "1.0.0",
   "description": "",
   "private": true,
@@ -13,8 +13,7 @@
     }
   },
   "scripts": {
-    "start": "npm run build:lib",
-    "build:lib": "webpack --config-name library"
+    "build": "webpack --config-name library"
   },
   "keywords": [],
   "author": "",
