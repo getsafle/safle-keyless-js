@@ -1,5 +1,5 @@
 {
-  "name": "safle-keyless-skeleton",
+  "name": "@getsafle/safle-keyless-sdk",
   "version": "1.0.0",
   "description": "",
   "private": true,
