@@ -27,6 +27,8 @@ Happy #BUIDLing
 3. **Non-Custodial Relationship** - User Private Key is always exportable and encrypted version can be deleted (redundant) from the Safle infrastructure.
 4. **App Agnostic** - Any application without getting an API key can access SafleID service, password based transaction signing requires special access which can be requested for. (In Alpha Testing).
 
+### Check out the extensive documentation on how to integrate and use Keyless [here]( )
+
 ## **Installation and Usage**
 
 > Installation
@@ -59,7 +61,7 @@ Initialise the constructor using,
 const keyless = new KeylessWeb3({ blockchain });
 ```
 
-The first parameter ( blockchain ) is an array of supported blockchains from `getNetworks()`.
+`blockchain` - An array of objects containing supported blockchains from `getNetworks()`.
 
 > Initialize web3 instance
 
