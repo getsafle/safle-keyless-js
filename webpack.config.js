@@ -1,6 +1,5 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-// const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { CustomizedCleanWebpackPlugin } = require('./misc/custom-plugins/customCleanWebpackPlugin');
 const webpack = require('webpack');
 const config = require('./src/config/config');
@@ -88,18 +87,8 @@ module.exports = [
     },
     
     devtool: 'inline-source-map',
-    // devServer: {
-    //   static: './src',
-    //   hot: true,
-    //   compress: true,
-    //   port: 9000,
-    // },
     plugins: [
       new CustomizedCleanWebpackPlugin(),
-      // new HtmlWebpackPlugin({
-      //   title: 'Development',
-      //   template: './src/index.html'
-      // }),
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         process: ['process']
@@ -110,9 +99,6 @@ module.exports = [
     ],
     module: {
       rules: [
-        // {
-        //   sideEffects: false
-        // },
         {
           test: /\.s[ac]ss$/i,
           use: [
