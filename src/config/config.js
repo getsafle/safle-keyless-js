@@ -6,8 +6,8 @@ const config = {
     backupGasFeeApiEth: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle',
     backupGasFeeApiPolygon: 'https://api.polygonscan.com/api?module=gastracker&action=gasoracle',
 
-    SAFLE_TOKEN_API: 'https://dev-data.getsafle.com',
-    AUTH_URL: 'https://dev-auth.getsafle.com',
+    SAFLE_TOKEN_API: 'https://data.getsafle.com',
+    AUTH_URL: 'https://auth.getsafle.com',
     RECAPTCHA_SITE_KEY: '6Lf8HVIaAAAAADBeZl94tnebAST20hEZOHWzQMBD',
     KEYLESS_UI_CLASSNAME: 'safle_98352395325_ui',
     WALLET_WORD_SPLIT: '81242854362396934869396898496a39259235989f',
