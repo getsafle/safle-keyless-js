@@ -1,0 +1,482 @@
+$pin-start-delay: 0.5s;
+
+.#{$keyless_ui_class} {
+
+    &.loading {
+        .pin {
+            &:after {
+                content: '';
+                z-index: 1000;
+                position: absolute;
+                border-radius: 20px;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba( 0, 0, 0, 0.8) url('./loading.svg') center center no-repeat;
+                background-size: 40px auto;
+            }
+        }
+    }
+
+    // PIN
+    .pin {
+        position: relative;
+
+        .hover-info--1 {
+            position: absolute;
+            top: 60px;
+            left: 10px;
+        }
+
+        @include container(-280px, -40px, 360px, 466px);
+
+        &__header {
+            text-align: center;
+
+            .logo {
+                img {
+                    width: 80px;
+                }
+            }
+
+            .copy-address {
+                cursor: pointer;
+                background-color: $c--background;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                border: solid 1px $c--blue--dark;
+                border-radius: 10px;
+                margin: 20px auto 20px auto;
+                width: 226px;
+                height: 50px;
+
+                :first-child {
+                    cursor: pointer;
+                    width: 24px;
+                }
+
+                :last-child {
+                    cursor: pointer;
+                    width: 18px;
+                }
+
+                h3 {
+                    color: $c--gray--second;
+                    @include font-size(18px);
+                    font-weight: 500;
+                }
+            }
+        }
+
+        
+        .pin_code_container{
+            position: relative;
+            border: 1px solid $c--blue--dark;
+            background-color: $c--background;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 320px;
+            height: 97px;
+            padding-bottom: 16px;
+
+            &.error {
+                border-color: #ff0000;
+            }
+            .error {
+                position: absolute;
+                left: 0;
+                top: 96px;
+                .error-boundary {
+                    color: #ff4949;
+                    position: absolute;
+                    text-align: left;
+                    width: 250px;
+                    left: -1px;
+                    top: 0;
+                    font-size: 12px;
+                    font-weight:500;
+                }
+            }
+            .pin-codes {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                box-sizing: border-box;
+
+                * {
+                    box-sizing: border-box;
+                }
+
+                .input-pin {
+                    position: relative;
+                    width: 320px;
+                    height: 58px;
+                    padding: 0;
+
+                    input {
+                        width: 280px;
+                        height: 58px;
+                        color: #000;
+                        padding: 0 14px;
+                        text-align: center;
+                        
+                        @include font-size(18px);
+                        font-weight: 600;
+                        line-height: 58px;
+                        border: 0px solid rgba(255, 255, 255, 0);
+                        color: rgba(255,255,255,0);
+                        text-align: left;
+                        letter-spacing: 34.5px;
+                        background: transparent;
+                        z-index: 10;
+                        text-indent: -999999px;
+                        // font-size: 0;
+                        // opacity: 0;
+                        -webkit-user-select: none; 
+                        -ms-user-select: none; 
+                        user-select: none; 
+                        &::selection{
+                          background: rgba(255,255,255,0);
+                        }
+
+                        &::-moz-selection{
+                          background: rgba(255,255,255,0);
+                        }
+                        &::-webkit-outer-spin-button,
+                        &::-webkit-inner-spin-button {
+                            -webkit-appearance: none;
+                            margin: 0; 
+                        }
+
+                        &[type=number] {
+                            -moz-appearance:textfield; /* Firefox */
+                        }
+                        &:hover,
+                        &:focus {
+                            outline: 0;
+                            color:transparent;
+                        }
+                    }
+
+                    .input-areas {
+                        z-index: 1;
+                        pointer-events: none;
+                        width: 265px;
+                        height: 58px;
+                        position: absolute;
+                        left: 0;
+                        right:0;
+                        margin:0 auto;
+                        top: 0;
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-between;
+                        align-items: center;
+
+                        .input-cell {
+                            width: 38px;
+                            height: 58px;
+                            border-bottom: 1px solid $c--gray--third;
+                            text-align: center;
+                            @include font-size(28px);
+                            
+                            font-weight: 600;
+                            line-height: 58px;
+                            background-color: transparent;
+
+                            &.filled {
+                                position: relative;
+                                color: $c--gray--second;
+
+                                animation: disNum 0s $pin-start-delay forwards;
+
+                                &:after {
+                                    position: absolute;
+                                    left: 50%;
+                                    top: 50%;
+                                    text-indent: -99999px;
+                                    content: '*';
+                                    transform: translate(-50%, -50%);
+                                    animation: passNum 0s $pin-start-delay forwards;
+                                }
+                            }
+
+                            &.hidden {
+                                animation: none;
+                                text-indent: -9999px;
+
+                                &:after {
+                                    animation: none;
+                                    text-indent: 0;
+                                }
+                            }
+
+                            &.focused {
+                                position: relative;
+
+                                &:before {
+                                    content: '';
+                                    height: calc(100% - 6px);
+                                    width: 1px;
+                                    background-color: #eee;
+                                    position: absolute;
+                                    left: 18px;
+                                    top: 3px;
+                                    animation: pulsate 1s 0s linear infinite;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                .input-text {
+                    width: 40px;
+                    height: 60px;
+                    background-color: #f3f3f6;
+                    border: solid 1px $c--gray;
+                    border-radius: 6px;
+
+                    input {
+                        width: 38px;
+                        height: 58px;
+                        color: #000;
+                        padding: 0 14px;
+                        text-align: center;
+                        font-size: font-size(13px);
+                        
+                        line-height: 58px;
+
+
+                        &:required:valid {
+                            background-color: #007aff;
+                            color: #fff;
+                        }
+                    }
+                }
+
+            }
+
+        }
+        .pin-codeOLD {display:none !important;}
+        &__input {
+            &__ctn {
+                text-align: center;
+
+                h3 {
+                    color: $c--gray--second;
+                    @include font-size(18px);
+                    font-weight: 500;
+                }
+
+                .pin-code-ctn {
+                    border: 1px solid $c--blue--dark;
+                    background-color: $c--background;
+                    border-radius: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    width: 320px;
+                    height: 97px;
+                    padding-bottom: 16px;
+
+                    .pin-code {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-between;
+                        align-items: center;
+                        box-sizing: border-box;
+
+                        * {
+                            box-sizing: border-box;
+                        }
+
+                        .input-pin {
+                            position: relative;
+                            width: 280px;
+                            height: 58px;
+                            padding: 0;
+                            margin: 0 auto;
+
+                            // overflow: hidden;
+                            input {
+                                width: 300px;
+                                height: 58px;
+                                color: #000;
+                                padding: 0;
+                                text-align: center;
+                                font-size: 28px;
+                                font-weight: 600;
+                                line-height: 58px;
+                                border: 0px solid rgba(255, 255, 255, 0);
+                                color: #fff;
+                                text-align: left;
+                                letter-spacing: 30px;
+                                background: transparent;
+                                z-index: 10;
+                                position: relative;
+                                left: 20px;
+                                top: 8px;
+                                text-indent: -999999px;
+
+                                &:hover,
+                                &:focus {
+                                    outline: 0;
+                                }
+                            }
+
+                            .input-areas {
+                                z-index: 1;
+                                pointer-events: none;
+                                width: 265px;
+                                height: 58px;
+                                position: absolute;
+                                left: 10px;
+                                top: 0;
+                                display: flex;
+                                flex-direction: row;
+                                justify-content: space-between;
+                                align-items: center;
+
+                                .input-cell {
+                                    width: 38px;
+                                    height: 58px;
+                                    border-bottom: 1px solid $c--gray--third;
+                                    text-align: center;
+                                    font-size: 18px;
+                                    font-weight: 600;
+                                    line-height: 58px;
+
+                                    &.filled {
+                                        position: relative;
+                                        background-color: #007aff;
+                                        color: #fff;
+
+                                        animation: disNum 0s 1s forwards;
+
+                                        &:after {
+                                            position: absolute;
+                                            left: 50%;
+                                            top: 50%;
+                                            text-indent: -99999px;
+                                            content: '*';
+                                            transform: translate(-50%, -50%);
+                                            animation: passNum 0s 1s forwards;
+                                        }
+                                    }
+
+                                    &.hidden {
+                                        animation: none;
+                                        text-indent: -9999px;
+
+                                        &:after {
+                                            animation: none;
+                                            text-indent: 0;
+                                        }
+                                    }
+
+                                    &.focused {
+                                        position: relative;
+
+                                        &:before {
+                                            content: '';
+                                            height: calc(100% - 6px);
+                                            width: 1px;
+                                            background-color: #000;
+                                            position: absolute;
+                                            left: 5px;
+                                            top: 3px;
+                                            animation: pulsate 1s 0s linear infinite;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        .input-text {
+                            width: 40px;
+                            height: 60px;
+                            background-color: #f3f3f6;
+                            border: solid 1px $c--gray;
+                            border-radius: 6px;
+
+                            input {
+                                width: 38px;
+                                height: 58px;
+                                color: #000 !important;
+                                padding: 0 14px;
+                                text-align: center;
+                                font-size: 13px;
+                                line-height: 58px;
+
+                                &:required:valid {
+                                    background-color: #007aff;
+                                    color: #fff;
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        .proceed_btn{
+            &[disabled='disabled']{
+                opacity:0.5;
+            }
+        }
+    }
+
+    @keyframes pulsate {
+        0% {
+            opacity: 1;
+        }
+
+        49.9% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0;
+        }
+
+        100% {
+            opacity: 0;
+        }
+    }
+
+    @keyframes disNum {
+        0% {
+            text-indent: 0;
+        }
+
+        1% {
+            text-indent: -9999px;
+        }
+
+        100% {
+            text-indent: -9999px;
+        }
+    }
+
+    @keyframes passNum {
+        0% {
+            text-indent: -99999px;
+        }
+
+        1% {
+            text-indent: 0;
+        }
+
+        100% {
+            text-indent: 0;
+        }
+    }
+
+}

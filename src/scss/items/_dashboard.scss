@@ -1,0 +1,201 @@
+.#{$keyless_ui_class} {
+    &.loading {
+        .sign,
+        .dashboard {
+            &:after {
+                content: '';
+                z-index: 1000;
+                position: absolute;
+                border-radius: 20px;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba( 0, 0, 0, 0.8) url('./loading.svg') center center no-repeat;
+                background-size: 40px auto;
+            }
+        }
+    }
+
+    .sign,
+    .dashboard {
+        @include container(-280px, -40px, 360px, 659px);
+        padding: 0px;
+
+        &__header {
+            @include header;
+            padding: 20px 20px 5px;
+            position: relative;
+
+            &.with__border {
+                border-bottom: 1px solid $c--blue--dark;
+                padding-bottom: 20px;
+            }
+
+            .hover-info--1 {
+                position: absolute;
+                top: 60px;
+                left: 10px;
+            }
+
+            .header_title {
+                margin-top: 20px;
+                margin-bottom: 0;
+                color: $c--gray;
+                font-weight: 500;
+                font-size: 18px;
+            }
+
+        }
+
+        &__network {
+            background-color: $c--background;
+            display: flex;
+            cursor: pointer;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 0px 10px;
+            border: 1px solid $c--blue--dark;
+            border-radius: 10px;
+            margin: 20px auto 0px auto;
+            width: 240px;
+            height: 50px;
+            padding: 0 22px;
+
+            img {
+                width: 20px;
+                height: 20px;
+                margin-left: 0px
+            }
+
+            h3 {
+                @include font-size(16px);
+                margin-right: 0px;
+                margin-left: 0px;
+                padding-left: 13px;
+                max-width: calc(100% - 27px);
+                width: 100%;
+                text-align: left;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+            }
+        }
+
+        &__body {
+            padding: 20px;
+
+            .h4 {
+                @include font-size(14px);
+                color: $c--gray--dark;
+                font-weight: 500;
+                padding-bottom: 10px;
+            }
+        }
+
+        &__wallet {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+
+            .copy-address {
+                background-color: $c--background;
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                justify-content: space-around;
+                border: solid 1px $c--blue--dark;
+                border-radius: 10px;
+                margin-right: 10px;
+                width: 100%;
+                height: 50px;
+
+                h3 {
+                    color: $c--gray--second;
+                    @include font-size(18px);
+                    font-weight: 500;
+
+                    span {
+                        font-weight: bold;
+                    }
+                }
+
+                :first-child {
+                    width: 24px;
+                }
+
+                :last-child {
+                    width: 18px;
+                }
+            }
+        }
+
+        &__balance {
+            background-color: $c--background;
+            border-radius: 10px;
+            border: solid 1px $c--blue--dark;
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            height: 110px;
+            overflow: hidden;
+
+            img {
+                position: relative;
+                bottom: 8px;
+                margin-right: 20px;
+                width: 38px;
+            }
+
+            .input, input {
+                background-color: $c--background;
+                border: none;
+                outline: none;
+                @include font-size(48px);
+                font-weight: 500;
+                color: $c--gray--second;
+                width: 100%;
+                font-family: "Montserrat";
+                margin-left: 8px;
+                position: relative;
+                right: 10px;
+            }
+
+            input::-webkit-outer-spin-button,
+            input::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+                margin: 0;
+            }
+
+            h3 {
+                @include font-size(18px);
+                color: $c--gray--third;
+                font-weight: 500;
+                margin: 0px;
+                padding: 0px;
+            }
+        }
+
+        .sign-message {
+            border: solid 1px #2e384d;
+            border-radius: 10px;
+            background-color: transparent;
+            color: $c--gray--second;
+            width: 100%;
+            height: 160px;
+            padding: 15px 16px 63px;
+            resize: none;
+            font-size: 14px;
+        }
+
+        button.reject_btn {
+            background-color: #1a2233;
+        }
+
+        button.upper {
+            text-transform: uppercase;
+        }
+    }
+
+}
