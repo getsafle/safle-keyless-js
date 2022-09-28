@@ -9,3 +9,9 @@
 ##### Autobuild
 
 * Added husky to autobuild the package pre-commit and push.
+
+### 1.1.1 (2022-09-28)
+
+##### Removed job dependency on `main` branch github workflow
+
+* Removed job dependency on `main` branch github workflow.
