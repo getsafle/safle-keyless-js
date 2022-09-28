@@ -4,8 +4,6 @@ const { CustomizedCleanWebpackPlugin } = require('./misc/custom-plugins/customCl
 const webpack = require('webpack');
 const config = require('./src/config/config');
 
-require('dotenv').config();
-
 module.exports = [
   {
     name: 'testapp-build',
