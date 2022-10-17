@@ -1,11 +1,11 @@
 {
-  "name": "safle-keyless-skeleton",
-  "version": "1.0.0",
+  "name": "@getsafle/safle-keyless-js",
+  "version": "1.1.1",
   "description": "",
-  "private": true,
   "engines": {
     "node": ">=12.22.9"
   },
+  "main": "./src/index.js",
   "browser": "./lib/keyless.umd.min.js",
   "eslintConfig": {
     "env": {
@@ -13,21 +13,26 @@
     }
   },
   "scripts": {
-    "start": "npm run build:lib",
-    "build:lib": "webpack --config-name library"
+    "build": "webpack --config-name library",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.19.3",
+    "@babel/preset-env": "^7.19.4",
+    "babel-loader": "^8.2.5",
+    "clean-webpack-plugin": "^4.0.0",
     "css-loader": "^6.5.1",
-    "dotenv": "^14.3.2",
     "html-loader": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
+    "husky": "^8.0.1",
     "sass": "^1.49.0",
     "sass-loader": "^12.4.0",
     "style-loader": "^3.3.1",
     "webp-loader": "^0.6.0",
-    "webpack": "^5.67.0",
+    "webpack": "^5.74.0",
     "webpack-cli": "^4.9.2",
     "webpack-dev-server": "^4.7.3"
   },
@@ -42,13 +47,10 @@
     "assert": "^2.0.0",
     "axios": "^0.26.1",
     "buffer": "^6.0.3",
-    "clean-webpack-plugin": "^4.0.0",
     "crypto-browserify": "^3.12.0",
     "ethereumjs-tx": "^2.1.2",
     "ethereumjs-util": "^7.1.4",
-    "ethers": "^5.6.2",
     "get-random-values": "^1.2.2",
-    "html-webpack-plugin": "^5.5.0",
     "https-browserify": "^1.0.0",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",

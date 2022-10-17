@@ -8,10 +8,10 @@ import crypto from 'crypto-browserify';
 import aes from 'aes-js';
 import APIS from '../helpers/apis';
 
-const ethers = require('ethers');
+// const ethers = require('ethers');
 const KDFiterations = 10000;
 
-export const login = async ( safleID, password, token='' ) => {
+export const login = async ( safleID, password ) => {
 
     let passwordDerivedKey = await generatePDKey({safleID, password});
     const pdkeyHash = await createPDKeyHash({ passwordDerivedKey });
@@ -19,8 +19,6 @@ export const login = async ( safleID, password, token='' ) => {
     let params = {
         "userName": safleID,
         "PDKeyHash": pdkeyHash
-        // "password": pdkeyHash, // use this for auth api with recaptcha
-        // "g-recaptcha-response": token
     };
 
     const resp = await fetch( APIS.login_keyless, {
@@ -43,8 +41,6 @@ export const login = async ( safleID, password, token='' ) => {
     return resp;
 }
 
-
-
 export function generateRandomNumber() {
     let firstNumber = Math.floor(Math.random() * 11 + 1);
     let secondNumber = Math.floor(Math.random() * 11 + 1);
@@ -65,7 +61,6 @@ export async function generateEncryptionKey() {
 export async function generatePDKey({ safleID, password }) {
     const passwordDerivedKey = crypto.pbkdf2Sync(password, safleID, 10000, 32, 'sha512');
     
- 
     const passwordDerivedKeyHash = crypto.createHash('sha256');
     passwordDerivedKeyHash.update( passwordDerivedKey, 'utf8' );
 
@@ -79,6 +74,7 @@ export async function encryptEncryptionKey({ passwordDerivedKey, encryptionKey }
     
     return encryptedEncryptionKey
 }
+
 export async function createPDKeyHash({ passwordDerivedKey }) {
     const passwordDerivedKeyHash = crypto.createHash('sha512');
     passwordDerivedKeyHash.update( passwordDerivedKey );
@@ -86,6 +82,7 @@ export async function createPDKeyHash({ passwordDerivedKey }) {
     
     return passwordDerivedKeyHashHex
 }
+
 export async function hashPassword({ password, passwordDerivedKey }) {
     const passwordHash = crypto.pbkdf2Sync(passwordDerivedKey, password, 1 , 32, 'sha512');
     const passwordHashHex = passwordHash.toString('hex')
@@ -93,7 +90,7 @@ export async function hashPassword({ password, passwordDerivedKey }) {
     return passwordHashHex
 }
 
-export const getCloudToken = async( user, pass, gtoken ) => {
+export const getCloudToken = async( user, pass ) => {
     try {
         const derivedKey = await generatePDKey({safleID: user, password: pass });
         const PDKeyHash = await createPDKeyHash( { passwordDerivedKey: derivedKey } );
@@ -157,7 +154,7 @@ export const retrieveEncryptionKey = async( PDKeyHash, authToken ) => {
 }
 
 export const decryptEncryptionKey = ( safleID, password, encryptedEncryptionKey, ret='array' ) => {
-    const aes = require('aes-js');
+    
 
     function generatePDKey({ safleID, password }) {
         const passwordDerivedKey = crypto.pbkdf2Sync(password, safleID, 10000, 32, 'sha512');
@@ -193,9 +190,6 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
     const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
   
     const tokenDetails = await tokenController.getTokenDetails(contractAddress);
-    // if( tokenDetails.hasOwnProperty('error') ){
-    //     return null;
-    // }
   
     let output;
   

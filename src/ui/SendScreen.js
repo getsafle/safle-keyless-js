@@ -182,9 +182,10 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
             clearInterval( this.feeTm );
             const chosenGas = this.gasFees[ this.advancedFee ];
-            
+
             if( this.advancedFee == 'custom'){
-                const maxFee = this.gasFees['medium'].suggestedMaxFeePerGas < this.customPrioFee? this.customPrioFee+0.000001 : this.gasFees['medium'].suggestedMaxFeePerGas;
+                const maxFee = this.customPrioFee + this.gasFees.estimatedBaseFee;
+
                 this.keyless.kctrl.setGasForTransaction( this.customGasLimit, maxFee, this.customPrioFee );
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
@@ -307,17 +308,13 @@ class SendScreen extends UIScreen {
         let likeTime;
         let fee, feeETH;
 
-        
-
         if( this.advancedFee == 'custom'){
             
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
             fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( priorityFee ) ) * gasLimit;
-            if( this.gasFees['medium'].suggestedMaxFeePerGas < priorityFee ){
-                fee = ( parseInt( priorityFee ) + parseInt( priorityFee ) ) * gasLimit;
-            }
+
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.chosenFee = 'custom';
             this.customGasLimit = gasLimit;
@@ -325,6 +322,7 @@ class SendScreen extends UIScreen {
 
         } else {
             this.chosenFee = this.advancedFee;
+
             const chosenGas = this.gasFees[ this.advancedFee ];
             
             likeTime = this.getTimeEstimate( this.advancedFee );
@@ -339,22 +337,16 @@ class SendScreen extends UIScreen {
 
     async populateGasEstimate(){
         const trans = this.keyless.kctrl.getActiveTransaction();
- 
-        if( this.chosenFee == 'custom'){
-            
 
+        if( this.chosenFee == 'custom'){
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
+
             const chosenGas = this.gasFees[ 'medium' ];
 
-            
-            
             const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
             let maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
-            if( chosenGas.suggestedMaxFeePerGas < chosenGas.customPrioFee ){
-                maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.customPrioFee ) );
-            }
 
             this.el.querySelector('.transaction__checkout__input h3')
             .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
@@ -444,7 +436,7 @@ class SendScreen extends UIScreen {
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
         let decodedData = {};
-        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 ){
+        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to') ){
             let chain = this.keyless.getCurrentChain();
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
@@ -481,18 +473,16 @@ class SendScreen extends UIScreen {
                 this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
                 this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
             } catch( e ){
-                // throw new Error( e );
             }
         } else {
             this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
-            // const trans = this.keyless.kctrl.getActiveTransaction();
-            // const val = this.keyless.kctrl.web3.utils.fromWei( trans.data.value.toString(), 'ether');
+
             this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
         }
     }
 
     async populateAmount( trans ){
-        const amt = trans.data.value;
+        const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
         if( this.isToken ){
             this.amt = this.tokenValue;

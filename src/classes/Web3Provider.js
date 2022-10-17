@@ -27,7 +27,6 @@ class Web3Provider extends EventEmitter {
                 if( !this.keyless._loggedin ){
                     return new RPCError('Please login in order to use keyless', 4200, 'Unauthorized');
                 }
-
                 const addrs = await this.keyless.kctrl.getAccounts();
                 if( !addrs ){
                     throw new RPCError('Please connect to DAP');
@@ -89,8 +88,21 @@ class Web3Provider extends EventEmitter {
                 return await this.keyless.kctrl.estimateGas( e.params[0] );
             break;
 
+            case 'eth_chainId':
+                return this.keyless.getCurrentChain().chainId;
+            break;
+
+            case 'net_version':
+                const chain = this.keyless.getCurrentChain().chainId;
+                return chain.toString();
+            break;
+
+            case 'eth_getEncryptionPublicKey':
+                return new RPCError('The requested method is not supported by this Ethereum provider.', 4200, 'Not implemented');
+            break;
+
             default:
-                
+                return new RPCError('The requested method is not supported by this Ethereum provider.', 4200, 'Not implemented');
             break;
         }
     }
