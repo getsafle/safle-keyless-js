@@ -826,15 +826,12 @@ class KeylessController {
                     missingAttr = requiredParams[i];
                 }
             }
-
             if( illegalAttr ){
                 throw new Error(`Invalid transaction attribute "${illegalAttr}"`);
             }
-
             if( missingAttr ){
                 throw new Error(`Missing required transaction attribute "${missingAttr}"`);
             }
-
             return config;
         } catch ( e ){
             console.error( e.message );
