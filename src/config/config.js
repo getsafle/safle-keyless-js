@@ -8,6 +8,10 @@ const config = {
 
     SAFLE_TOKEN_API: 'https://b-auth-data.getsafle.com',
     AUTH_URL: 'https://b-auth.getsafle.com',
+
+    // SAFLE_TOKEN_API: 'https://test-data.getsafle.com',
+    // AUTH_URL: 'https://test-auth.getsafle.com',
+
     RECAPTCHA_SITE_KEY: '6Lf8HVIaAAAAADBeZl94tnebAST20hEZOHWzQMBD',
     KEYLESS_UI_CLASSNAME: 'safle_98352395325_ui',
     WALLET_WORD_SPLIT: '81242854362396934869396898496a39259235989f',
