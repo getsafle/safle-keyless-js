@@ -65,12 +65,7 @@ class KeylessController {
         if (state.vault && state.decriptionKey != null) {
             this.vault = new Vault(state.vault);
 
-            console.log("IN LOAD VAULT")
-
-            console.log("state.decriptionKey ", state.decriptionKey)
             const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
-
-            console.log("decKey ", decKey)
 
             try {
                 let acc;
@@ -82,14 +77,9 @@ class KeylessController {
 
                 }
 
-                console.log("acc ", acc)
-
                 this.wallets = acc.response.filter(acc => acc.isDeleted != true).map(e => { return { address: e.address } }) || [];
 
-                console.log("this.wallets ", this.wallets)
-
             } catch (e) {
-                console.log("e ", e)
                 this.wallets = [];
             }
 
@@ -119,8 +109,6 @@ class KeylessController {
         const vault = await safleHelpers.retrieveVaultFromCloud(pdkeyHash, authToken);
 
         const encKey = await safleHelpers.retrieveEncryptionKey(pdkeyHash, authToken);
-
-        console.log("encKey", encKey)
 
         Storage.saveState({
             vault,

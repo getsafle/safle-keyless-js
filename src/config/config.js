@@ -6,7 +6,7 @@ const config = {
     backupGasFeeApiEth: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle',
     backupGasFeeApiPolygon: 'https://api.polygonscan.com/api?module=gastracker&action=gasoracle',
 
-    SAFLE_TOKEN_API: 'https://b-auth-data.getsafle.com',
+    SAFLE_TOKEN_API: 'https://b-data.getsafle.com',
     AUTH_URL: 'https://b-auth.getsafle.com',
 
     // SAFLE_TOKEN_API: 'https://test-data.getsafle.com',
