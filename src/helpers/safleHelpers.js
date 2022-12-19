@@ -169,12 +169,7 @@ export const decryptEncryptionKey = (safleID, password, encryptedEncryptionKey, 
 
     const aesCBC = new aes.ModeOfOperation.cbc(k);
 
-    console.log("encryptedEncryptionKey", encryptedEncryptionKey)
-
     const decriptedKey = aesCBC.decrypt(encryptedEncryptionKey);
-    console.log("decriptedKey", decriptedKey)
-    console.log("typeof decriptedKey", typeof decriptedKey)
-    console.log(" decriptedKey.length", decriptedKey.length)
     if (ret == 'object') {
         return decriptedKey;
     }
