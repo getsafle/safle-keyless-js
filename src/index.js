@@ -2,7 +2,7 @@ import './scss/index.scss';
 import KeylessWeb3 from './classes/KeylessWeb3';
 import config from './config/config';
 
-const safleBlockchainController = require('@getsafle/blockchain-controller');
+// import safleBlockchainController from '@getsafle/blockchain-controller';
 
 
 const getNetworks = async () => {

@@ -436,7 +436,7 @@ class SendScreen extends UIScreen {
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
         
         let decodedData = {};
-        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 ){
+        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to') ){
             let chain = this.keyless.getCurrentChain();
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
@@ -482,7 +482,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount( trans ){
-        const amt = trans.data.value;
+        const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
         if( this.isToken ){
             this.amt = this.tokenValue;

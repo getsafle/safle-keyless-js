@@ -15,6 +15,7 @@ class KeylessWeb3 {
     _activeScreen = false
     _web3 = false
     vault = {}
+    provider = false
 
     constructor( config ){
         this.allowedChains = config.blockchain;
@@ -29,6 +30,11 @@ class KeylessWeb3 {
         const { chainId } = this.getCurrentChain();
 
         if( this._loggedin ){
+            this.provider.emit('chainChanged', chainId );
+            this.provider.emit('accountsChanged', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
+            this.provider.emit('connect', { chainId });
+            this.provider.emit('login successful', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
+
             this.openDashboard();
         } else {
             this._showUI('login');
@@ -88,11 +94,11 @@ class KeylessWeb3 {
     switchNetwork( selectedChainId ){
         this._activeChain = selectedChainId;
         this.kctrl.switchNetwork( this._activeChain );
-        this.provider.emit('chainChanged', { chainId: selectedChainId } );
+        this.provider.emit('chainChanged', selectedChainId );
     }
     switchWallet( wid ){
         this.kctrl.activeWallet = wid;
-        this.provider.emit('accountsChanged', { address: this.kctrl.wallets[ this.kctrl.activeWallet ].address });
+        this.provider.emit('accountsChanged', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
         Storage.saveState({ activeWallet: wid });
     }
 
@@ -159,7 +165,7 @@ class KeylessWeb3 {
         this.root.setAttribute('class', config.KEYLESS_UI_CLASSNAME );
         this.root.style.cssText = inlineS( {
             'z-index': this._getZIndex(),
-            'position': 'absolute',
+            'position': 'fixed',
             'width': '100vw',
             'height': '100vh',
             'left': 0, 

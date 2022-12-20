@@ -80,8 +80,10 @@ module.exports = [
       filename: 'keyless.umd.min.js',
       path: path.resolve(__dirname, 'lib'),
       clean: true,
-      library: "SafleKeyless",
-      libraryTarget: "umd",
+      library: {
+        name: "SafleKeyless",
+        type: "umd"
+      }
     },
     
     devtool: 'inline-source-map',
