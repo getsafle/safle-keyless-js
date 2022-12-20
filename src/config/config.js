@@ -1,6 +1,6 @@
 const config = {
-    networks: 'https://raw.githubusercontent.com/getsafle/multichain-data/main/chains.json',
-    assets: 'https://raw.githubusercontent.com/getsafle/multichain-data/main/assets.json',
+    networks: 'https://chain-data-safle.netlify.app/chains.json',
+    assets: 'https://chain-data-safle.netlify.app/assets.json',
     gasFeeApiEth: 'https://gas-api.metaswap.codefi.network/networks/#{chainid}/suggestedGasFees',
     gasFeeApiPolygon: `https://gasstation-mainnet.matic.network/`,
     backupGasFeeApiEth: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle',
