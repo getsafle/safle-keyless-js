@@ -15,3 +15,15 @@
 ##### Removed job dependency on `main` branch github workflow
 
 * Removed job dependency on `main` branch github workflow.
+
+### 1.1.2 (2022-12-09)
+
+##### Updated the config to production
+
+* Updated the config to production.
+
+### 1.1.3 (2022-12-20)
+
+##### Fixed key decryption and user vault management
+
+* Fixed key decryption and user vault management.
