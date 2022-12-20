@@ -1,0 +1,6 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+rm -rf lib/key.umd.min.js
+npm run build
+git add lib/*
