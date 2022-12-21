@@ -17,23 +17,23 @@ class KeylessWeb3 {
     vault = {}
     provider = false
 
-    constructor( config ){
+    constructor(config) {
         this.allowedChains = config.blockchain;
-        
-        this.provider = new Web3Provider( { keylessInstance: this } );
-        this.kctrl = new KeylessController( this, this.allowedChains );
+
+        this.provider = new Web3Provider({ keylessInstance: this });
+        this.kctrl = new KeylessController(this, this.allowedChains);
         const { chainId } = this.getCurrentChain();
         this._connected = false;
     }
 
-    login(){
+    login() {
         const { chainId } = this.getCurrentChain();
 
-        if( this._loggedin ){
-            this.provider.emit('chainChanged', chainId );
-            this.provider.emit('accountsChanged', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
+        if (this._loggedin) {
+            this.provider.emit('chainChanged', chainId);
+            this.provider.emit('accountsChanged', [this.kctrl.wallets[this.kctrl.activeWallet].address]);
             this.provider.emit('connect', { chainId });
-            this.provider.emit('login successful', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
+            this.provider.emit('login successful', [this.kctrl.wallets[this.kctrl.activeWallet].address]);
 
             this.openDashboard();
         } else {
@@ -59,116 +59,124 @@ class KeylessWeb3 {
         return true
     }
 
-    openDashboard(){
-        if( !this._connected ){
+    openDashboard() {
+        if (!this._connected) {
             throw new RPCError('Provider not connected');
         }
-        if( !this._loggedin ){
+        if (!this._loggedin) {
             throw new RPCError('Please login first!');
         }
         this._showUI('dashboard');
     }
-    
-    sendTransaction(){
-        if( !this._loggedin ){
+
+    sendTransaction() {
+        if (!this._loggedin) {
             throw new Error('Please login first!');
         }
         this._showUI('send');
     }
 
-    selectChain(){
-        if( !this._loggedin ){
+    selectChain() {
+        if (!this._loggedin) {
             throw new Error('Please login first!');
         }
         this._showUI('SwitchChain');
 
     }
-    disconnect(){
+    disconnect() {
         this.kctrl.logout();
         this._loggedin = false;
         this._connected = false;
 
-        setTimeout( () => this.provider.emit('disconnect', {} ), 100 );
+        setTimeout(() => this.provider.emit('disconnect', {}), 100);
     }
 
-    switchNetwork( selectedChainId ){
+    switchNetwork(selectedChainId) {
         this._activeChain = selectedChainId;
-        this.kctrl.switchNetwork( this._activeChain );
-        this.provider.emit('chainChanged', selectedChainId );
+        this.kctrl.switchNetwork(this._activeChain);
+        this.provider.emit('chainChanged', selectedChainId);
     }
-    switchWallet( wid ){
+    switchWallet(wid) {
         this.kctrl.activeWallet = wid;
-        this.provider.emit('accountsChanged', [ this.kctrl.wallets[ this.kctrl.activeWallet ].address ] );
+        this.provider.emit('accountsChanged', [this.kctrl.wallets[this.kctrl.activeWallet].address]);
         Storage.saveState({ activeWallet: wid });
     }
 
-    setNetwork(){
-        
-    }
-
-    getSupportedNetworks(){
+    setNetwork() {
 
     }
 
-    isConnected(){
+    getSupportedNetworks() {
+
+    }
+
+    isConnected() {
         return this._connected;
     }
-   
-    getCurrentChain(){
+
+    getCurrentChain() {
         const storage = Storage.getState();
-        this._activeChain =  this._activeChain || storage.chainId || undefined;
-        if( !this._activeChain ){
+        this._activeChain = this._activeChain || storage.chainId || undefined;
+        if (!this._activeChain) {
             this._activeChain = 1;
         }
-        const chain =  this.allowedChains.find( e => e.chainId == this._activeChain );
-        
-        
-        
+        const chain = this.allowedChains.find(e => e.chainId == this._activeChain);
+
+
+
         return {
             chainId: chain.chainId,
             chain
         }
     }
-    getCurrentNativeToken(){
+    getCurrentNativeToken() {
         const currChain = this.getCurrentChain();
 
         return currChain.chain.symbol;
     }
-    async getNativeTokenFor( chainId ){
-        let activeChain = this.allowedChains.find( e => e.chainId == chainId );
-        
+    async getNativeTokenFor(chainId) {
+        let activeChain = this.allowedChains.find(e => e.chainId == chainId);
+
         return activeChain.symbol.toLowerCase();
     }
+    async getCurrentNetworkTokens() {
+        try {
 
-    injectScripts(){
+            return await this.kctrl.getTokens()
+        } catch (e) {
+            throw e
+        }
+    }
+
+    injectScripts() {
         const el = document.createElement('div');
         el.className = 'g-recaptcha';
-        el.setAttribute('data-sitekey', config.RECAPTCHA_SITE_KEY );
+        el.setAttribute('data-sitekey', config.RECAPTCHA_SITE_KEY);
         el.setAttribute('data-size', 'invisible');
-        document.body.appendChild( el );
-        var script= document.createElement('script');
-        script.setAttribute('async', true );
-        script.setAttribute('defer', true );
+        document.body.appendChild(el);
+        var script = document.createElement('script');
+        script.setAttribute('async', true);
+        script.setAttribute('defer', true);
         script.src = "https://www.google.com/recaptcha/api.js";
         document.head.appendChild(script);
     }
 
 
-    async _showUI( screenName ){
+    async _showUI(screenName) {
         this._hideUI();
 
-        const className = screenName.slice(0, 1).toUpperCase()+screenName.slice(1)+'Screen';
-        this._activeScreen = await this._getInstance( className );
-        
-        
+        const className = screenName.slice(0, 1).toUpperCase() + screenName.slice(1) + 'Screen';
+        this._activeScreen = await this._getInstance(className);
+
+
         this.root = document.createElement('div');
-        this.root.setAttribute('class', config.KEYLESS_UI_CLASSNAME );
-        this.root.style.cssText = inlineS( {
+        this.root.setAttribute('class', config.KEYLESS_UI_CLASSNAME);
+        this.root.style.cssText = inlineS({
             'z-index': this._getZIndex(),
             'position': 'fixed',
             'width': '100vw',
             'height': '100vh',
-            'left': 0, 
+            'left': 0,
             'top': 0,
             'display': 'flex',
             'flex-direction': 'row',
@@ -176,36 +184,36 @@ class KeylessWeb3 {
             'justify-content': 'center'
         });
         this.root.innerHTML = this._activeScreen.render();
-        document.body.appendChild( this.root );
-        this._activeScreen.setKeylessInstance( this );
-        this._activeScreen.setView( this.root );
+        document.body.appendChild(this.root);
+        this._activeScreen.setKeylessInstance(this);
+        this._activeScreen.setView(this.root);
         this._activeScreen.onInit();
 
-        setTimeout( () => this._activeScreen.onShow(), 40 );
+        setTimeout(() => this._activeScreen.onShow(), 40);
     }
-    async _hideUI(){
-        if( this._activeScreen ){
+    async _hideUI() {
+        if (this._activeScreen) {
             await this._activeScreen.onBeforeHide();
             try {
-                document.body.removeChild( this._activeScreen.el );
-            } catch( e ){
-                
+                document.body.removeChild(this._activeScreen.el);
+            } catch (e) {
+
             }
             this._activeScreen = null;
         }
-        
+
     }
 
-    async _getInstance( className ){
+    async _getInstance(className) {
         let inst = await import(`./../ui/${className}.js`);
         return new inst.default;
     }
 
-    _getZIndex(){
-        this._zIndex = Array.from(document.querySelectorAll('body *')).reduce( (acc, el) => {
-            const num = parseFloat( window.getComputedStyle(el, null).zIndex);
-            return !isNaN( num )? Math.max( acc, num ) : acc;
-        }, 0 );
+    _getZIndex() {
+        this._zIndex = Array.from(document.querySelectorAll('body *')).reduce((acc, el) => {
+            const num = parseFloat(window.getComputedStyle(el, null).zIndex);
+            return !isNaN(num) ? Math.max(acc, num) : acc;
+        }, 0);
 
         return this._zIndex + 10;
     }

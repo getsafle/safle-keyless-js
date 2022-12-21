@@ -513,7 +513,7 @@ class KeylessController {
         rawTx.to = rawTx.to.substr(0, 2) + rawTx.to.substr(-40).toLowerCase();
 
         const state = Storage.getState();
-        const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+        const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
 
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
@@ -570,7 +570,7 @@ class KeylessController {
 
                 const mstate = Storage.getState();
 
-                const mdecKey = mstate.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+                const mdecKey = mstate.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(mstate.vault, parseInt(pin), mdecKey);
 
                 rawTx.from = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
@@ -586,7 +586,7 @@ class KeylessController {
                 chainName = blockchainInfo[chainId].chain_name;
                 this.vault.changeNetwork(chainName);
 
-                const pdecKey = someState.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+                const pdecKey = someState.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(someState.vault, parseInt(pin), pdecKey);
 
                 rawTx.from = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
@@ -600,7 +600,7 @@ class KeylessController {
             case 'mumbai':
                 const state = Storage.getState();
 
-                const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+                const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(state.vault, parseInt(pin), decKey);
 
                 await this.vault.getAccounts(decKey);
@@ -627,7 +627,7 @@ class KeylessController {
             default:
                 const dstate = Storage.getState();
 
-                const ddecKey = dstate.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+                const ddecKey = dstate.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(dstate.vault, parseInt(pin), ddecKey);
 
                 return (await this.vault.signTransaction(rawTx, pin, this.getNodeURI(chainId))).response;
@@ -717,7 +717,7 @@ class KeylessController {
             const rpcUrl = this.getNodeURI(this.keylessInstance.getCurrentChain().chainId);
 
             try {
-                const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc[idx] = el; return acc; }, {});
+                const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
 
                 await this.vault.restoreKeyringState(state.vault, pin, decKey);
 
