@@ -27,3 +27,9 @@
 ##### Fixed key decryption and user vault management
 
 * Fixed key decryption and user vault management.
+
+### 1.1.4 (2022-12-22)
+
+##### Fixed key decryption for sign message and send transaction
+
+* Fixed key decryption for sign message and send transaction
