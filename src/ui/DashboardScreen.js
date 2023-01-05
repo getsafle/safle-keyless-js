@@ -7,7 +7,7 @@ import gearImg from '../images/gear.svg'
 import ethIcon from './../images/eth-icon.svg'
 import copyIcon from './../images/copy-icon.svg'
 import UIScreen from '../classes/UIScreen';
-import {copyToClipboard, middleEllipsis, formatMoney } from '../helpers/helpers';
+import { copyToClipboard, middleEllipsis, formatMoney } from '../helpers/helpers';
 import blockchainInfo from '../helpers/blockchains';
 import ConnectedStatus from './components/ConnectedStatus';
 import config from './../config/config';
@@ -32,39 +32,39 @@ class DashboardScreen extends UIScreen {
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 5);
         this.activeWalletUSDBalance = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance));
-        
+
         const connectionEl = this.el.querySelector('#connection-status');
         this.activeAddressEl = this.el.querySelector('#active-wallet');
         this.activeBalanceEl = this.el.querySelector('#active-balance');
         this.tokenListEl = this.el.querySelector('#token-list');
         this.chainIconEl = this.el.querySelector('#chain_icon');
         const chainName = this.activeChain.chain_name;
-        this.chainIconEl.src = ( chainName == 'ethereum'|| chainName == 'ropsten')? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
+        this.chainIconEl.src = (chainName == 'ethereum' || chainName == 'ropsten') ? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
 
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
 
         this.activeBalanceEl.value = this.activeWalletBalance || 0;
         this.el.querySelector('#active-wallet-tooltip span').innerHTML = this.activeWalletAddress;
 
-        await this.keyless.kctrl.getTokens().then( tokensData => {
-            
-            if (!tokensData.hasOwnProperty('error') && tokensData.length ) {
-                tokensData.forEach( ( token ) => {
-                    const {symbol, balance, decimal} = token;
-                    const tokenIcon = this.keyless.kctrl.getTokenIcon( token );
-                    tokenHtmlList += this._renderTokenEl(symbol, balance, decimal, tokenIcon );
+        await this.keyless.kctrl.getTokens().then(tokensData => {
+
+            if (!tokensData.hasOwnProperty('error') && tokensData.length) {
+                tokensData.forEach((token) => {
+                    const { symbol, balance, decimal } = token;
+                    const tokenIcon = this.keyless.kctrl.getTokenIcon(token);
+                    tokenHtmlList += this._renderTokenEl(symbol, balance, decimal, tokenIcon);
                 })
             } else {
                 tokenHtmlList = (`<div class="message">No tokens available on this wallet.</div>`);
             }
         });
-        
+
         this.setHTML('#active-chain', this.activeChain.name);
         this.setHTML('#active-wallet', middleEllipsis(this.activeWalletAddress, 7));
         this.setHTML('#active-balance', this.activeWalletBalance || 0);
         this.setHTML('#active-usd-balance', this.activeWalletUSDBalance || 0);
         this.setHTML('#active-wallet-tooltip span', this.activeWalletAddress);
-        this.setHTML('#token-list', tokenHtmlList );
+        this.setHTML('#token-list', tokenHtmlList);
 
         this.keyless.kctrl._setLoading(false);
     }
@@ -76,7 +76,7 @@ class DashboardScreen extends UIScreen {
 
         this.el.querySelector('.copy-to-clipboard').addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             copyToClipboard(this.activeWalletAddress);
         });
 
@@ -84,31 +84,31 @@ class DashboardScreen extends UIScreen {
             e.preventDefault();
             this.keyless.selectChain();
         });
-        
+
         this.el.querySelector('.change_wallet').addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             this.keyless.selectChain();
         });
 
         this.el.querySelector('.btn_open_webapp').addEventListener('click', (e) => {
             e.preventDefault();
-            window.open( config.OPEN_WALLET_LINK, '_blank' );
-            
+            window.open(config.OPEN_WALLET_LINK, '_blank');
+
         });
         await this.populateData();
     }
 
-    _renderTokenEl(symbol, balance, decimal, icon = null ) {
-        const tokenBalance = balance / Number('1e'+decimal);
+    _renderTokenEl(symbol, balance, decimal, icon = null) {
+        const tokenBalance = balance / Number('1e' + decimal);
         return (`
         <div>
             <div>
-                <img src="${ icon || tokenIcon}" alt="Network Icon">
+                <img src="${icon || tokenIcon}" alt="Network Icon">
                 <h3 class='token_prefix'>${symbol}</h3>
             </div>
             <div>
-                <h3>${ parseFloat(tokenBalance).toFixed(4)}</h3>
+                <h3>${parseFloat(tokenBalance).toFixed(Number(decimal) > 8 ? 8 : Number(decimal))}</h3>
             </div>
         </div>
     `)
