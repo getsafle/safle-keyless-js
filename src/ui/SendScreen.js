@@ -14,6 +14,7 @@ import ConnectedStatus from './components/ConnectedStatus';
 import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/helpers';
 import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
+import blockchainInfo from '../helpers/blockchains';
 
 const debounce = (fn, delay) => {
     let tm = false;
@@ -56,6 +57,14 @@ class SendScreen extends UIScreen {
         let edit_popup = this.el.querySelector('.transaction__pop-up--overlay');
         let adv_options_content = this.el.querySelector('.dropdown__tp--4__content');
         let adv_options_btn = this.el.querySelector('.adv_option-btn');
+        this.chainIconEl = this.el.querySelector('.transaction__pop-up-item-icon');
+
+        const activeChainId = this.keyless.getCurrentChain().chainId;
+        this.activeChain = blockchainInfo[activeChainId] || 'no known active chain';
+        const chainName = this.activeChain.chain_name;
+
+
+        this.chainIconEl.src = (chainName == 'ethereum' || chainName == 'ropsten') ? this.keyless.kctrl.getTokenIcon('eth') : this.keyless.kctrl.getTokenIcon('matic');
 
         this.el.querySelector('.transaction__pop-up__close').addEventListener('click', (e) => {
             e.preventDefault();
@@ -486,7 +495,7 @@ class SendScreen extends UIScreen {
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
             this.amt = this.tokenValue;
-            this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
+            this.el.querySelector('.transaction__send .transaction_amount').value = (this.amt).toFixed(parseInt(this.decodedData.decimals));
 
             if (parseFloat(this.tokenBalance) < (parseFloat(this.amt) || parseFloat(this.balance) < parseInt(this.feeETH))) {
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
@@ -655,7 +664,7 @@ class SendScreen extends UIScreen {
                     <div class="transaction__pop-up__body">
                         <div class="transaction__pop-up__body--flex">
                             <img class='transaction__pop-up-item-icon' src="${eth2Icon}" alt="ETH ICON">
-                            <div>
+                            <div class="transaction__pop-up__body--flex-fee_div">
                                 <h2>0.000823</h2>
                             </div>
                         </div>
