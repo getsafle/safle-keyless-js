@@ -33,3 +33,9 @@
 ##### Fixed key decryption for sign message and send transaction
 
 * Fixed key decryption for sign message and send transaction
+
+### 1.1.5 (2023-01-06)
+
+##### Fixed token amounts with correct decimal places
+
+* Fixed token amounts on dashboard and transaction screens

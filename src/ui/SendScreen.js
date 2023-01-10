@@ -15,13 +15,13 @@ import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/help
 import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
 
-const debounce = ( fn, delay ) => {
+const debounce = (fn, delay) => {
     let tm = false;
-    return ( e ) => {
-        if( tm ){
-            clearTimeout( tm );
+    return (e) => {
+        if (tm) {
+            clearTimeout(tm);
         }
-        tm = setTimeout( fn, delay );
+        tm = setTimeout(fn, delay);
     }
 }
 
@@ -45,82 +45,82 @@ class SendScreen extends UIScreen {
     tokenValue = 0;
     decodedData = null;
 
-    onShow(){
-        this.setProceedActive( false );
+    onShow() {
+        this.setProceedActive(false);
         this.el.querySelector('.close').addEventListener('click', () => {
-            clearInterval( this.feeTm );
+            clearInterval(this.feeTm);
             this.keyless._hideUI();
-            this.keyless.kctrl.clearActiveTransaction( true );
+            this.keyless.kctrl.clearActiveTransaction(true);
         });
-        
+
         let edit_popup = this.el.querySelector('.transaction__pop-up--overlay');
         let adv_options_content = this.el.querySelector('.dropdown__tp--4__content');
         let adv_options_btn = this.el.querySelector('.adv_option-btn');
 
         this.el.querySelector('.transaction__pop-up__close').addEventListener('click', (e) => {
-          e.preventDefault();
-          
-          
-          if(edit_popup.classList.contains('closed')){
-            edit_popup.classList.remove('closed');
+            e.preventDefault();
 
-          }else{
 
-            edit_popup.classList.add('closed');
-             adv_options_btn.classList.remove('dropdown-open');
-             adv_options_content.classList.add('hide');
-          }
+            if (edit_popup.classList.contains('closed')) {
+                edit_popup.classList.remove('closed');
+
+            } else {
+
+                edit_popup.classList.add('closed');
+                adv_options_btn.classList.remove('dropdown-open');
+                adv_options_content.classList.add('hide');
+            }
         });
 
         this.el.querySelector('.transaction__checkout__input__edit').addEventListener('click', (e) => {
-              e.preventDefault();
-              
-              
-              if(edit_popup.classList.contains('closed')){
+            e.preventDefault();
+
+
+            if (edit_popup.classList.contains('closed')) {
                 edit_popup.classList.remove('closed');
-              }else{
+            } else {
                 edit_popup.classList.add('closed');
-              }
+            }
 
-              this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = this.feeETH;
-              this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = this.likeTime;
+            this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = this.feeETH;
+            this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = this.likeTime;
 
-              this.populateOptions();
+            this.populateOptions();
 
-              clearInterval( this.feeTm );
+            clearInterval(this.feeTm);
         });
 
-        
+
         adv_options_btn.addEventListener('click', (e) => {
-              e.preventDefault();
-              
-              
-              if(adv_options_content.classList.contains('hide')){
+            e.preventDefault();
+
+
+            if (adv_options_content.classList.contains('hide')) {
                 adv_options_content.classList.remove('hide');
                 adv_options_btn.classList.add('dropdown-open');
 
-              }else{
+            } else {
                 adv_options_content.classList.add('hide');
                 adv_options_btn.classList.remove('dropdown-open');
-              }
+            }
         });
-        
+
         let radioVal;
         const radios = document.querySelectorAll('input[name="fee_gwei"]');
-        const gas_limit =  this.el.querySelector('.gas_limit');
-        const priority_fee =  this.el.querySelector('.priority_fee');
-        const radio_parent =  Array.from(document.querySelectorAll('.transaction__select__ctn'));
+        const gas_limit = this.el.querySelector('.gas_limit');
+        const priority_fee = this.el.querySelector('.priority_fee');
+        const radio_parent = Array.from(document.querySelectorAll('.transaction__select__ctn'));
         radios.forEach(radio => {
             radio.addEventListener('click', () => {
                 radioVal = radio.value;
-                if(radioVal != 'custom'){
-                    
+                if (radioVal != 'custom') {
+
                     gas_limit.setAttribute('disabled', 'disabled');
                     priority_fee.setAttribute('disabled', 'disabled');
                     radio_parent[0].classList.add('inactive');
                     radio_parent[1].classList.add('inactive');
-                }else{
-                    
+                } else {
+
                     gas_limit.removeAttribute('disabled');
                     priority_fee.removeAttribute('disabled');
                     radio_parent[0].classList.remove('inactive');
@@ -133,78 +133,78 @@ class SendScreen extends UIScreen {
         });
 
         this.el.querySelector('.proceed_popup_btn').addEventListener('click', (e) => {
-              e.preventDefault();
-              
+            e.preventDefault();
+
             this.calculateCustomFee();
             this.populateGasEstimate();
 
-              
-              edit_popup.classList.add('closed');
-              
-              adv_options_content.classList.add('hide');
-              adv_options_btn.classList.remove('dropdown-open');
-              
+
+            edit_popup.classList.add('closed');
+
+            adv_options_content.classList.add('hide');
+            adv_options_btn.classList.remove('dropdown-open');
+
             this.addFeeInterval();
         });
-        Array.from( this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close') ).forEach( ( el ) => {
+        Array.from(this.el.querySelectorAll('.cancel_popup_btn, .transaction__pop-up__close')).forEach((el) => {
             el.addEventListener('click', (e) => {
                 e.preventDefault();
-                
+
                 edit_popup.classList.add('closed');
                 adv_options_content.classList.add('hide');
                 adv_options_btn.classList.remove('dropdown-open');
-                
+
                 radioVal = '';
                 gas_limit.setAttribute('disabled', 'disabled');
                 priority_fee.setAttribute('disabled', 'disabled');
                 radio_parent[0].classList.add('inactive');
                 radio_parent[1].classList.add('inactive');
-    
-                radios.forEach(function(radio, index){
-                radios[index].checked = false;
+
+                radios.forEach(function (radio, index) {
+                    radios[index].checked = false;
                 });
 
-                if( this.chosenFee != 'custom'){
+                if (this.chosenFee != 'custom') {
                     this.addFeeInterval();
-                }                
+                }
             });
         });
 
         this.el.querySelector('.tips_btn').addEventListener('click', (e) => {
-              e.preventDefault();
-              
-        }); 
+            e.preventDefault();
+
+        });
 
         this.el.querySelector('.open_wallet_btn').addEventListener('click', (e) => {
-              e.preventDefault();
-              
-        });  
-        this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
-            clearInterval( this.feeTm );
-            const chosenGas = this.gasFees[ this.advancedFee ];
+            e.preventDefault();
 
-            if( this.advancedFee == 'custom'){
+        });
+        this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
+            clearInterval(this.feeTm);
+            const chosenGas = this.gasFees[this.advancedFee];
+
+            if (this.advancedFee == 'custom') {
                 const maxFee = this.customPrioFee + this.gasFees.estimatedBaseFee;
 
-                this.keyless.kctrl.setGasForTransaction( this.customGasLimit, maxFee, this.customPrioFee );
+                this.keyless.kctrl.setGasForTransaction(this.customGasLimit, maxFee, this.customPrioFee);
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
-                const gas = await this.keyless.kctrl.estimateGas( trans.data );
-                this.keyless.kctrl.setGasForTransaction( gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas );
+                const gas = await this.keyless.kctrl.estimateGas(trans.data);
+                this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
             }
             this.keyless._showUI('pin');
 
             e.target.disabled = true;
             e.preventDefault();
-            
-        }); 
+
+        });
 
         this.el.querySelector('.reject_btn').addEventListener('click', (e) => {
             e.preventDefault();
             return new ConfirmationDialog(
-                this.el, 
-                `Are you sure you want to reject this transaction?`, 
-                `Yes`, 
+                this.el,
+                `Are you sure you want to reject this transaction?`,
+                `Yes`,
                 this.rejectConfirmCallback
             );
         });
@@ -218,30 +218,30 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
-            const update_val = ( event ) => {
+            const update_val = (event) => {
                 input_val_total = parseInt(input_val.value);
-                setTimeout( () => {
-                    input_val.value = Math.max(input_val_total, 0 );
+                setTimeout(() => {
+                    input_val.value = Math.max(input_val_total, 0);
                     this.calculateCustomFee();
-                }, 10 )    
+                }, 10)
             };
 
-            input_val.addEventListener('change', update_val );
-            input_val.addEventListener('keyup', debounce( update_val, 500 ) );
+            input_val.addEventListener('change', update_val);
+            input_val.addEventListener('keyup', debounce(update_val, 500));
 
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
                 input_val_total -= 10;
-                input_val.value = Math.max(input_val_total, 0 );
+                input_val.value = Math.max(input_val_total, 0);
 
                 this.calculateCustomFee();
             });
             up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseInt(input_val.value);
-                input_val_total += 10;            
-                input_val.value = Math.max(input_val_total, 0 )
+                input_val_total += 10;
+                input_val.value = Math.max(input_val_total, 0)
                 this.calculateCustomFee();
             });
         });
@@ -253,67 +253,67 @@ class SendScreen extends UIScreen {
             let input_val = up_down.querySelector('input[type="number"]');
             let input_val_total;
 
-            const update_val = ( event ) => {
+            const update_val = (event) => {
                 input_val_total = parseFloat(input_val.value);
-                setTimeout( () => {
-                    input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+                setTimeout(() => {
+                    input_val.value = Math.max(input_val_total, 0).toFixed(1);
                     this.calculateCustomFee();
-                }, 10 )    
+                }, 10)
             };
 
-            
 
-            input_val.addEventListener('change', update_val );
-            input_val.addEventListener('keyup', debounce( update_val, 500 ) );
-            
+
+            input_val.addEventListener('change', update_val);
+            input_val.addEventListener('keyup', debounce(update_val, 500));
+
             down_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
                 input_val_total -= 1;
-                input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+                input_val.value = Math.max(input_val_total, 0).toFixed(1);
 
                 this.calculateCustomFee();
             });
             up_arrow.addEventListener('click', (event) => {
                 event.preventDefault();
                 input_val_total = parseFloat(input_val.value);
-                input_val_total += 1;            
-                input_val.value = Math.max(input_val_total, 0 ).toFixed(1);
+                input_val_total += 1;
+                input_val.value = Math.max(input_val_total, 0).toFixed(1);
 
                 this.calculateCustomFee();
             });
         });
-        
+
 
         this.populateData();
         this.populateGasEstimate();
-        clearInterval( this.feeTm );
+        clearInterval(this.feeTm);
         this.addFeeInterval();
     }
 
-    addFeeInterval(){
-        if( this.chosenFee != 'custom'){
-            this.feeTm = setInterval( () => this.populateGasEstimate(), 30000 );
+    addFeeInterval() {
+        if (this.chosenFee != 'custom') {
+            this.feeTm = setInterval(() => this.populateGasEstimate(), 30000);
         }
     }
 
-    populateOptions(){
-        this.el.querySelector('.transaction__pop-up__body .option_high').innerHTML = parseInt( this.gasFees['high'].suggestedMaxFeePerGas );
-        this.el.querySelector('.transaction__pop-up__body .option_medium').innerHTML = parseInt( this.gasFees['medium'].suggestedMaxFeePerGas );
-        this.el.querySelector('.transaction__pop-up__body .option_low').innerHTML = parseInt( this.gasFees['low'].suggestedMaxFeePerGas );
+    populateOptions() {
+        this.el.querySelector('.transaction__pop-up__body .option_high').innerHTML = parseInt(this.gasFees['high'].suggestedMaxFeePerGas);
+        this.el.querySelector('.transaction__pop-up__body .option_medium').innerHTML = parseInt(this.gasFees['medium'].suggestedMaxFeePerGas);
+        this.el.querySelector('.transaction__pop-up__body .option_low').innerHTML = parseInt(this.gasFees['low'].suggestedMaxFeePerGas);
     }
 
-    async calculateCustomFee(){
+    async calculateCustomFee() {
         const trans = this.keyless.kctrl.getActiveTransaction();
         let likeTime;
         let fee, feeETH;
 
-        if( this.advancedFee == 'custom'){
-            
+        if (this.advancedFee == 'custom') {
+
             likeTime = false;
             const gasLimit = this.el.querySelector('.gas_limit').value;
             const priorityFee = this.el.querySelector('.priority_fee').value;
-            fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( priorityFee ) ) * gasLimit;
+            fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(priorityFee)) * gasLimit;
 
             feeETH = this.keyless.kctrl.getFeeInEth(fee);
             this.chosenFee = 'custom';
@@ -323,100 +323,100 @@ class SendScreen extends UIScreen {
         } else {
             this.chosenFee = this.advancedFee;
 
-            const chosenGas = this.gasFees[ this.advancedFee ];
-            
-            likeTime = this.getTimeEstimate( this.advancedFee );
-            const gas = await this.keyless.kctrl.estimateGas( trans.data );
-            fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
-            feeETH = this.keyless.kctrl.getFeeInEth(fee);
-        }        
+            const chosenGas = this.gasFees[this.advancedFee];
 
-        this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = formatXDecimals( feeETH, 6 );
+            likeTime = this.getTimeEstimate(this.advancedFee);
+            const gas = await this.keyless.kctrl.estimateGas(trans.data);
+            fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+            feeETH = this.keyless.kctrl.getFeeInEth(fee);
+        }
+
+        this.el.querySelector('.transaction__pop-up__div .transaction__pop-up__body h2').innerHTML = formatXDecimals(feeETH, 6);
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate(){
+    async populateGasEstimate() {
         const trans = this.keyless.kctrl.getActiveTransaction();
 
-        if( this.chosenFee == 'custom'){
+        if (this.chosenFee == 'custom') {
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
 
-            const chosenGas = this.gasFees[ 'medium' ];
+            const chosenGas = this.gasFees['medium'];
 
-            const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( this.customPrioFee ) ) * this.customGasLimit;
+            const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(this.customPrioFee)) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
-            this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
-            let maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+            this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
+            let maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
 
             this.el.querySelector('.transaction__checkout__input h3')
-            .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
-            '<span> $' + this.feeUSD + '</span>';
+                .innerHTML = this.feeETH + ' ' + this.nativeTokenName +
+                '<span> $' + this.feeUSD + '</span>';
             this.el.querySelector('.transaction__checkout h4').innerHTML = '<span>Max Fee: </span>' + maxFeePerGas;
-            
-            this.setFeesLoading( false );
+
+            this.setFeesLoading(false);
 
             this.populateFees();
 
 
         } else {
-            this.setFeesLoading( true );
+            this.setFeesLoading(true);
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
-            const gas = await this.keyless.kctrl.estimateGas( trans.data );
+            const gas = await this.keyless.kctrl.estimateGas(trans.data);
 
-            if( this.gasFees ){
-                const chosenGas = this.gasFees[ this.chosenFee ];
-                this.likeTime = this.getTimeEstimate( this.chosenFee );
+            if (this.gasFees) {
+                const chosenGas = this.gasFees[this.chosenFee];
+                this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = ( parseInt( this.gasFees.estimatedBaseFee ) + parseInt( chosenGas.suggestedMaxPriorityFeePerGas) ) * gas;
+                const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
-                this.feeUSD = await this.keyless.kctrl.getBalanceInUSD( this.feeETH );
-                const maxFeePerGas = this.keyless.kctrl.getFeeInEth( parseInt( chosenGas.suggestedMaxFeePerGas ) );
+                this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
+                const maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
 
                 this.el.querySelector('.transaction__checkout__input h3')
-                .innerHTML = this.feeETH +' '+ this.nativeTokenName + 
-                '<span> $' + this.feeUSD + '</span>';
+                    .innerHTML = this.feeETH + ' ' + this.nativeTokenName +
+                    '<span> $' + this.feeUSD + '</span>';
                 this.el.querySelector('.transaction__checkout h4').innerHTML = '<span>Max Fee: </span>' + maxFeePerGas;
 
                 this.populateFees();
             }
 
-            await new Promise( ( res, rej ) => {
-                setTimeout( () => { res(); }, 2000 );
+            await new Promise((res, rej) => {
+                setTimeout(() => { res(); }, 2000);
             });
-            this.setFeesLoading( false );            
+            this.setFeesLoading(false);
         }
-        
+
     }
 
-    async populateFees(){
+    async populateFees() {
         let totalAmt, totalUSD;
-        if( this.isToken ){
-            totalAmt = parseFloat( this.feeETH );
-            totalUSD = formatXDecimals( parseFloat( this.feeUSD ), 4 );
+        if (this.isToken) {
+            totalAmt = parseFloat(this.feeETH);
+            totalUSD = formatXDecimals(parseFloat(this.feeUSD), 4);
         } else {
-            totalAmt = parseFloat( this.amt ) + parseFloat( this.feeETH );
-            totalUSD = formatXDecimals( parseFloat( this.amountUSD ) + parseFloat( this.feeUSD ), 4 );
+            totalAmt = parseFloat(this.amt) + parseFloat(this.feeETH);
+            totalUSD = formatXDecimals(parseFloat(this.amountUSD) + parseFloat(this.feeUSD), 4);
         }
-        this.el.querySelector('.transaction__checkout__total h3').innerHTML = 
-            totalAmt+' '+ this.nativeTokenName + '<span>$' + totalUSD +'</span>';
-        
-        this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: '+ totalAmt;
+        this.el.querySelector('.transaction__checkout__total h3').innerHTML =
+            totalAmt + ' ' + this.nativeTokenName + '<span>$' + totalUSD + '</span>';
+
+        this.el.querySelector('.transaction__checkout__total h4').innerHTML = 'Max amount: ' + totalAmt;
         this.checkCanProceed();
     }
 
-    async populateData(){
+    async populateData() {
         this.nativeTokenName = (await this.keyless.kctrl.getCurrentNativeToken()).toUpperCase();
         const trans = this.keyless.kctrl.getActiveTransaction();
-        if( trans ){
-            this.keyless.kctrl._setLoading( true );
-            await this.populateAmount( trans );
-            await this.populateAddresses( trans );
+        if (trans) {
+            this.keyless.kctrl._setLoading(true);
+            await this.populateAmount(trans);
+            await this.populateAddresses(trans);
             await this.populateBalance();
-            await this.populateAmount( trans );
-            
-            this.keyless.kctrl._setLoading( false );
+            await this.populateAmount(trans);
+
+            this.keyless.kctrl._setLoading(false);
         }
 
         this.connectionStatus = this.keyless.isConnected();
@@ -424,114 +424,114 @@ class SendScreen extends UIScreen {
         const connStatusEl = new ConnectedStatus(connectionEl, this.connectionStatus);
     }
 
-    async populateAddresses( trans ){
+    async populateAddresses(trans) {
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
         const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
-        fromCont.innerHTML = middleEllipsisMax( fromAddress, 4 );
+        fromCont.innerHTML = middleEllipsisMax(fromAddress, 4);
         fromCont.parentNode.querySelector('.hover-info--1').innerText = fromAddress;
-        const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress( activeTrans.data.to );
+        const isSafleId = await this.keyless.kctrl.getSafleIdFromAddress(activeTrans.data.to);
         let toAddress = activeTrans.data.to;
 
         const nativeToken = await this.keyless.kctrl.getCurrentNativeToken();
-        
+
         let decodedData = {};
-        if( activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to') ){
+        if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
             const rpcURL = chain.chain.rpcURL;
-            decodedData = await decodeInput( activeTrans.data.data, rpcURL, activeTrans.data.to );
+            decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
             this.tokenValue = decodedData.value;
             this.isToken = true;
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
-        
-        const tokenName = this.isToken? decodedData?.tokenSymbol : nativeToken.toUpperCase();
-        const tokenLogo = this.isToken? this.keyless.kctrl.getTokenIcon( { tokenAddress: activeTrans.data.to } ) : this.keyless.kctrl.getTokenIcon( nativeToken );
 
-        if( this.isToken ){
-            this.el.querySelector('#native-token-balance').innerHTML = tokenName;    
+        const tokenName = this.isToken ? decodedData?.tokenSymbol : nativeToken.toUpperCase();
+        const tokenLogo = this.isToken ? this.keyless.kctrl.getTokenIcon({ tokenAddress: activeTrans.data.to }) : this.keyless.kctrl.getTokenIcon(nativeToken);
+
+        if (this.isToken) {
+            this.el.querySelector('#native-token-balance').innerHTML = tokenName;
         } else {
             this.el.querySelector('#native-token-balance').innerHTML = this.nativeTokenName;
         }
         this.el.querySelector('#send_icon').src = tokenLogo;
-        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName==undefined? 'Token' : tokenName}`;
+        this.el.querySelector('#send_name').innerHTML = `SEND ${tokenName == undefined ? 'Token' : tokenName}`;
 
         const toCont = this.el.querySelector('.transaction__account .transaction__account__user h3');
-        toCont.innerHTML = isSafleId? isSafleId : middleEllipsisMax( toAddress, 4 );
+        toCont.innerHTML = isSafleId ? isSafleId : middleEllipsisMax(toAddress, 4);
         toCont.parentNode.querySelector('.hover-info--1').innerText = toAddress;
     }
 
-    async populateBalance(){
-        if( this.isToken ){
-            this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
+    async populateBalance() {
+        if (this.isToken) {
+            this.balance = await this.keyless.kctrl.getWalletBalance(this.keyless.kctrl.getAccounts().address, true, 5);
 
             const activeTrans = this.keyless.kctrl.getActiveTransaction();
             const fromAddress = this.keyless.kctrl.getAccounts().address;
             try {
-                const balance = await this.keyless.kctrl.getTokenBalance( activeTrans.data.to, fromAddress );
-                this.tokenBalance = balance / Math.pow( 10, parseInt(this.decodedData.decimals) );
-                this.el.querySelector('.transaction__balance__span').innerHTML = this.tokenBalance;
-            } catch( e ){
+                const balance = await this.keyless.kctrl.getTokenBalance(activeTrans.data.to, fromAddress);
+                this.tokenBalance = balance / Math.pow(10, parseInt(this.decodedData.decimals));
+                this.el.querySelector('.transaction__balance__span').innerHTML = (this.tokenBalance).toFixed(parseInt(this.decodedData.decimals));
+            } catch (e) {
             }
         } else {
-            this.balance = await this.keyless.kctrl.getWalletBalance( this.keyless.kctrl.getAccounts().address, true, 5 );
+            this.balance = await this.keyless.kctrl.getWalletBalance(this.keyless.kctrl.getAccounts().address, true, 5);
 
             this.el.querySelector('.transaction__balance__span').innerHTML = this.balance;
         }
     }
 
-    async populateAmount( trans ){
+    async populateAmount(trans) {
         const amt = trans.data?.value || 0;
-        const amtSend = this.keyless.kctrl.web3.utils.fromWei( amt.toString(), 'ether');
-        if( this.isToken ){
+        const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
+        if (this.isToken) {
             this.amt = this.tokenValue;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
 
-            if( parseFloat(this.tokenBalance) < ( parseFloat(this.amt) || parseFloat( this.balance ) < parseInt(this.feeETH ) ) ){
+            if (parseFloat(this.tokenBalance) < (parseFloat(this.amt) || parseFloat(this.balance) < parseInt(this.feeETH))) {
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
             } else {
                 this.el.querySelector('.transaction__send').classList.remove('low-balance');
             }
-    
-            this.amountUSD = formatMoney( await this.keyless.kctrl.getTokenBalanceInUSD( this.amt, this.decodedData.tokenSymbol ) );
-            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+
+            this.amountUSD = formatMoney(await this.keyless.kctrl.getTokenBalanceInUSD(this.amt, this.decodedData.tokenSymbol));
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$' + this.amountUSD;
         } else {
             this.amt = amtSend;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
-            if( parseFloat(this.balance) < ( parseFloat(this.amt) + parseInt(this.feeETH ) ) ){
+            if (parseFloat(this.balance) < (parseFloat(this.amt) + parseInt(this.feeETH))) {
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
             } else {
                 this.el.querySelector('.transaction__send').classList.remove('low-balance');
             }
-    
-            this.amountUSD = formatMoney( await this.keyless.kctrl.getBalanceInUSD( this.amt ) );
-            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$'+this.amountUSD;
+
+            this.amountUSD = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.amt));
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$' + this.amountUSD;
         }
     }
 
-    setFeesLoading( flag ){
-        if( flag ){
-            
+    setFeesLoading(flag) {
+        if (flag) {
+
             this.el.classList.add('fee_loading');
             this.checkCanProceed();
         } else {
-            
+
             this.el.classList.remove('fee_loading');
             this.checkCanProceed();
         }
     }
-    setProceedActive( flag ){
-        if( flag ){
+    setProceedActive(flag) {
+        if (flag) {
             this.el.querySelector('.confirm_btn').removeAttribute('disabled');
         } else {
             this.el.querySelector('.confirm_btn').setAttribute('disabled', 'disabled');
         }
     }
-    
+
     rejectConfirmCallback = () => {
-        clearInterval( this.feeTm );
-        this.keyless.kctrl.activeTransaction.reject( {
+        clearInterval(this.feeTm);
+        this.keyless.kctrl.activeTransaction.reject({
             message: 'User rejected the transaction',
             code: 4200,
             method: 'User rejected'
@@ -539,33 +539,33 @@ class SendScreen extends UIScreen {
         this.keyless._hideUI();
     }
 
-    checkCanProceed(){
-        if( this.isToken ){
-            if( (parseFloat( this.balance ) < parseFloat( this.feeETH )) || (parseFloat(this.tokenBalance) < parseFloat( this.tokenValue ) ) ){
-                this.setProceedActive( false );
+    checkCanProceed() {
+        if (this.isToken) {
+            if ((parseFloat(this.balance) < parseFloat(this.feeETH)) || (parseFloat(this.tokenBalance) < parseFloat(this.tokenValue))) {
+                this.setProceedActive(false);
             } else {
-                this.setProceedActive( true );
+                this.setProceedActive(true);
             }
         } else {
-            if( parseFloat( this.balance ) < (parseFloat( this.amt ) + parseFloat( this.feeETH )) ){
-                this.setProceedActive( false );
+            if (parseFloat(this.balance) < (parseFloat(this.amt) + parseFloat(this.feeETH))) {
+                this.setProceedActive(false);
             } else {
-                this.setProceedActive( true );
+                this.setProceedActive(true);
             }
         }
     }
 
-    getTimeEstimate( kind ){
-        if( !kind ){
+    getTimeEstimate(kind) {
+        if (!kind) {
             return;
         }
         let chainId = (this.keyless.getCurrentChain()).chain.chainId;
-        
-        
-        return txEstimates.hasOwnProperty( chainId )? txEstimates[ chainId ][ kind ] : 'Unknown Sec';
+
+
+        return txEstimates.hasOwnProperty(chainId) ? txEstimates[chainId][kind] : 'Unknown Sec';
     }
 
-    render(){
+    render() {
 
         return `<div class="transaction">
 
