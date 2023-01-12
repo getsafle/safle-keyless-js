@@ -39,3 +39,9 @@
 ##### Fixed token amounts with correct decimal places
 
 * Fixed token amounts on dashboard and transaction screens
+
+### 1.1.6 (2023-01-10)
+
+##### Fixed token amounts overflow and USD value
+
+* Fixed token amounts overflow and USD values
