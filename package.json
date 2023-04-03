@@ -6,6 +6,9 @@
     "node": ">=12.22.9"
   },
   "main": "./src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
   "browser": "./lib/keyless.umd.min.js",
   "eslintConfig": {
     "env": {
