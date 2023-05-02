@@ -1,6 +1,6 @@
 {
   "name": "@getsafle/safle-keyless-js",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "",
   "engines": {
     "node": ">=12.22.9"

@@ -40,6 +40,11 @@
 
   .transaction {
     position: relative;
+
+    .transaction_amount {
+      font-size: 17px;
+      padding: 0px;
+    }
     .hover-info--1 {
       position: absolute;
       top: 60px;

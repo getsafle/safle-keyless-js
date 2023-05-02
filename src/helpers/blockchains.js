@@ -5,11 +5,11 @@ const blockchainInfo = {
         explorer: 'https://etherscan.io/tx/',
         chain_name: 'ethereum',
     },
-    3: {
-        name: 'Ropsten Testnet',
-        rpcURL: 'https://ropsten.infura.io/v3/',
-        explorer: 'https://ropsten.etherscan.io/tx/',
-        chain_name: 'ropsten',
+    420: {
+        name: 'Goerli Testnet',
+        rpcURL: 'https://goerli.infura.io/v3/',
+        explorer: 'https://goerli.etherscan.io/tx/',
+        chain_name: 'goerli',
     },
     137: {
         name: 'Polygon Mainnet',

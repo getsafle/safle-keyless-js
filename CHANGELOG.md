@@ -45,3 +45,9 @@
 ##### Fixed token amounts overflow and USD value
 
 * Fixed token amounts overflow and USD values
+
+### 1.1.7 (2023-02-06)
+
+##### UI font-sizes fix and show correct error messages
+
+* UI font-sizes fix and show correct error messages

@@ -551,14 +551,27 @@ class SendScreen extends UIScreen {
     checkCanProceed() {
         if (this.isToken) {
             if ((parseFloat(this.balance) < parseFloat(this.feeETH)) || (parseFloat(this.tokenBalance) < parseFloat(this.tokenValue))) {
-                this.setProceedActive(false);
+                if ((parseFloat(this.balance) < parseFloat(this.feeETH))) {
+                    this.el.querySelector('.insufficient-balance-message-div').style.display = "block"
+                    this.el.querySelector('.insufficient-balance-message').innerHTML = 'Insufficient balance'
+                    this.setProceedActive(false);
+                }
+                else {
+                    this.el.querySelector('.insufficient-balance-message-div').style.display = "block"
+                    this.el.querySelector('.insufficient-balance-message').innerHTML = 'Insufficient token balance'
+                    this.setProceedActive(false);
+                }
             } else {
+                this.el.querySelector('.insufficient-balance-message-div').style.display = "none"
                 this.setProceedActive(true);
             }
         } else {
             if (parseFloat(this.balance) < (parseFloat(this.amt) + parseFloat(this.feeETH))) {
+                this.el.querySelector('.insufficient-balance-message-div').style.display = "block"
+                this.el.querySelector('.insufficient-balance-message').innerHTML = 'Insufficient balance'
                 this.setProceedActive(false);
             } else {
+                this.el.querySelector('.insufficient-balance-message-div').style.display = "none"
                 this.setProceedActive(true);
             }
         }
@@ -643,6 +656,8 @@ class SendScreen extends UIScreen {
                 <h5>Amount + gas fee</h5>
             </div>
         </div>
+
+        <div class="insufficient-balance-message-div"><p style="color: red" class="insufficient-balance-message">Insufficient balance</p></div>
 
         <button class="btn__tp--1 confirm_btn">Confirm</button>
         <button class="btn__tp--2 reject_btn">Reject</button>
