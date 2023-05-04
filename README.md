@@ -1,14 +1,14 @@
-# **Keyless Transactions - Safle**
+# **safle-keyless-js**
 
 This package allows a dapp to enable "Sign In With Safle" as a mechanism to enable their users to interact with the dapp using a custom safle widget and perform transactions using their safle password and pin in a non custodial manner.
 
-## **Keyless Transactions**
+## **safle-keyless-js**
 
 Talking about user adoption, the bottleneck faced by most of the dApps is the user onboarding flow. The user needs to have a wallet, generating and operating a wallet is cumbersome for a new crypto user.
 
-Keyless transactions abstracts the private key from the user and allows the user to sign transaction in an easy way while having the same level of security as before.
+safle-keyless-js abstracts the private key from the user and allows the user to sign transaction in an easy way while having the same level of security as before.
 
-safle Keyless Transactions allow users to sign transactions via,
+safle-keyless-js allow users to sign transactions via,
 
 1. Password
 2. Biometrics A. Fingerprint B. FaceID
@@ -36,13 +36,13 @@ Happy #BUIDLing
 Install the package by running the command,
 
 ```sh
-npm install --save @getsafle/keyless-transactions
+npm install --save @getsafle/safle-keyless-js
 ```
 
 Import the package into your project using,
 
 ```js
-import { getNetworks, KeylessWeb3 } from '@getsafle/keyless-transactions';
+import { getNetworks, KeylessWeb3 } from '@getsafle/safle-keyless-js';
 ```
 
 ## **Functions**
