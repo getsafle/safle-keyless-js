@@ -1,6 +1,6 @@
 {
   "name": "@getsafle/safle-keyless-js",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "",
   "engines": {
     "node": ">=12.22.9"
@@ -39,7 +39,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.6.4",
     "@ethereumjs/tx": "^3.5.1",
-    "@getsafle/asset-controller": "^1.0.7",
+    "@getsafle/asset-controller": "^1.0.12",
     "@getsafle/blockchain-controller": "^1.0.2",
     "@getsafle/safle-identity-wallet": "^1.2.2",
     "@getsafle/safle-vault": "^1.18.3",

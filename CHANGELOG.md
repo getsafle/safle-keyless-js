@@ -51,3 +51,7 @@
 ##### UI font-sizes fix and show correct error messages
 
 * UI font-sizes fix and show correct error messages
+
+### 1.1.9 (2023-02-06)
+
+##### Updated asset contoller to v1.0.12
