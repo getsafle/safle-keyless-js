@@ -1,27 +1,25 @@
 import abiDecoder from 'abi-decoder';
 import TokenController from '@getsafle/custom-token-controller';
 import erc20ABI from './erc20-abi';
-
 import cryptoRandomString from 'get-random-values';
 
 import crypto from 'crypto-browserify';
 import aes from 'aes-js';
-import APIS from '../helpers/apis';
+import * as Config from '../config/config';
 
 // const ethers = require('ethers');
 const KDFiterations = 10000;
 
-export const login = async (safleID, password) => {
-
+export const login = async (safleID, password,env) => {
+    
     let passwordDerivedKey = await generatePDKey({ safleID, password });
     const pdkeyHash = await createPDKeyHash({ passwordDerivedKey });
-
     let params = {
         "userName": safleID,
         "PDKeyHash": pdkeyHash
     };
 
-    const resp = await fetch(APIS.login_keyless, {
+    const resp = await fetch(Config[env].LOGIN_KEYLESS, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -90,12 +88,12 @@ export async function hashPassword({ password, passwordDerivedKey }) {
     return passwordHashHex
 }
 
-export const getCloudToken = async (user, pass) => {
+export const getCloudToken = async (user, pass,env) => {
     try {
         const derivedKey = await generatePDKey({ safleID: user, password: pass });
         const PDKeyHash = await createPDKeyHash({ passwordDerivedKey: derivedKey });
 
-        const jwtToken = await fetch(APIS.login_keyless, {
+        const jwtToken = await fetch(Config[env].LOGIN_KEYLESS, {
             headers: {
                 'Accept': 'application/json',
                 'Content-Type': 'application/json'
@@ -113,9 +111,9 @@ export const getCloudToken = async (user, pass) => {
         Promise.reject(new Error(e.message));
     }
 }
-export const retrieveVaultFromCloud = async (PDKeyHash, authToken) => {
+export const retrieveVaultFromCloud = async (PDKeyHash, authToken,env) => {
     try {
-        const req = await fetch(APIS.retrieve_vault, {
+        const req = await fetch(Config[env].RETRIEVE_VAULT, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`
@@ -132,9 +130,9 @@ export const retrieveVaultFromCloud = async (PDKeyHash, authToken) => {
     }
 }
 
-export const retrieveEncryptionKey = async (PDKeyHash, authToken) => {
+export const retrieveEncryptionKey = async (PDKeyHash, authToken,env) => {
     try {
-        const req = await fetch(APIS.retrieve_encription_key, {
+        const req = await fetch(Config[env].RETRIEVE_ENCRIPTION_KEY, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${authToken}`

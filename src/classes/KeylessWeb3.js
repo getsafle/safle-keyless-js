@@ -19,7 +19,7 @@ class KeylessWeb3 {
 
     constructor(config) {
         this.allowedChains = config.blockchain;
-
+        this.env=config.env?config.env:'prod';
         this.provider = new Web3Provider({ keylessInstance: this });
         this.kctrl = new KeylessController(this, this.allowedChains);
         const { chainId } = this.getCurrentChain();
@@ -37,6 +37,7 @@ class KeylessWeb3 {
 
             this.openDashboard();
         } else {
+            console.log('login Keylessweb3',this.env)
             this._showUI('login');
         }
 
@@ -189,7 +190,7 @@ class KeylessWeb3 {
         this._activeScreen.setView(this.root);
         this._activeScreen.onInit();
 
-        setTimeout(() => this._activeScreen.onShow(), 40);
+        setTimeout(() => this._activeScreen.onShow(this.env), 40);
     }
     async _hideUI() {
         if (this._activeScreen) {
@@ -216,6 +217,9 @@ class KeylessWeb3 {
         }, 0);
 
         return this._zIndex + 10;
+    }
+    async returnEnvVaiable(){
+        return this.env
     }
 
 }

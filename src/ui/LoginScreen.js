@@ -23,7 +23,7 @@ class LoginScreen extends UIScreen {
 
   }
 
-  onShow(){
+  onShow(env){
     // on close
     this.closeBtn.addEventListener('click', () => {
       this.keyless._hideUI();
@@ -49,7 +49,7 @@ class LoginScreen extends UIScreen {
       this.error.innerHTML = '';
 
       try {
-        await this.keyless.kctrl.login( this.safleField.value, this.saflePass.value );
+        await this.keyless.kctrl.login( this.safleField.value, this.saflePass.value ,env);
         this.safleField.classList.remove('error');
         // this.submitBtn.removeAttribute('disabled');
       } catch( e ){
