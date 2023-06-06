@@ -95,7 +95,6 @@ class KeylessController {
 
     async login(user, pass,env) {
         this._setLoading(true);
-        console.log('keylessController--->',env)
         this._isMobileVault = await this._getIsVaultMobile(user,env);
 
         await safleHelpers.login(user, pass,env);

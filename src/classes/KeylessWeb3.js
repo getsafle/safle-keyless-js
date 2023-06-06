@@ -37,7 +37,6 @@ class KeylessWeb3 {
 
             this.openDashboard();
         } else {
-            console.log('login Keylessweb3',this.env)
             this._showUI('login');
         }
 
