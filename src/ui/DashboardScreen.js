@@ -21,7 +21,7 @@ class DashboardScreen extends UIScreen {
     activeWalletUSDBalance = 0;
     chainIcon = '';
 
-    async populateData() {
+    async populateData(env) {
         let tokenHtmlList = '';
         const activeChainId = this.keyless.getCurrentChain().chainId;
         this.keyless.kctrl._setLoading(true);
@@ -31,7 +31,7 @@ class DashboardScreen extends UIScreen {
         this.activeChainUrl = this.activeChain?.rpcURL;
         this.activeWalletAddress = this.keyless.kctrl.getAccounts()?.address;
         this.activeWalletBalance = await this.keyless.kctrl.getWalletBalance(this.activeWalletAddress, true, 5);
-        this.activeWalletUSDBalance = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance));
+        this.activeWalletUSDBalance = formatMoney(await this.keyless.kctrl.getBalanceInUSD(this.activeWalletBalance,env));
 
         const connectionEl = this.el.querySelector('#connection-status');
         this.activeAddressEl = this.el.querySelector('#active-wallet');
@@ -69,7 +69,7 @@ class DashboardScreen extends UIScreen {
         this.keyless.kctrl._setLoading(false);
     }
 
-    async onShow() {
+    async onShow(env) {
         this.el.querySelector('.close').addEventListener('click', () => {
             this.keyless._hideUI();
         });
@@ -96,7 +96,7 @@ class DashboardScreen extends UIScreen {
             window.open(config.OPEN_WALLET_LINK, '_blank');
 
         });
-        await this.populateData();
+        await this.populateData(env);
     }
 
     _renderTokenEl(symbol, balance, decimal, icon = null) {

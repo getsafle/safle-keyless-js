@@ -93,22 +93,21 @@ class KeylessController {
         }
     }
 
-    async login(user, pass) {
+    async login(user, pass,env) {
         this._setLoading(true);
+        this._isMobileVault = await this._getIsVaultMobile(user,env);
 
-        this._isMobileVault = await this._getIsVaultMobile(user);
+        await safleHelpers.login(user, pass,env);
 
-        await safleHelpers.login(user, pass);
-
-        const authToken = await safleHelpers.getCloudToken(user, pass);
+        const authToken = await safleHelpers.getCloudToken(user, pass,env);
 
         let passwordDerivedKey = await safleHelpers.generatePDKey({ safleID: user, password: pass });
 
         const pdkeyHash = await safleHelpers.createPDKeyHash({ passwordDerivedKey });
 
-        const vault = await safleHelpers.retrieveVaultFromCloud(pdkeyHash, authToken);
+        const vault = await safleHelpers.retrieveVaultFromCloud(pdkeyHash, authToken,env);
 
-        const encKey = await safleHelpers.retrieveEncryptionKey(pdkeyHash, authToken);
+        const encKey = await safleHelpers.retrieveEncryptionKey(pdkeyHash, authToken,env);
 
         Storage.saveState({
             vault,
@@ -319,7 +318,7 @@ class KeylessController {
         return bal;
     }
 
-    async getBalanceInUSD(balance) {
+    async getBalanceInUSD(balance,env) {
         try {
             const nativeTokenName = await this.getCurrentNativeToken();
 
@@ -327,7 +326,7 @@ class KeylessController {
                 throw new Error('Please check the environment variables...');
             }
 
-            let res = await fetch(`${config.SAFLE_TOKEN_API}/latest-price?coin=${nativeTokenName}`).then(e => e.json());
+            let res = await fetch(`${config[env].SAFLE_TOKEN_API}/latest-price?coin=${nativeTokenName}`).then(e => e.json());
 
             const rate = res.data?.data[nativeTokenName.toUpperCase()]?.quote?.USD?.price;
 
@@ -339,13 +338,13 @@ class KeylessController {
         }
     }
 
-    async getTokenBalanceInUSD(balance, tokenSymbol) {
+    async getTokenBalanceInUSD(balance, tokenSymbol,env) {
         try {
             if (!config.SAFLE_TOKEN_API) {
                 throw new Error('Please check the environment variables...');
             }
 
-            let res = await fetch(`${config.SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e => e.json());
+            let res = await fetch(`${config[env].SAFLE_TOKEN_API}/latest-price?coin=${tokenSymbol}`).then(e => e.json());
 
             const rate = res.data?.data[tokenSymbol.toUpperCase()]?.quote?.USD?.price;
 
@@ -529,8 +528,8 @@ class KeylessController {
 
             const sub = tx.once('receipt', (err, txnReceipt) => {
                 this._lastReceipt = txnReceipt;
-
-                if (txnReceipt.status == 1) {
+                
+                if (txnReceipt.status) {
                     this.keylessInstance.provider.emit('transactionSuccess', { receipt: txnReceipt });
                 } else {
                     this.keylessInstance._showUI('txnFailed');
@@ -807,8 +806,8 @@ class KeylessController {
         }
     }
 
-    async _getIsVaultMobile(user) {
-        let res = await fetch(`${config.AUTH_URL}/auth/safleid-status/${user}`).then(e => e.json());
+    async _getIsVaultMobile(user,env) {
+        let res = await fetch(`${config[env].SAFLE_ID_STATUS}/${user}`).then(e => e.json());
 
         if (res.statusCode !== 200) {
             return null;

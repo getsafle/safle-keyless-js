@@ -39,7 +39,7 @@
   "dependencies": {
     "@ethereumjs/common": "^2.6.4",
     "@ethereumjs/tx": "^3.5.1",
-    "@getsafle/asset-controller": "^1.0.12",
+    "@getsafle/asset-controller": "1.0.10",
     "@getsafle/blockchain-controller": "^1.0.2",
     "@getsafle/safle-identity-wallet": "^1.2.2",
     "@getsafle/safle-vault": "^1.18.3",

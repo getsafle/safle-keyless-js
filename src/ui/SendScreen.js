@@ -46,7 +46,7 @@ class SendScreen extends UIScreen {
     tokenValue = 0;
     decodedData = null;
 
-    onShow() {
+    onShow(env) {
         this.setProceedActive(false);
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval(this.feeTm);
@@ -145,7 +145,7 @@ class SendScreen extends UIScreen {
             e.preventDefault();
 
             this.calculateCustomFee();
-            this.populateGasEstimate();
+            this.populateGasEstimate(env);
 
 
             edit_popup.classList.add('closed');
@@ -294,15 +294,15 @@ class SendScreen extends UIScreen {
         });
 
 
-        this.populateData();
-        this.populateGasEstimate();
+        this.populateData(env);
+        this.populateGasEstimate(env);
         clearInterval(this.feeTm);
-        this.addFeeInterval();
+        this.addFeeInterval(env);
     }
 
-    addFeeInterval() {
+    addFeeInterval(env) {
         if (this.chosenFee != 'custom') {
-            this.feeTm = setInterval(() => this.populateGasEstimate(), 30000);
+            this.feeTm = setInterval(() => this.populateGasEstimate(env), 30000);
         }
     }
 
@@ -344,7 +344,7 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate() {
+    async populateGasEstimate(env) {
         const trans = this.keyless.kctrl.getActiveTransaction();
 
         if (this.chosenFee == 'custom') {
@@ -354,7 +354,7 @@ class SendScreen extends UIScreen {
 
             const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(this.customPrioFee)) * this.customGasLimit;
             this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
-            this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
+            this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH,env);
             let maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
 
             this.el.querySelector('.transaction__checkout__input h3')
@@ -415,15 +415,15 @@ class SendScreen extends UIScreen {
         this.checkCanProceed();
     }
 
-    async populateData() {
+    async populateData(env) {
         this.nativeTokenName = (await this.keyless.kctrl.getCurrentNativeToken()).toUpperCase();
         const trans = this.keyless.kctrl.getActiveTransaction();
         if (trans) {
             this.keyless.kctrl._setLoading(true);
-            await this.populateAmount(trans);
+            await this.populateAmount(trans,env);
             await this.populateAddresses(trans);
             await this.populateBalance();
-            await this.populateAmount(trans);
+            await this.populateAmount(trans,env);
 
             this.keyless.kctrl._setLoading(false);
         }
@@ -490,7 +490,7 @@ class SendScreen extends UIScreen {
         }
     }
 
-    async populateAmount(trans) {
+    async populateAmount(trans,env) {
         const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
@@ -503,7 +503,7 @@ class SendScreen extends UIScreen {
                 this.el.querySelector('.transaction__send').classList.remove('low-balance');
             }
 
-            this.amountUSD = formatMoney(await this.keyless.kctrl.getTokenBalanceInUSD(this.amt, this.decodedData.tokenSymbol));
+            this.amountUSD = formatMoney(await this.keyless.kctrl.getTokenBalanceInUSD(this.amt, this.decodedData.tokenSymbol,env));
             this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$' + this.amountUSD;
         } else {
             this.amt = amtSend;
