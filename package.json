@@ -1,65 +1,24 @@
 {
   "name": "@getsafle/safle-keyless-js",
-  "version": "1.1.9",
+  "version": "1.0.0",
   "description": "",
-  "engines": {
-    "node": ">=12.22.9"
-  },
-  "main": "./src/index.js",
-  "browser": "./lib/keyless.umd.min.js",
-  "eslintConfig": {
-    "env": {
-      "browser": true
-    }
-  },
+  "main": "dist/index.js",
   "scripts": {
-    "build": "webpack --config-name library",
-    "prepare": "husky install"
+    "build": "tsc",
+    "start": "ts-node src/index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@babel/preset-env": "^7.19.4",
-    "babel-loader": "^8.2.5",
-    "clean-webpack-plugin": "^4.0.0",
-    "css-loader": "^6.5.1",
-    "html-loader": "^3.1.0",
-    "html-webpack-plugin": "^5.5.0",
-    "husky": "^8.0.1",
-    "sass": "^1.49.0",
-    "sass-loader": "^12.4.0",
-    "style-loader": "^3.3.1",
-    "webp-loader": "^0.6.0",
-    "webpack": "^5.74.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-dev-server": "^4.7.3"
-  },
   "dependencies": {
-    "@ethereumjs/common": "^2.6.4",
-    "@ethereumjs/tx": "^3.5.1",
-    "@getsafle/asset-controller": "1.0.10",
-    "@getsafle/blockchain-controller": "^1.0.2",
-    "@getsafle/safle-identity-wallet": "^1.2.2",
-    "@getsafle/safle-vault": "^1.18.3",
-    "aes-js": "^3.1.2",
-    "assert": "^2.0.0",
-    "axios": "^0.26.1",
-    "buffer": "^6.0.3",
-    "crypto-browserify": "^3.12.0",
-    "ethereumjs-tx": "^2.1.2",
-    "ethereumjs-util": "^7.1.4",
-    "get-random-values": "^1.2.2",
-    "https-browserify": "^1.0.0",
-    "os-browserify": "^0.3.0",
-    "path-browserify": "^1.0.1",
-    "process": "^0.11.10",
-    "qrcode": "^1.5.0",
-    "rfs": "^9.0.6",
-    "stream-browserify": "^3.0.0",
-    "stream-http": "^3.2.0",
-    "url": "^0.11.0",
-    "web3": "^1.7.1"
+    "ethereumjs-util": "5.2.0",
+    "penpal": "6.2.2",
+    "web3-provider-engine": "16.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "@types/ws": "^8.5.5",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
   }
 }
