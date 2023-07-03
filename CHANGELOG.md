@@ -55,3 +55,7 @@
 ### 1.1.9 (2023-02-06)
 
 ##### Updated asset contoller to v1.0.12
+
+### 1.2.0 (2023-07-03)
+
+* env variable made dynamic to v1.2.0
