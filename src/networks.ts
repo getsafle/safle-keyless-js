@@ -23,5 +23,26 @@ const networks: { [key: string]: INetwork } = {
     mumbaitestnet: {
         nodeUrl: 'https://polygon-mumbai.infura.io/v3/814228beb1ff4d5991988329e57c349c',
         chainId: "80001",
+    },
+    optimism: {
+        nodeUrl: 'https://polygon-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b',
+        chainId: '10',
+    },
+    arbitrum: {
+        nodeUrl: 'https://arbitrum-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b',
+        chainId: '42161',
+    },
+    velas: {
+        nodeUrl: 'https://evmexplorer.velas.com/rpc',
+        chainId: '106',
+    },
+    mantle: {
+        nodeUrl: 'http://rpc.mantle.xyz/',
+        chainId: '5000',
+    },
+    bsc: {
+        nodeUrl: 'https://bsc-dataseed.binance.org',
+        chainId: '56',
     }
+
 };
