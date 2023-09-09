@@ -3,6 +3,9 @@ import { AsyncMethodReturns } from 'penpal';
 export interface IConnectionMethods {
   getAccounts: () => Promise<{ error: string; result: string[] }>;
   signData: (msgParams: any) => Promise<{ error: string; result: string }>;
+  selectChain: () => Promise<any>
+  getUserTokens: () => Promise<any> 
+  disconnetKeyless: () => Promise<any> 
   processTransaction: (msgParams: any) => Promise<{ error: string; result: string }>;
   signTransaction: (msgParams: any) => Promise<{ error: string; result: string }>;
   getBlockByNumber: () => Promise<{ error: string; result: string }>;

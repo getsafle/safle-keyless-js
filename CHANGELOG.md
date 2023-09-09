@@ -55,3 +55,9 @@
 ### 1.1.9 (2023-02-06)
 
 ##### Updated asset contoller to v1.0.12
+
+### 1.2.4 (2023-09-08)
+
+* Added keyless function for user management.
+
+* Added event listeners to manage live connection between dApp and keyless widget
