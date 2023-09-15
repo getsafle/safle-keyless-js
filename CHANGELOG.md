@@ -59,3 +59,8 @@
 ### 1.2.0 (2023-07-03)
 
 * env variable made dynamic to v1.2.0
+
+### 1.3.0 (2023-09-15)
+
+* Vault version upgraded to v1.30.4
+* Keyless controller updated accorind to upgraded vault version

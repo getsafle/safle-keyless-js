@@ -62,20 +62,16 @@ class KeylessController {
             this._isMobileVault = state.isMobile;
         }
 
-        if (state.vault && state.decriptionKey != null) {
-            this.vault = new Vault(state.vault);
+        let param = {
+            vault: state.vault
+        }
 
-            const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
+        if (state.vault && state.decriptionKey != null) {
+            this.vault = new Vault(param);
 
             try {
                 let acc;
-                try {
-
-                    acc = await this.vault.getAccounts(decKey);
-                } catch (e) {
-                    acc = await this.vault.getAccounts(state.decriptionKey);
-
-                }
+                acc = await this.vault.getAccounts();
 
                 this.wallets = acc.response.filter(acc => acc.isDeleted != true).map(e => { return { address: e.address } }) || [];
 
@@ -602,11 +598,9 @@ class KeylessController {
                 const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(state.vault, parseInt(pin), decKey);
 
-                await this.vault.getAccounts(decKey);
-
                 const addr = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
 
-                const privateKey = (await this.vault.exportPrivateKey(addr, parseInt(pin))).response;
+                const {privateKey, isImported }= (await this.vault.exportPrivateKey(addr, parseInt(pin))).response;
 
                 const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
 
@@ -719,8 +713,6 @@ class KeylessController {
                 const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
 
                 await this.vault.restoreKeyringState(state.vault, pin, decKey);
-
-                await this.vault.exportPrivateKey(this.activeSignRequest.address.toString(), parseInt(pin));
 
                 const trans = await this.vault.sign(this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt(pin), rpcUrl);
 
