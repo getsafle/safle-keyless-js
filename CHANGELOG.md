@@ -63,4 +63,5 @@
 ### 1.3.0 (2023-09-15)
 
 * Vault version upgraded to v1.30.4
-* Keyless controller updated accorind to upgraded vault version
+* Keyless controller updated according to upgraded vault version
+* webpack config update

@@ -62,20 +62,22 @@ class KeylessController {
             this._isMobileVault = state.isMobile;
         }
 
-        let param = {
-            vault: state.vault
-        }
-
         if (state.vault && state.decriptionKey != null) {
+            let param = {
+                vault: state.vault,
+                encryptionKey: Object.values(state.decriptionKey)
+            }
+
             this.vault = new Vault(param);
 
             try {
+
                 let acc;
                 acc = await this.vault.getAccounts();
 
                 this.wallets = acc.response.filter(acc => acc.isDeleted != true).map(e => { return { address: e.address } }) || [];
 
-            } catch (e) {
+                } catch (e) {
                 this.wallets = [];
             }
 
@@ -508,7 +510,7 @@ class KeylessController {
         rawTx.to = rawTx.to.substr(0, 2) + rawTx.to.substr(-40).toLowerCase();
 
         const state = Storage.getState();
-        const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
+        const decKey = Object.values(state.decriptionKey);
 
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
