@@ -378,7 +378,7 @@ class SendScreen extends UIScreen {
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = (parseFloat(this.gasFees.estimatedBaseFee) + parseFloat(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
                 const maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
