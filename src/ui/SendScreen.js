@@ -190,7 +190,7 @@ class SendScreen extends UIScreen {
         });
         this.el.querySelector('.confirm_btn').addEventListener('click', async (e) => {
             clearInterval(this.feeTm);
-            const chosenGas = this.gasFees[this.advancedFee];
+            const chosenGas = this.gasFees[this.advancedFee] || this.gasFees.medium;
 
             if (this.advancedFee == 'custom') {
                 const maxFee = this.customPrioFee + this.gasFees.estimatedBaseFee;
@@ -198,7 +198,7 @@ class SendScreen extends UIScreen {
                 this.keyless.kctrl.setGasForTransaction(this.customGasLimit, maxFee, this.customPrioFee);
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
-                const gas = await this.keyless.kctrl.estimateGas(trans.data);
+                const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
                 this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
             }
             this.keyless._showUI('pin');
@@ -332,7 +332,7 @@ class SendScreen extends UIScreen {
         } else {
             this.chosenFee = this.advancedFee;
 
-            const chosenGas = this.gasFees[this.advancedFee];
+            const chosenGas = this.gasFees[this.advancedFee] || this.gasFees.medium;
 
             likeTime = this.getTimeEstimate(this.advancedFee);
             const gas = await this.keyless.kctrl.estimateGas(trans.data);
@@ -371,14 +371,14 @@ class SendScreen extends UIScreen {
             this.setFeesLoading(true);
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
-            const gas = await this.keyless.kctrl.estimateGas(trans.data);
+            const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans.data.data});
 
             if (this.gasFees) {
-                const chosenGas = this.gasFees[this.chosenFee];
+                const chosenGas = this.gasFees[this.chosenFee] || this.gasFees.medium;
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                const fee = (parseFloat(this.gasFees.estimatedBaseFee) + parseFloat(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
                 const maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));

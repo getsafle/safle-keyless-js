@@ -65,3 +65,4 @@
 * Vault version upgraded to v1.30.4
 * Keyless controller updated according to upgraded vault version
 * webpack config update
+* EVM chains integrated - BSC, Optimism, Arbitrum, Mantle, Velas
