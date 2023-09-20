@@ -198,6 +198,7 @@ class KeylessController {
     }
 
     sendTransaction(config) {
+        console.log("in ktrl  sendTransaction config = ", config);
         const trans = this._sanitizeTransaction(config);
 
         if (!trans) {
@@ -224,10 +225,20 @@ class KeylessController {
 
     setGasForTransaction(gasLimit, maxFeePerGas, maxPriorityFee) {
         if (this.activeTransaction) {
-            this.activeTransaction.data.gasLimit = gasLimit;
-            this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
-            this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+            if (maxPriorityFee) {
+                this.activeTransaction.data.gasLimit = gasLimit;
+                this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+                this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+            }
+            else {
+                this.activeTransaction.data.gasLimit = gasLimit;
+                // this.activeTransaction.data.gasPrice = maxFeePerGas;
+                this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+            }
+            
         }
+
+        console.log("in setgasfor trans, this.activeTransaction = ", this.activeTransaction);
     }
 
     getActiveTransaction() {
@@ -609,11 +620,15 @@ class KeylessController {
         const chain = this.keylessInstance.getCurrentChain();
         const trans = this.activeTransaction;
 
+        console.log("in _createAndSendTransaction, trans = ", trans);
+
         if (!trans) {
             return;
         }
 
         const rawTx = await this._createRawTransaction(trans);
+
+        console.log("rawTx after _createRawTransaction = ", rawTx);
 
         rawTx.from = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
         rawTx.to = rawTx.to.substr(0, 2) + rawTx.to.substr(-40).toLowerCase();
@@ -629,12 +644,18 @@ class KeylessController {
             
             const signedTx = await this._signTransaction(rawTx, pin, chain.chainId);
 
+            console.log("signedTx =", signedTx);
+
             const tx = this.web3.eth.sendSignedTransaction(signedTx);
 
             tx.once('transactionHash', (hash) => {
                 this.transactionHashes.push(hash);
                 this.keylessInstance._showUI('txnSuccess');
             });
+
+            tx.on('error', (err) => {
+                console.log("tx error =", err);
+            })
 
             const sub = tx.once('receipt', (err, txnReceipt) => {
                 this._lastReceipt = txnReceipt;
@@ -733,6 +754,7 @@ class KeylessController {
 
         default:
             chainName = blockchainInfo[chainId].chain_name;
+            console.log("chainName = ", chainName);
             this.vault.changeNetwork(chainName);
             const dstate = Storage.getState();
 
@@ -747,6 +769,8 @@ class KeylessController {
     }
 
     async _createRawTransaction(trans) {
+
+        console.log("_createRawTransaction, trans = ", trans);
         const chain = this.keylessInstance.getCurrentChain();
 
         const count = await this.web3.eth.getTransactionCount(trans.data.from);

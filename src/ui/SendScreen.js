@@ -47,6 +47,7 @@ class SendScreen extends UIScreen {
     decodedData = null;
 
     onShow(env) {
+        console.log("in sendscreen UI, on show, env= ", env);
         this.setProceedActive(false);
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval(this.feeTm);
@@ -145,7 +146,7 @@ class SendScreen extends UIScreen {
             e.preventDefault();
 
             this.calculateCustomFee();
-            this.populateGasEstimate(env);
+            this.populateGasEstimate(env, 1);
 
 
             edit_popup.classList.add('closed');
@@ -199,7 +200,24 @@ class SendScreen extends UIScreen {
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
-                this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
+                
+                if (trans.data?.gasPrice && trans.data?.gasLimit) {
+
+                    // fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit)));  // convert into gwei
+                    // maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16)));
+
+                    //gwei decimal - hex - 
+
+                    this.keyless.kctrl.setGasForTransaction((parseFloat(trans.data.gasLimit)), parseInt((trans.data.gasPrice), 16), null) //, chosenGas.suggestedMaxPriorityFeePerGas);
+                }
+                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
+                    this.keyless.kctrl.setGasForTransaction(trans.data?.gasLimit, trans.data?.maxFeePerGas, trans.data?.maxPriorityFeePerGas);
+                }
+                else{
+                    this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
+                }
+                
+                // this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
             }
             this.keyless._showUI('pin');
 
@@ -295,14 +313,14 @@ class SendScreen extends UIScreen {
 
 
         this.populateData(env);
-        this.populateGasEstimate(env);
+        this.populateGasEstimate(env, 2);
         clearInterval(this.feeTm);
         this.addFeeInterval(env);
     }
 
     addFeeInterval(env) {
         if (this.chosenFee != 'custom') {
-            this.feeTm = setInterval(() => this.populateGasEstimate(env), 30000);
+            this.feeTm = setInterval(() => this.populateGasEstimate(env, 3), 30000);
         }
     }
 
@@ -344,8 +362,14 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate(env) {
+    async populateGasEstimate(env, i) {
+
+        console.log("populateGasEstimate index caller = ", i);
+
+        console.log("in populateGasEstimate, this.gasFees = ", this.gasFees);
         const trans = this.keyless.kctrl.getActiveTransaction();
+
+        console.log("trans after = ", i, trans);
 
         if (this.chosenFee == 'custom') {
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
@@ -373,16 +397,43 @@ class SendScreen extends UIScreen {
             this.gasFees = await this.keyless.kctrl.estimateFees();
             const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans.data.data});
 
+            let fee;
+            let maxFeePerGas;
+
             if (this.gasFees) {
                 const chosenGas = this.gasFees[this.chosenFee] || this.gasFees.medium;
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                console.log("trans -----------", trans);
+
+                if (trans.data?.gasPrice && trans.data?.gasLimit) {
+                    console.log("parseFloat((trans.data.gasPrice), 16)= ", parseFloat((trans.data.gasPrice), 16));
+                    console.log("parseInt((trans.data.gasPrice), 16) = ", parseInt((trans.data.gasPrice), 16));
+
+                    // fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit))) / Math.pow(10, 9);  // convert into gwei
+                    // maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16) / Math.pow(10, 9)));
+
+                    fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit)));  // convert into gwei
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16)));
+
+                    // (parseInt((trans.data.gasPrice), 16) / Math.pow(10, 9))
+                }
+                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
+                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * trans.data?.gasLimit
+                    // fee = (parseInt(trans.data.gasPrice)) * trans.data.gasLimit; ------- ????
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(trans.data.maxFeePerGas));
+                }
+                else{
+                    fee = (parseFloat(this.gasFees.estimatedBaseFee) + parseFloat(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(chosenGas.suggestedMaxFeePerGas));
+                }
+                
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
-                const maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
 
+                console.log("this.feeETH = ", this.feeETH, this.feeUSD, fee, maxFeePerGas);
+                
                 this.el.querySelector('.transaction__checkout__input h3')
                     .innerHTML = this.feeETH + ' ' + this.nativeTokenName +
                     '<span> $' + this.feeUSD + '</span>';
@@ -434,6 +485,8 @@ class SendScreen extends UIScreen {
     }
 
     async populateAddresses(trans) {
+
+        console.log("in populateAddresses, trans = ", trans);
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
         const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
@@ -447,10 +500,12 @@ class SendScreen extends UIScreen {
         let decodedData = {};
         if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
+            console.log("in populate Address, chain = ", chain);
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
             this.tokenValue = decodedData.value;
             this.isToken = true;
+            console.log("this.isToken = ? ", this.isToken);
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
@@ -491,6 +546,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount(trans,env) {
+        console.log("in populateAmount, trans = ", trans, env);
         const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
