@@ -66,3 +66,4 @@
 * Keyless controller updated according to upgraded vault version
 * webpack config update
 * EVM chains integrated - BSC, Optimism, Arbitrum, Mantle, Velas
+* Update keyless to accept complete raw transaction having gas price and gas limit from dapp
