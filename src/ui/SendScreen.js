@@ -203,15 +203,36 @@ class SendScreen extends UIScreen {
                 
                 if (trans.data?.gasPrice && trans.data?.gasLimit) {
 
-                    // fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit)));  // convert into gwei
-                    // maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16)));
+                    
+                    let gasPrice = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt((trans.data.gasPrice), 16).toString(),
+                        "gwei"
+                    )
 
-                    //gwei decimal - hex - 
+                    console.log("calc in gwei gasPrice = ", gasPrice);
 
-                    this.keyless.kctrl.setGasForTransaction((parseFloat(trans.data.gasLimit)), parseInt((trans.data.gasPrice), 16), null) //, chosenGas.suggestedMaxPriorityFeePerGas);
+                    this.keyless.kctrl.setGasForTransaction((parseFloat(trans.data.gasLimit)), gasPrice, null)
+                
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
-                    this.keyless.kctrl.setGasForTransaction(trans.data?.gasLimit, trans.data?.maxFeePerGas, trans.data?.maxPriorityFeePerGas);
+
+                    console.log("incoming maxFeePerGas = ", trans.data?.maxFeePerGas, trans.data?.maxPriorityFeePerGas);
+                    
+                    let maxPriorityFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxPriorityFeePerGas, 16).toString(),
+                        "gwei"
+                    ) 
+
+                    let maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxFeePerGas, 16).toString(),
+                        "gwei"
+                    ) 
+
+                    console.log("b4 setting gas = ", maxFeePerGas, maxPriorityFeePerGas);
+
+                    
+                    
+                    this.keyless.kctrl.setGasForTransaction(trans.data?.gasLimit, maxFeePerGas, maxPriorityFeePerGas);
                 }
                 else{
                     this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
@@ -400,7 +421,7 @@ class SendScreen extends UIScreen {
             let fee;
             let maxFeePerGas;
 
-            if (this.gasFees) {
+            if (this.gasFees) {  //gwei
                 const chosenGas = this.gasFees[this.chosenFee] || this.gasFees.medium;
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
@@ -411,22 +432,43 @@ class SendScreen extends UIScreen {
                     console.log("parseFloat((trans.data.gasPrice), 16)= ", parseFloat((trans.data.gasPrice), 16));
                     console.log("parseInt((trans.data.gasPrice), 16) = ", parseInt((trans.data.gasPrice), 16));
 
-                    // fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit))) / Math.pow(10, 9);  // convert into gwei
-                    // maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16) / Math.pow(10, 9)));
-
                     fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit)));  // convert into gwei
-                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(parseInt((trans.data.gasPrice), 16)));
+                    fee = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(fee).toString(),
+                        "gwei"
+                    )
+                    
+                    maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt((trans.data.gasPrice), 16).toString(),
+                        "gwei"
+                    )
 
-                    // (parseInt((trans.data.gasPrice), 16) / Math.pow(10, 9))
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(maxFeePerGas);
+
+
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
+                    
+                    let maxPriorityFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxPriorityFeePerGas).toString(),
+                        "gwei"
+                    ) 
+
+                    maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxFeePerGas).toString(),
+                        "gwei"
+                    ) 
+
                     fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * trans.data?.gasLimit
-                    // fee = (parseInt(trans.data.gasPrice)) * trans.data.gasLimit; ------- ????
-                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(trans.data.maxFeePerGas));
+
+
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(maxFeePerGas));
+
                 }
                 else{
                     fee = (parseFloat(this.gasFees.estimatedBaseFee) + parseFloat(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
                     maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(chosenGas.suggestedMaxFeePerGas));
+ 
                 }
                 
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);

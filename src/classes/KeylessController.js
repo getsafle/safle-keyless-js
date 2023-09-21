@@ -844,8 +844,8 @@ class KeylessController {
                     : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
                 gasPrice: this.web3.utils.toHex(
                     this.web3.utils.toWei(
-                        parseFloat(trans.data.maxFeePerGas).toFixed(2).toString(),
-                        "gwei"
+                        parseFloat(trans.data.maxFeePerGas).toFixed(9).toString(),
+                        "gwei" 
                     )
                     ),
                 gasLimit: gasEstimate,
