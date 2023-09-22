@@ -185,6 +185,8 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
 
     const functionName = await extractFunctionName(input);
 
+    console.log("functionName = ", functionName);
+
     const decodedData = abiDecoder.decodeMethod(input);
     console.log("decodeinput, rpcURL = ", rpcUrl);
 

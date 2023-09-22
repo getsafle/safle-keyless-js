@@ -518,7 +518,7 @@ class SendScreen extends UIScreen {
         if (trans) {
             this.keyless.kctrl._setLoading(true);
             await this.populateAmount(trans,env);
-            // await this.populateAddresses(trans);
+            await this.populateAddresses(trans);
             await this.populateBalance();
             await this.populateAmount(trans,env);
 
