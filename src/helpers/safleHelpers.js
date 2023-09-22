@@ -189,6 +189,8 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
     console.log("decodeinput, rpcURL = ", rpcUrl);
 
     const chain = rpcUrl.indexOf('polygon') != -1 ? 'polygon' : 'ethereum';
+
+    console.log("in decode input, chain = ", chain);
     
     const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
 

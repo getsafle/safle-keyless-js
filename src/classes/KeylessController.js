@@ -158,6 +158,8 @@ class KeylessController {
     generateWeb3Object(chainId) {
         const nodeURI = this.getNodeURI(chainId);
 
+        console.log("changing chain =", nodeURI);
+
         return new Web3(new Web3.providers.HttpProvider(nodeURI));
     }
 
@@ -225,16 +227,21 @@ class KeylessController {
 
     setGasForTransaction(gasLimit, maxFeePerGas, maxPriorityFee) {
         if (this.activeTransaction) {
-            if (maxPriorityFee) {
-                this.activeTransaction.data.gasLimit = gasLimit;
-                this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
-                this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
-            }
-            else {
-                this.activeTransaction.data.gasLimit = gasLimit;
-                // this.activeTransaction.data.gasPrice = maxFeePerGas;
-                this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
-            }
+            
+            this.activeTransaction.data.gasLimit = gasLimit;
+            this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+            this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+
+            // if (maxPriorityFee) {
+            //     this.activeTransaction.data.gasLimit = gasLimit;
+            //     this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+            //     this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+            // }
+            // else {
+            //     this.activeTransaction.data.gasLimit = gasLimit;
+            //     // this.activeTransaction.data.gasPrice = maxFeePerGas;
+            //     this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
+            // }
             
         }
 
@@ -379,25 +386,36 @@ class KeylessController {
     async estimateGas({ to, from, value, data = null }) {
         try {
             if (data && data.length) {
-                let chain = this.keylessInstance.getCurrentChain();
+                const chain = this.keylessInstance.getCurrentChain();
+                const trans = this.activeTransaction;
 
-                const rpcURL = chain.chain.rpcURL;
-
-                const decodedData = await safleHelpers.decodeInput(data, rpcURL, to);
-
-                const decimals = parseInt(decodedData?.decimals);
-
-                let gas;
-
-                try {
-                    const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
-                    const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
-                    gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
-                } catch (e) {
-                    gas = 21000;
+                if (((trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas) || trans.data?.gasPrice) && (trans.data?.gas || trans.data?.gasLimit )) { 
+                    return trans.data.gas || trans.data.gasLimit
                 }
+                else{
 
-                return parseInt(gas);
+                    let chain = this.keylessInstance.getCurrentChain();
+
+                    const rpcURL = chain.chain.rpcURL;
+
+                    const decodedData = await safleHelpers.decodeInput(data, rpcURL, to);
+
+                    const decimals = parseInt(decodedData?.decimals);
+
+                    let gas;
+
+                    try {
+                        const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
+                        const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
+                        gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
+                    } catch (e) {
+                        gas = 21000;
+                    }
+
+                    return parseInt(gas);
+
+                }
+                
             }
 
             try {
@@ -776,6 +794,28 @@ class KeylessController {
         const count = await this.web3.eth.getTransactionCount(trans.data.from);
 
         let config = {};
+        
+
+        //if gas price or max priority
+        if (trans.data?.gasPrice) {
+            console.log("raw txns00000000 = ", trans.data);
+            config = {
+                to: trans.data.to,
+                from: trans.data.from,
+                value: trans.data.value.indexOf("0x") != -1 
+                    ? trans.data.value
+                    : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                gasPrice: Number(trans.data.gasPrice),
+                gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                nonce: count,
+                chainId: chain.chainId,
+                };
+
+            return config;
+
+        
+        }
+
 
         switch (blockchainInfo[chain.chainId].chain_name) {
             case 'ethereum':
