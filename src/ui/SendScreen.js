@@ -463,7 +463,7 @@ class SendScreen extends UIScreen {
                         "gwei"
                     ) 
 
-                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * trans.data?.gasLimit
+                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * (trans.data?.gasLimit || gas)
 
 
                     maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(maxFeePerGas));
