@@ -156,9 +156,7 @@ class KeylessController {
     }
 
     generateWeb3Object(chainId) {
-        const nodeURI = this.getNodeURI(chainId);
-
-        console.log("changing chain =", nodeURI);
+        const nodeURI = this.getNodeURI(chainId);   
 
         return new Web3(new Web3.providers.HttpProvider(nodeURI));
     }
@@ -200,7 +198,6 @@ class KeylessController {
     }
 
     sendTransaction(config) {
-        console.log("in ktrl  sendTransaction config = ", config);
         const trans = this._sanitizeTransaction(config);
 
         if (!trans) {
@@ -245,7 +242,7 @@ class KeylessController {
             
         }
 
-        console.log("in setgasfor trans, this.activeTransaction = ", this.activeTransaction);
+        
     }
 
     getActiveTransaction() {
@@ -638,15 +635,11 @@ class KeylessController {
         const chain = this.keylessInstance.getCurrentChain();
         const trans = this.activeTransaction;
 
-        console.log("in _createAndSendTransaction, trans = ", trans);
-
         if (!trans) {
             return;
         }
 
         const rawTx = await this._createRawTransaction(trans);
-
-        console.log("rawTx after _createRawTransaction = ", rawTx);
 
         rawTx.from = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
         rawTx.to = rawTx.to.substr(0, 2) + rawTx.to.substr(-40).toLowerCase();
@@ -657,12 +650,8 @@ class KeylessController {
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
         try {
-
-            console.log("final rawTx=", rawTx);
-            
             const signedTx = await this._signTransaction(rawTx, pin, chain.chainId);
 
-            console.log("signedTx =", signedTx);
 
             const tx = this.web3.eth.sendSignedTransaction(signedTx);
 
@@ -672,7 +661,7 @@ class KeylessController {
             });
 
             tx.on('error', (err) => {
-                console.log("tx error =", err);
+                
             })
 
             const sub = tx.once('receipt', (err, txnReceipt) => {
@@ -772,7 +761,7 @@ class KeylessController {
 
         default:
             chainName = blockchainInfo[chainId].chain_name;
-            console.log("chainName = ", chainName);
+            
             this.vault.changeNetwork(chainName);
             const dstate = Storage.getState();
 
@@ -788,7 +777,6 @@ class KeylessController {
 
     async _createRawTransaction(trans) {
 
-        console.log("_createRawTransaction, trans = ", trans);
         const chain = this.keylessInstance.getCurrentChain();
 
         const count = await this.web3.eth.getTransactionCount(trans.data.from);
@@ -797,8 +785,7 @@ class KeylessController {
         
 
         //if gas price or max priority
-        if (trans.data?.gasPrice) {
-            console.log("raw txns00000000 = ", trans.data);
+        if (trans.data?.gasPrice) {    
             config = {
                 to: trans.data.to,
                 from: trans.data.from,
@@ -1063,8 +1050,6 @@ class KeylessController {
         if (token == "bnb") {
             return "https://assets.coingecko.com/coins/images/13804/large/Binnace.png";
         }
-
-        console.log("token = ", token);
 
         const addr = token.tokenAddress?.toLowerCase();
 
