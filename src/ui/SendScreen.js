@@ -47,7 +47,7 @@ class SendScreen extends UIScreen {
     decodedData = null;
 
     onShow(env) {
-        console.log("in sendscreen UI, on show, env= ", env);
+        
         this.setProceedActive(false);
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval(this.feeTm);
@@ -201,44 +201,18 @@ class SendScreen extends UIScreen {
                 const trans = this.keyless.kctrl.getActiveTransaction();
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
                 
-                if (trans.data?.gasPrice && trans.data?.gasLimit) {
+                if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
 
-                    
-                    let gasPrice = this.keyless.kctrl.web3.utils.fromWei(
-                        parseInt((trans.data.gasPrice), 16).toString(),
-                        "gwei"
-                    )
-
-                    console.log("calc in gwei gasPrice = ", gasPrice);
-
-                    this.keyless.kctrl.setGasForTransaction((parseFloat(trans.data.gasLimit)), gasPrice, null)
-                
+          
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
 
-                    console.log("incoming maxFeePerGas = ", trans.data?.maxFeePerGas, trans.data?.maxPriorityFeePerGas);
-                    
-                    let maxPriorityFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
-                        parseInt(trans.data.maxPriorityFeePerGas, 16).toString(),
-                        "gwei"
-                    ) 
-
-                    let maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
-                        parseInt(trans.data.maxFeePerGas, 16).toString(),
-                        "gwei"
-                    ) 
-
-                    console.log("b4 setting gas = ", maxFeePerGas, maxPriorityFeePerGas);
-
-                    
-                    
-                    this.keyless.kctrl.setGasForTransaction(trans.data?.gasLimit, maxFeePerGas, maxPriorityFeePerGas);
+                  
                 }
                 else{
                     this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
                 }
                 
-                // this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
             }
             this.keyless._showUI('pin');
 
@@ -385,12 +359,12 @@ class SendScreen extends UIScreen {
 
     async populateGasEstimate(env, i) {
 
-        console.log("populateGasEstimate index caller = ", i);
+        
 
-        console.log("in populateGasEstimate, this.gasFees = ", this.gasFees);
+        
         const trans = this.keyless.kctrl.getActiveTransaction();
 
-        console.log("trans after = ", i, trans);
+        
 
         if (this.chosenFee == 'custom') {
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
@@ -416,6 +390,7 @@ class SendScreen extends UIScreen {
             this.setFeesLoading(true);
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
+            
             const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans.data.data});
 
             let fee;
@@ -426,13 +401,14 @@ class SendScreen extends UIScreen {
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                console.log("trans -----------", trans);
+                
 
-                if (trans.data?.gasPrice && trans.data?.gasLimit) {
-                    console.log("parseFloat((trans.data.gasPrice), 16)= ", parseFloat((trans.data.gasPrice), 16));
-                    console.log("parseInt((trans.data.gasPrice), 16) = ", parseInt((trans.data.gasPrice), 16));
+                if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
+                    // 
+                    
+                    
 
-                    fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data.gasLimit)));  // convert into gwei
+                    fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data?.gasLimit || trans.data?.gas), 16));  // convert into gwei
                     fee = this.keyless.kctrl.web3.utils.fromWei(
                         parseInt(fee).toString(),
                         "gwei"
@@ -447,7 +423,7 @@ class SendScreen extends UIScreen {
 
 
                 }
-                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
+                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas) {
                     
                     let maxPriorityFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
                         parseInt(trans.data.maxPriorityFeePerGas).toString(),
@@ -459,7 +435,7 @@ class SendScreen extends UIScreen {
                         "gwei"
                     ) 
 
-                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * trans.data?.gasLimit
+                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * (trans.data?.gasLimit || gas)
 
 
                     maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(maxFeePerGas));
@@ -474,7 +450,6 @@ class SendScreen extends UIScreen {
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
 
-                console.log("this.feeETH = ", this.feeETH, this.feeUSD, fee, maxFeePerGas);
                 
                 this.el.querySelector('.transaction__checkout__input h3')
                     .innerHTML = this.feeETH + ' ' + this.nativeTokenName +
@@ -528,7 +503,7 @@ class SendScreen extends UIScreen {
 
     async populateAddresses(trans) {
 
-        console.log("in populateAddresses, trans = ", trans);
+        
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
         const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
@@ -542,12 +517,12 @@ class SendScreen extends UIScreen {
         let decodedData = {};
         if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
-            console.log("in populate Address, chain = ", chain);
+            
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
             this.tokenValue = decodedData.value;
             this.isToken = true;
-            console.log("this.isToken = ? ", this.isToken);
+            
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
@@ -588,7 +563,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount(trans,env) {
-        console.log("in populateAmount, trans = ", trans, env);
+        
         const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {

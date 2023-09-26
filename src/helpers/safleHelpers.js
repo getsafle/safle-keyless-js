@@ -186,8 +186,6 @@ export async function decodeInput(input, rpcUrl, contractAddress) {
     const functionName = await extractFunctionName(input);
 
     const decodedData = abiDecoder.decodeMethod(input);
-    console.log("decodeinput, rpcURL = ", rpcUrl);
-
     const chain = rpcUrl.indexOf('polygon') != -1 ? 'polygon' : 'ethereum';
     
     const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
