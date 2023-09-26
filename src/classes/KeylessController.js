@@ -63,23 +63,21 @@ class KeylessController {
         }
 
         if (state.vault && state.decriptionKey != null) {
-            this.vault = new Vault(state.vault);
+            let param = {
+                vault: state.vault,
+                encryptionKey: Object.values(state.decriptionKey)
+            }
 
-            const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
+            this.vault = new Vault(param);
 
             try {
+
                 let acc;
-                try {
-
-                    acc = await this.vault.getAccounts(decKey);
-                } catch (e) {
-                    acc = await this.vault.getAccounts(state.decriptionKey);
-
-                }
+                acc = await this.vault.getAccounts();
 
                 this.wallets = acc.response.filter(acc => acc.isDeleted != true).map(e => { return { address: e.address } }) || [];
 
-            } catch (e) {
+                } catch (e) {
                 this.wallets = [];
             }
 
@@ -158,7 +156,7 @@ class KeylessController {
     }
 
     generateWeb3Object(chainId) {
-        const nodeURI = this.getNodeURI(chainId);
+        const nodeURI = this.getNodeURI(chainId);   
 
         return new Web3(new Web3.providers.HttpProvider(nodeURI));
     }
@@ -226,10 +224,15 @@ class KeylessController {
 
     setGasForTransaction(gasLimit, maxFeePerGas, maxPriorityFee) {
         if (this.activeTransaction) {
+            
             this.activeTransaction.data.gasLimit = gasLimit;
             this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
             this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
+
+            
         }
+
+        
     }
 
     getActiveTransaction() {
@@ -370,25 +373,36 @@ class KeylessController {
     async estimateGas({ to, from, value, data = null }) {
         try {
             if (data && data.length) {
-                let chain = this.keylessInstance.getCurrentChain();
+                const chain = this.keylessInstance.getCurrentChain();
+                const trans = this.activeTransaction;
 
-                const rpcURL = chain.chain.rpcURL;
-
-                const decodedData = await safleHelpers.decodeInput(data, rpcURL, to);
-
-                const decimals = parseInt(decodedData?.decimals);
-
-                let gas;
-
-                try {
-                    const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
-                    const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
-                    gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
-                } catch (e) {
-                    gas = 21000;
+                if (((trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas) || trans.data?.gasPrice) && (trans.data?.gas || trans.data?.gasLimit )) { 
+                    return trans.data.gas || trans.data.gasLimit
                 }
+                else{
 
-                return parseInt(gas);
+                    let chain = this.keylessInstance.getCurrentChain();
+
+                    const rpcURL = chain.chain.rpcURL;
+
+                    const decodedData = await safleHelpers.decodeInput(data, rpcURL, to);
+
+                    const decimals = parseInt(decodedData?.decimals);
+
+                    let gas;
+
+                    try {
+                        const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
+                        const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
+                        gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
+                    } catch (e) {
+                        gas = 21000;
+                    }
+
+                    return parseInt(gas);
+
+                }
+                
             }
 
             try {
@@ -406,85 +420,194 @@ class KeylessController {
     async estimateFees() {
         let activeChain = await this.keylessInstance.getCurrentChain();
 
-        const eth_node = blockchainInfo[activeChain.chainId].rpcURL;
-
         try {
-            let response;
+        let response;
+        let url = "";
+        let resp;
 
-            if (eth_node.indexOf('polygon') != -1) {
-                const url = config.gasFeeApiPolygon;
+        switch (activeChain.chain.chainId) {
+            // polygon mainnet and mumbai testnet 
+            case 137: 
+            case 80001:     
+            url = config.gasFeeApiPolygon;
+            
+            resp = await this.getRequest({ url });
 
-                let resp = await this.getRequest({ url });
+            if (!resp) {
+                const backup = await this.getRequest({ url: config.backupGasFeeApiPolygon });
 
-                if (!resp) {
-                    const backup = await this.getRequest({ url: config.backupGasFeeApiPolygon });
-
-                    resp = {
-                        fastest: parseFloat(backup.result.FastGasPrice),
-                        standard: parseFloat(backup.result.ProposeGasPrice),
-                        safeLow: parseFloat(backup.result.SafeGasPrice)
-                    }
-                }
-
-                response = {
-                    estimatedBaseFee: 0,
-                    high: {
-                        maxWaitTimeEstimate: 10 * 1000,
-                        minWaitTimeEstimate: 5 * 1000,
-                        suggestedMaxFeePerGas: resp.fastest,
-                        suggestedMaxPriorityFeePerGas: resp.fastest
-
-                    },
-                    medium: {
-                        maxWaitTimeEstimate: 30 * 1000,
-                        minWaitTimeEstimate: 10 * 1000,
-                        suggestedMaxFeePerGas: resp.standard,
-                        suggestedMaxPriorityFeePerGas: resp.standard
-                    },
-                    low: {
-                        maxWaitTimeEstimate: 60 * 1000,
-                        minWaitTimeEstimate: 30 * 1000,
-                        suggestedMaxFeePerGas: resp.safeLow,
-                        suggestedMaxPriorityFeePerGas: resp.safeLow
-                    }
-                };
-            } else {
-                const chainId = activeChain.chainId;
-
-                const url = config.gasFeeApiEth.replace('#{chainid}', chainId);
-
-                response = await this.getRequest({ url });
-
-                if (!response) {
-                    const backup = await this.getRequest({ url: config.backupGasFeeApiEth });
-
-                    response = {
-                        "low": {
-                            suggestedMaxPriorityFeePerGas: parseFloat(backup.result.SafeGasPrice),
-                            suggestedMaxFeePerGas: parseFloat(backup.result.SafeGasPrice),
-                            minWaitTimeEstimate: 15000,
-                            maxWaitTimeEstimate: 30000
-                        },
-                        "medium": {
-                            suggestedMaxPriorityFeePerGas: parseFloat(backup.result.ProposeGasPrice),
-                            suggestedMaxFeePerGas: parseFloat(backup.result.ProposeGasPrice),
-                            minWaitTimeEstimate: 15000,
-                            maxWaitTimeEstimate: 45000
-                        },
-                        "high": {
-                            suggestedMaxPriorityFeePerGas: parseFloat(backup.result.FastGasPrice),
-                            suggestedMaxFeePerGas: parseFloat(backup.result.FastGasPrice),
-                            minWaitTimeEstimate: 15000,
-                            maxWaitTimeEstimate: 60000
-                        },
-                        "estimatedBaseFee": parseFloat(backup.result.suggestBaseFee),
-                    }
-                }
+                resp = {
+                fastest: parseFloat(backup.result.FastGasPrice),
+                standard: parseFloat(backup.result.ProposeGasPrice),
+                safeLow: parseFloat(backup.result.SafeGasPrice)
+                        }
             }
 
-            return response;
+            response = {
+                estimatedBaseFee: 0,
+                high: {
+                maxWaitTimeEstimate: 10 * 1000,
+                minWaitTimeEstimate: 5 * 1000,
+                suggestedMaxFeePerGas: resp.fast.maxFee,
+                suggestedMaxPriorityFeePerGas: resp.fast.maxPriorityFee,
+                },
+                medium: {
+                maxWaitTimeEstimate: 30 * 1000,
+                minWaitTimeEstimate: 10 * 1000,
+                suggestedMaxFeePerGas: resp.standard.maxFee,
+                suggestedMaxPriorityFeePerGas: resp.standard.maxPriorityFee,
+                },
+                low: {
+                maxWaitTimeEstimate: 60 * 1000,
+                minWaitTimeEstimate: 30 * 1000,
+                suggestedMaxFeePerGas: resp.safeLow.maxFee,
+                suggestedMaxPriorityFeePerGas: resp.safeLow.maxPriorityFee,
+                },
+            };
+
+            break;
+            
+            //  ethereum
+            case 1:
+            case 5: 
+
+            const chainId = activeChain.chainId;
+
+            url = config.gasFeeApiEth.replace("#{chainid}", chainId).toString();
+
+            resp = await this.getRequest({ url });
+        
+            if (resp) {
+                response = {
+                low: {
+                    suggestedMaxFeePerGas: parseFloat(
+                    resp?.low?.suggestedMaxFeePerGas
+                    ),
+                    suggestedMaxPriorityFeePerGas: parseFloat(
+                    resp?.low?.suggestedMaxPriorityFeePerGas
+                    ),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 30000,
+                },
+                medium: {
+                    suggestedMaxFeePerGas: parseFloat(
+                    resp?.medium?.suggestedMaxFeePerGas
+                    ),
+                    suggestedMaxPriorityFeePerGas: parseFloat(
+                    resp?.medium?.suggestedMaxPriorityFeePerGas
+                    ),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 45000,
+                },
+                high: {
+                    suggestedMaxFeePerGas: parseFloat(
+                    resp?.high?.suggestedMaxFeePerGas
+                    ),
+                    suggestedMaxPriorityFeePerGas: parseFloat(
+                    resp?.high?.suggestedMaxPriorityFeePerGas
+                    ),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 60000,
+                },
+                // gasLimit: gasEstimate,
+                estimatedBaseFee: parseFloat(resp?.estimatedBaseFee),
+                };
+            } else {
+                const backup = await this.getRequest({ url: config.backupGasFeeApiEth });
+
+                response = {
+                "low": {
+                    suggestedMaxPriorityFeePerGas: parseFloat(backup.result.SafeGasPrice),
+                    suggestedMaxFeePerGas: parseFloat(backup.result.SafeGasPrice),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 30000
+                },
+                "medium": {
+                    suggestedMaxPriorityFeePerGas: parseFloat(backup.result.ProposeGasPrice),
+                    suggestedMaxFeePerGas: parseFloat(backup.result.ProposeGasPrice),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 45000
+                },
+                "high": {
+                    suggestedMaxPriorityFeePerGas: parseFloat(backup.result.FastGasPrice),
+                    suggestedMaxFeePerGas: parseFloat(backup.result.FastGasPrice),
+                    minWaitTimeEstimate: 15000,
+                    maxWaitTimeEstimate: 60000
+                },
+                "estimatedBaseFee": parseFloat(backup.result.suggestBaseFee),
+                };
+            }
+
+            break;
+
+            case 56:  // BSC
+            case 97:
+            case 10: // optimism
+            case 420: 
+            case 42161: //Arbitrum
+            case 421613:
+            case 5000: // Mantle
+            case 5001:
+            case 106: //Velas
+            case 111:
+            // default:
+            const gasPrice = await this.web3.eth.getGasPrice();
+
+            response = {
+                low: {
+                suggestedMaxFeePerGas: this.web3.utils.fromWei(
+                    parseInt(gasPrice).toString(),
+                    "gwei"
+                ),
+                suggestedMaxPriorityFeePerGas: this.web3.utils.fromWei(
+                    parseInt(gasPrice).toString(),
+                    "gwei"
+                ),
+                minWaitTimeEstimate: 15000,
+                maxWaitTimeEstimate: 30000,
+                },
+                medium: {
+                suggestedMaxFeePerGas: this.web3.utils.fromWei(
+                    parseInt(
+                    parseFloat(gasPrice) + parseFloat(0.05 * parseFloat(gasPrice))
+                    ).toString(),
+                    "gwei"
+                ),
+                suggestedMaxPriorityFeePerGas: this.web3.utils.fromWei(
+                    parseInt(
+                    parseFloat(gasPrice) + parseFloat(0.05 * parseFloat(gasPrice))
+                    ).toString(),
+                    "gwei"
+                ),
+                minWaitTimeEstimate: 15000,
+                maxWaitTimeEstimate: 45000,
+                },
+                high: {
+                suggestedMaxFeePerGas: this.web3.utils.fromWei(
+                    parseInt(
+                    parseFloat(gasPrice) + parseFloat(0.1 * parseFloat(gasPrice))
+                    ).toString(),
+                    "gwei"
+                ),
+                suggestedMaxPriorityFeePerGas: this.web3.utils.fromWei(
+                    parseInt(
+                    parseFloat(gasPrice) + parseFloat(0.1 * parseFloat(gasPrice))
+                    ).toString(),
+                    "gwei"
+                ),
+                minWaitTimeEstimate: 15000,
+                maxWaitTimeEstimate: 60000,
+                },
+                // gasLimit: gasEstimate,
+                estimatedBaseFee: 0,
+            };
+
+            break;
+        }
+
+        return response;
         } catch (e) {
-            return null;
+                return null;
         }
     }
 
@@ -512,12 +635,13 @@ class KeylessController {
         rawTx.to = rawTx.to.substr(0, 2) + rawTx.to.substr(-40).toLowerCase();
 
         const state = Storage.getState();
-        const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
+        const decKey = Object.values(state.decriptionKey);
 
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
         try {
             const signedTx = await this._signTransaction(rawTx, pin, chain.chainId);
+
 
             const tx = this.web3.eth.sendSignedTransaction(signedTx);
 
@@ -525,6 +649,10 @@ class KeylessController {
                 this.transactionHashes.push(hash);
                 this.keylessInstance._showUI('txnSuccess');
             });
+
+            tx.on('error', (err) => {
+                
+            })
 
             const sub = tx.once('receipt', (err, txnReceipt) => {
                 this._lastReceipt = txnReceipt;
@@ -602,11 +730,9 @@ class KeylessController {
                 const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(state.vault, parseInt(pin), decKey);
 
-                await this.vault.getAccounts(decKey);
-
                 const addr = rawTx.from.substr(0, 2) + rawTx.from.substr(-40).toLowerCase();
 
-                const privateKey = (await this.vault.exportPrivateKey(addr, parseInt(pin))).response;
+                const {privateKey, isImported }= (await this.vault.exportPrivateKey(addr, parseInt(pin))).response;
 
                 const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
 
@@ -623,8 +749,11 @@ class KeylessController {
                 return signedTx;
                 break;
 
-            default:
-                const dstate = Storage.getState();
+        default:
+            chainName = blockchainInfo[chainId].chain_name;
+            
+            this.vault.changeNetwork(chainName);
+            const dstate = Storage.getState();
 
                 const ddecKey = dstate.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
                 await this.vault.restoreKeyringState(dstate.vault, parseInt(pin), ddecKey);
@@ -637,11 +766,33 @@ class KeylessController {
     }
 
     async _createRawTransaction(trans) {
+
         const chain = this.keylessInstance.getCurrentChain();
 
         const count = await this.web3.eth.getTransactionCount(trans.data.from);
 
         let config = {};
+        
+
+        //if gas price or max priority
+        if (trans.data?.gasPrice) {    
+            config = {
+                to: trans.data.to,
+                from: trans.data.from,
+                value: trans.data.value.indexOf("0x") != -1 
+                    ? trans.data.value
+                    : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                gasPrice: Number(trans.data.gasPrice),
+                gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                nonce: count,
+                chainId: chain.chainId,
+                };
+
+            return config;
+
+        
+        }
+
 
         switch (blockchainInfo[chain.chainId].chain_name) {
             case 'ethereum':
@@ -683,16 +834,41 @@ class KeylessController {
                 }
                 break;
 
-            case 'mumbai':
-                config = {
+            case "mumbai":
+            case "bsc":
+            case "optimism":
+            case "arbitrum":
+            case "mantle":
+            case "velas":
+
+            const gasEstimate = await this.estimateGas({
                     to: trans.data.to,
                     from: trans.data.from,
-                    value: trans.data.value.indexOf('0x') != -1 ? trans.data.value : this.web3.utils.toWei(trans.data.value.toString(), 'ether'),
-                    gasLimit: this.web3.utils.numberToHex(40000),
-                    gasPrice: this.web3.utils.toHex(this.web3.utils.toWei(parseFloat(trans.data.maxFeePerGas).toFixed(2).toString(), 'gwei')),
-                    nonce: count,
-                    chainId: chain.chainId
-                }
+                    value: this.web3.utils.numberToHex(
+                    this.web3.utils.toWei(
+                        parseFloat(isNaN(trans.data.value) ? 0 : trans.data.value).toString(),
+                        "ether"
+                    )
+                    ),
+                })
+
+            config = {
+                to: trans.data.to,
+                from: trans.data.from,
+                
+                value: trans.data.value.indexOf("0x") != -1 
+                    ? trans.data.value
+                    : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                gasPrice: this.web3.utils.toHex(
+                    this.web3.utils.toWei(
+                        parseFloat(trans.data.maxFeePerGas).toFixed(9).toString(),
+                        "gwei" 
+                    )
+                    ),
+                gasLimit: gasEstimate,
+                nonce: count,
+                chainId: chain.chainId,
+                };
 
                 break;
         }
@@ -719,8 +895,6 @@ class KeylessController {
                 const decKey = state.decriptionKey.reduce((acc, el, idx) => { acc.push(el); return acc; }, []);
 
                 await this.vault.restoreKeyringState(state.vault, pin, decKey);
-
-                await this.vault.exportPrivateKey(this.activeSignRequest.address.toString(), parseInt(pin));
 
                 const trans = await this.vault.sign(this.activeSignRequest.data, this.activeSignRequest.address.toString(), parseInt(pin), rpcUrl);
 
@@ -798,9 +972,9 @@ class KeylessController {
 
     _setBlockchainRPC(config) {
         for (var i in blockchainInfo) {
-            const curr = config.find(e => e.chainId == i);
+            const curr = config.find((e) => e.chainId == i);
 
-            if (curr) {
+            if (curr?.rpcURL) {
                 blockchainInfo[i].rpcURL = curr.rpcURL;
             }
         }
@@ -863,7 +1037,11 @@ class KeylessController {
             return 'https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png';
         }
 
-        const addr = token.tokenAddress.toLowerCase();
+        if (token == "bnb") {
+            return "https://assets.coingecko.com/coins/images/13804/large/Binnace.png";
+        }
+
+        const addr = token.tokenAddress?.toLowerCase();
 
         const chain = blockchainInfo[this.keylessInstance.getCurrentChain()?.chainId].chain_name;
 

@@ -68,6 +68,7 @@ module.exports = [
         path: require.resolve( "path-browserify" ),
         stream: require.resolve( "stream-browserify" ),
         crypto: require.resolve( "crypto-browserify" ),
+        zlib: require.resolve("browserify-zlib")
       }
     }
   },
@@ -133,6 +134,7 @@ module.exports = [
         path: require.resolve( "path-browserify" ),
         stream: require.resolve( "stream-browserify" ),
         crypto: require.resolve( "crypto-browserify" ),
+        zlib: require.resolve("browserify-zlib")
       }
     }
   },

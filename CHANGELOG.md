@@ -59,3 +59,11 @@
 ### 1.2.0 (2023-07-03)
 
 * env variable made dynamic to v1.2.0
+
+### 1.3.0 (2023-09-15)
+
+* Vault version upgraded to v1.30.4
+* Keyless controller updated according to upgraded vault version
+* webpack config update
+* EVM chains integrated - BSC, Optimism, Arbitrum, Mantle, Velas
+* Update keyless to accept complete raw transaction having gas price and gas limit from dapp

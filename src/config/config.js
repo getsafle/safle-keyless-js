@@ -2,7 +2,8 @@ const config = {
     networks: 'https://chain-data-safle.netlify.app/chains.json',
     assets: 'https://chain-data-safle.netlify.app/assets.json',
     gasFeeApiEth: 'https://gas-api.metaswap.codefi.network/networks/#{chainid}/suggestedGasFees',
-    gasFeeApiPolygon: `https://gasstation-mainnet.matic.network/`,
+    // gasFeeApiPolygon: `https://gasstation-mainnet.matic.network/`,
+    gasFeeApiPolygon: `https://gasstation.polygon.technology/v2/`,
     backupGasFeeApiEth: 'https://api.etherscan.io/api?module=gastracker&action=gasoracle',
     backupGasFeeApiPolygon: 'https://api.polygonscan.com/api?module=gastracker&action=gasoracle',
 

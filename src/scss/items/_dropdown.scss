@@ -138,6 +138,8 @@
                 text-transform:uppercase;
             }
             &--1 {
+                height: 200px;
+                overflow: scroll;
                 position: absolute;
                 width: 324px;
                 div {
