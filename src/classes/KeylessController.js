@@ -229,16 +229,6 @@ class KeylessController {
             this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
             this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
 
-            // if (maxPriorityFee) {
-            //     this.activeTransaction.data.gasLimit = gasLimit;
-            //     this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
-            //     this.activeTransaction.data.maxPriorityFeePerGas = maxPriorityFee;
-            // }
-            // else {
-            //     this.activeTransaction.data.gasLimit = gasLimit;
-            //     // this.activeTransaction.data.gasPrice = maxFeePerGas;
-            //     this.activeTransaction.data.maxFeePerGas = maxFeePerGas;
-            // }
             
         }
 
