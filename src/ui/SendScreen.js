@@ -47,6 +47,7 @@ class SendScreen extends UIScreen {
     decodedData = null;
 
     onShow(env) {
+        
         this.setProceedActive(false);
         this.el.querySelector('.close').addEventListener('click', () => {
             clearInterval(this.feeTm);
@@ -145,7 +146,7 @@ class SendScreen extends UIScreen {
             e.preventDefault();
 
             this.calculateCustomFee();
-            this.populateGasEstimate(env);
+            this.populateGasEstimate(env, 1);
 
 
             edit_popup.classList.add('closed');
@@ -199,7 +200,19 @@ class SendScreen extends UIScreen {
             } else {
                 const trans = this.keyless.kctrl.getActiveTransaction();
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
-                this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
+                
+                if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
+
+          
+                }
+                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
+
+                  
+                }
+                else{
+                    this.keyless.kctrl.setGasForTransaction(gas, chosenGas.suggestedMaxFeePerGas, chosenGas.suggestedMaxPriorityFeePerGas);
+                }
+                
             }
             this.keyless._showUI('pin');
 
@@ -295,14 +308,14 @@ class SendScreen extends UIScreen {
 
 
         this.populateData(env);
-        this.populateGasEstimate(env);
+        this.populateGasEstimate(env, 2);
         clearInterval(this.feeTm);
         this.addFeeInterval(env);
     }
 
     addFeeInterval(env) {
         if (this.chosenFee != 'custom') {
-            this.feeTm = setInterval(() => this.populateGasEstimate(env), 30000);
+            this.feeTm = setInterval(() => this.populateGasEstimate(env, 3), 30000);
         }
     }
 
@@ -344,8 +357,14 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate(env) {
+    async populateGasEstimate(env, i) {
+
+        
+
+        
         const trans = this.keyless.kctrl.getActiveTransaction();
+
+        
 
         if (this.chosenFee == 'custom') {
             this.el.querySelector('.transaction__checkout__time').innerHTML = 'Unknown Sec';
@@ -371,18 +390,67 @@ class SendScreen extends UIScreen {
             this.setFeesLoading(true);
 
             this.gasFees = await this.keyless.kctrl.estimateFees();
+            
             const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans.data.data});
 
-            if (this.gasFees) {
+            let fee;
+            let maxFeePerGas;
+
+            if (this.gasFees) {  //gwei
                 const chosenGas = this.gasFees[this.chosenFee] || this.gasFees.medium;
                 this.likeTime = this.getTimeEstimate(this.chosenFee);
                 this.el.querySelector('.transaction__checkout__time').innerHTML = this.likeTime;
 
-                const fee = (parseInt(this.gasFees.estimatedBaseFee) + parseInt(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                
+
+                if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
+                    // 
+                    
+                    
+
+                    fee = (parseInt((trans.data.gasPrice), 16) * (parseFloat(trans.data?.gasLimit || trans.data?.gas), 16));  // convert into gwei
+                    fee = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(fee).toString(),
+                        "gwei"
+                    )
+                    
+                    maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt((trans.data.gasPrice), 16).toString(),
+                        "gwei"
+                    )
+
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(maxFeePerGas);
+
+
+                }
+                else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas) {
+                    
+                    let maxPriorityFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxPriorityFeePerGas).toString(),
+                        "gwei"
+                    ) 
+
+                    maxFeePerGas = this.keyless.kctrl.web3.utils.fromWei(
+                        parseInt(trans.data.maxFeePerGas).toString(),
+                        "gwei"
+                    ) 
+
+                    fee = (this.gasFees.estimatedBaseFee + maxPriorityFeePerGas) * (trans.data?.gasLimit || gas)
+
+
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(maxFeePerGas));
+
+                }
+                else{
+                    fee = (parseFloat(this.gasFees.estimatedBaseFee) + parseFloat(chosenGas.suggestedMaxPriorityFeePerGas)) * gas;
+                    maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseFloat(chosenGas.suggestedMaxFeePerGas));
+ 
+                }
+                
                 this.feeETH = this.keyless.kctrl.getFeeInEth(fee);
                 this.feeUSD = await this.keyless.kctrl.getBalanceInUSD(this.feeETH);
-                const maxFeePerGas = this.keyless.kctrl.getFeeInEth(parseInt(chosenGas.suggestedMaxFeePerGas));
 
+                
                 this.el.querySelector('.transaction__checkout__input h3')
                     .innerHTML = this.feeETH + ' ' + this.nativeTokenName +
                     '<span> $' + this.feeUSD + '</span>';
@@ -434,6 +502,8 @@ class SendScreen extends UIScreen {
     }
 
     async populateAddresses(trans) {
+
+        
         const activeTrans = trans;
         const fromAddress = this.keyless.kctrl.getAccounts().address;
         const fromCont = this.el.querySelector('.transaction__account .transaction__account__address h3');
@@ -447,10 +517,12 @@ class SendScreen extends UIScreen {
         let decodedData = {};
         if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
+            
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
             this.tokenValue = decodedData.value;
             this.isToken = true;
+            
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
@@ -491,6 +563,7 @@ class SendScreen extends UIScreen {
     }
 
     async populateAmount(trans,env) {
+        
         const amt = trans.data?.value || 0;
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
