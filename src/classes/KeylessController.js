@@ -208,8 +208,6 @@ class KeylessController {
             data: trans,
         };
 
-        console.log("this.activeTransaction in send Trans =", this.activeTransaction);
-
         this.activeTransaction.promise = new Promise((res, rej) => {
             if (this._isMobileVault) {
                 this.keylessInstance._showUI('scanQR');
@@ -641,8 +639,6 @@ class KeylessController {
 
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
-        console.log("final raw transaction = ", rawTx);
-
         try {
             const signedTx = await this._signTransaction(rawTx, pin, chain.chainId);
 
@@ -777,7 +773,6 @@ class KeylessController {
 
         let config = {};
 
-        console.log("in _createRawTransaction, ");
         
 
         //if gas price or max priority

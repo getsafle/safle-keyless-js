@@ -146,7 +146,7 @@ class SendScreen extends UIScreen {
             e.preventDefault();
 
             this.calculateCustomFee();
-            this.populateGasEstimate(env, 1);
+            this.populateGasEstimate(env);
 
 
             edit_popup.classList.add('closed');
@@ -202,12 +202,10 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
                 
                 if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
-                    console.log("in type 1");
           
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
 
-                    console.log("in type 2");
                   
                 }
                 else{
@@ -307,16 +305,15 @@ class SendScreen extends UIScreen {
             });
         });
 
-        /////////// all 4
         this.populateData(env);
-        this.populateGasEstimate(env, 2);
+        this.populateGasEstimate(env);
         clearInterval(this.feeTm);
         this.addFeeInterval(env);
     }
 
     addFeeInterval(env) {
         if (this.chosenFee != 'custom') {
-            this.feeTm = setInterval(() => this.populateGasEstimate(env, 3), 30000);
+            this.feeTm = setInterval(() => this.populateGasEstimate(env), 30000);
         }
     }
 
@@ -358,7 +355,7 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate(env, i) {
+    async populateGasEstimate(env) {
 
         
 
@@ -521,8 +518,6 @@ class SendScreen extends UIScreen {
             
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to, chain);
-
-            console.log("decodedData = ", decodedData);
 
             this.tokenValue = decodedData.value;
             this.isToken = true;
