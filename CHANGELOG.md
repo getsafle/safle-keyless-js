@@ -67,3 +67,7 @@
 * webpack config update
 * EVM chains integrated - BSC, Optimism, Arbitrum, Mantle, Velas
 * Update keyless to accept complete raw transaction having gas price and gas limit from dapp
+
+### 1.3.0 (2023-09-27)
+
+* Update keyless to accept complete raw transaction having data from dapp
