@@ -180,13 +180,16 @@ export const decryptEncryptionKey = (safleID, password, encryptedEncryptionKey, 
 
 
 
-export async function decodeInput(input, rpcUrl, contractAddress) {
+export async function decodeInput(input, rpcUrl, contractAddress, chain) {
+
+    console.log("in decodeInput, chain = ", chain);
     abiDecoder.addABI(erc20ABI);
 
     const functionName = await extractFunctionName(input);
 
     const decodedData = abiDecoder.decodeMethod(input);
-    const chain = rpcUrl.indexOf('polygon') != -1 ? 'polygon' : 'ethereum';
+
+    // const chain = rpcUrl.indexOf('polygon') != -1 ? 'polygon' : 'ethereum';
     
     const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
 

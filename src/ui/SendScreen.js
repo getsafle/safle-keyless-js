@@ -202,11 +202,12 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
                 
                 if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
-
+                    console.log("in type 1");
           
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
 
+                    console.log("in type 2");
                   
                 }
                 else{
@@ -306,7 +307,7 @@ class SendScreen extends UIScreen {
             });
         });
 
-
+        /////////// all 4
         this.populateData(env);
         this.populateGasEstimate(env, 2);
         clearInterval(this.feeTm);
@@ -519,7 +520,10 @@ class SendScreen extends UIScreen {
             let chain = this.keyless.getCurrentChain();
             
             const rpcURL = chain.chain.rpcURL;
-            decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
+            decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to, chain);
+
+            console.log("decodedData = ", decodedData);
+
             this.tokenValue = decodedData.value;
             this.isToken = true;
             

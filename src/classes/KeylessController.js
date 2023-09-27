@@ -208,6 +208,8 @@ class KeylessController {
             data: trans,
         };
 
+        console.log("this.activeTransaction in send Trans =", this.activeTransaction);
+
         this.activeTransaction.promise = new Promise((res, rej) => {
             if (this._isMobileVault) {
                 this.keylessInstance._showUI('scanQR');
@@ -385,7 +387,7 @@ class KeylessController {
 
                     const rpcURL = chain.chain.rpcURL;
 
-                    const decodedData = await safleHelpers.decodeInput(data, rpcURL, to);
+                    const decodedData = await safleHelpers.decodeInput(data, rpcURL, to, chain);
 
                     const decimals = parseInt(decodedData?.decimals);
 
@@ -639,6 +641,8 @@ class KeylessController {
 
         this.vault.restoreKeyringState(state.vault, pin, decKey);
 
+        console.log("final raw transaction = ", rawTx);
+
         try {
             const signedTx = await this._signTransaction(rawTx, pin, chain.chainId);
 
@@ -772,25 +776,76 @@ class KeylessController {
         const count = await this.web3.eth.getTransactionCount(trans.data.from);
 
         let config = {};
+
+        console.log("in _createRawTransaction, ");
         
 
         //if gas price or max priority
-        if (trans.data?.gasPrice) {    
-            config = {
-                to: trans.data.to,
-                from: trans.data.from,
-                value: trans.data.value.indexOf("0x") != -1 
-                    ? trans.data.value
-                    : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
-                gasPrice: Number(trans.data.gasPrice),
-                gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
-                nonce: count,
-                chainId: chain.chainId,
-                };
-
+        if (trans.data?.gasPrice) { 
+            if (trans.data?.data) {
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value.indexOf("0x") != -1 
+                        ? trans.data.value
+                        : this.web3.utils.toWei(trans.data.value.toString(), "ether"), 
+                    data: trans.data.data,                   
+                    gasPrice: Number(trans.data.gasPrice),
+                    gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                    nonce: count,
+                    chainId: chain.chainId,
+                    };
+            } else{
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value.indexOf("0x") != -1 
+                        ? trans.data.value
+                        : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                    gasPrice: Number(trans.data.gasPrice),
+                    gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                    nonce: count,
+                    chainId: chain.chainId,
+                    };
+            }   
+            
             return config;
 
-        
+        }
+        else if (trans.data.maxFeePerGas && trans.data.maxPriorityFeePerGas) {
+            if (trans.data?.data)
+            {
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value.indexOf("0x") != -1 
+                        ? trans.data.value
+                        : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                    data: trans.data.data,
+                    maxFeePerGas: trans.data.maxFeePerGas,
+                    maxPriorityFeePerGas: trans.data.maxPriorityFeePerGas,
+                    gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                    nonce: count,
+                    chainId: chain.chainId,
+                    };
+            } else{
+                config = {
+                    to: trans.data.to,
+                    from: trans.data.from,
+                    value: trans.data.value.indexOf("0x") != -1 
+                        ? trans.data.value
+                        : this.web3.utils.toWei(trans.data.value.toString(), "ether"),                    
+                    // gasPrice: Number(trans.data.gasPrice),
+                    maxFeePerGas: trans.data.maxFeePerGas,
+                    maxPriorityFeePerGas: trans.data.maxPriorityFeePerGas,
+                    gasLimit: Number(trans.data.gas) || Number(trans.data.gasLimit),
+                    nonce: count,
+                    chainId: chain.chainId,
+                    };
+            }
+            
+
+            return config;
         }
 
 

@@ -79,6 +79,7 @@ class PinScreen extends UIScreen {
                 this.showError( 'PIN is invalid');
             } else {
                 if( this.keyless.kctrl.activeTransaction ){
+                    console.log("in pin screen, active transaction = ", this.keyless.kctrl.activeTransaction);
                     const txReceipt = await this.keyless.kctrl._createAndSendTransaction( parseInt( pin ) );
                 } else if( this.keyless.kctrl.activeSignRequest ){
                     const encMsg = await this.keyless.kctrl._signMessage( parseInt( pin ) );
