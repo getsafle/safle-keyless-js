@@ -519,12 +519,14 @@ class SendScreen extends UIScreen {
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to, chain);
 
-            this.tokenValue = decodedData.value;
-            this.isToken = true;
+            this.tokenValue = decodedData?.value;
+            this.isToken = decodedData ? true : false;
             
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
+
+        toAddress = toAddress ? toAddress : activeTrans.data.to;
 
         const tokenName = this.isToken ? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken ? this.keyless.kctrl.getTokenIcon({ tokenAddress: activeTrans.data.to }) : this.keyless.kctrl.getTokenIcon(nativeToken);

@@ -188,8 +188,40 @@ export async function decodeInput(input, rpcUrl, contractAddress, chain) {
     const decodedData = abiDecoder.decodeMethod(input);
 
     // const chain = rpcUrl.indexOf('polygon') != -1 ? 'polygon' : 'ethereum';
+    let chainName
+    switch (chain.chainId) {
+        case 1:
+        case 5: chainName = 'ethereum' 
+        break;
+
+        case 137:
+        case 80001: chainName = 'polygon'
+        break;
+
+        case 56: 
+        case 97: chainName = 'bsc'
+        break;
+
+        case 10:
+        case 420:  chainName = 'optimism'
+        break;
+
+        case 42161:
+        case 421613: chainName = 'arbitrum'
+        break;
+
+        case 5000: 
+        case 5001: chainName = 'mantle'
+        break;
+        
+        case 106:
+        case 111: chainName = 'velas'
+        break;
+    }
+
+    console.log("chainName = ", chainName);
     
-    const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chain });
+    const tokenController = new TokenController.CustomTokenController({ rpcURL: rpcUrl, chain: chainName });
 
     const tokenDetails = await tokenController.getTokenDetails(contractAddress);
 
