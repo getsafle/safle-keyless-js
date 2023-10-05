@@ -15,6 +15,7 @@ import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/help
 import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
 import blockchainInfo from '../helpers/blockchains';
+import Web3 from 'web3';
 
 const debounce = (fn, delay) => {
     let tm = false;
@@ -572,7 +573,7 @@ class SendScreen extends UIScreen {
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
             this.amt = this.tokenValue;
-            this.el.querySelector('.transaction__send .transaction_amount').value = (this.amt).toFixed(parseInt(this.decodedData.decimals));
+            this.el.querySelector('.transaction__send .transaction_amount').value = (this.amt).toFixed(parseInt(this.decodedData.decimals)).replace(/\.?0+$/, "");
 
             if (parseFloat(this.tokenBalance) < (parseFloat(this.amt) || parseFloat(this.balance) < parseInt(this.feeETH))) {
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
@@ -587,8 +588,10 @@ class SendScreen extends UIScreen {
             this.el.querySelector('.transaction__send .transaction__send__flex').style.overflow = "hidden"
             this.el.querySelector('.transaction__send .transaction_amount').style.display = "none"
             this.el.querySelector('.transaction__send #send_name').innerHTML = 'Contract execution';
-            this.el.querySelector('.transaction__send .balance-usd').innerHTML = `${trans.data.data}`;
+            let val = Web3.utils.fromWei((Web3.utils.hexToNumber(trans.data.value.toString())).toString(), "ether")
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = `${val}`;
             this.el.querySelector('#send_icon').src = tokenIcon;
+            this.el.querySelector('.transaction__send').classList.remove('low-balance');
         }  else {
             this.amt = amtSend;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
