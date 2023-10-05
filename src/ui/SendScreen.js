@@ -43,6 +43,7 @@ class SendScreen extends UIScreen {
     feeTm = false;
     tokenIcon = '';
     isToken = false;
+    isContract = false
     tokenValue = 0;
     decodedData = null;
 
@@ -516,6 +517,8 @@ class SendScreen extends UIScreen {
         if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
             
+            this.isContract = true
+
             const rpcURL = chain.chain.rpcURL;
             decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to, chain);
 
@@ -579,7 +582,14 @@ class SendScreen extends UIScreen {
 
             this.amountUSD = formatMoney(await this.keyless.kctrl.getTokenBalanceInUSD(this.amt, this.decodedData.tokenSymbol,env));
             this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$' + this.amountUSD;
-        } else {
+        } else if(this.isContract) {
+            this.el.querySelector('.transaction__send .transaction__send__flex').style.paddingTop = "10px"
+            this.el.querySelector('.transaction__send .transaction__send__flex').style.overflow = "hidden"
+            this.el.querySelector('.transaction__send .transaction_amount').style.display = "none"
+            this.el.querySelector('.transaction__send #send_name').innerHTML = 'Contract execution';
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = `${trans.data.data}`;
+            this.el.querySelector('#send_icon').src = tokenIcon;
+        }  else {
             this.amt = amtSend;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
             if (parseFloat(this.balance) < (parseFloat(this.amt) + parseInt(this.feeETH))) {
