@@ -15,6 +15,7 @@ import { middleEllipsisMax, formatXDecimals, formatMoney } from '../helpers/help
 import { decodeInput } from '../helpers/safleHelpers';
 import txEstimates from '../helpers/txEstimates';
 import blockchainInfo from '../helpers/blockchains';
+import Web3 from 'web3';
 
 const debounce = (fn, delay) => {
     let tm = false;
@@ -43,6 +44,7 @@ class SendScreen extends UIScreen {
     feeTm = false;
     tokenIcon = '';
     isToken = false;
+    isContract = false
     tokenValue = 0;
     decodedData = null;
 
@@ -146,7 +148,7 @@ class SendScreen extends UIScreen {
             e.preventDefault();
 
             this.calculateCustomFee();
-            this.populateGasEstimate(env, 1);
+            this.populateGasEstimate(env);
 
 
             edit_popup.classList.add('closed');
@@ -202,7 +204,6 @@ class SendScreen extends UIScreen {
                 const gas = await this.keyless.kctrl.estimateGas({to: trans.data.to, from: trans.data.from, value: trans.data.value, data: trans?.data.data});
                 
                 if (trans.data?.gasPrice && (trans.data?.gas || trans.data?.gasLimit)) {
-
           
                 }
                 else if (trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas && trans.data?.gasLimit) {
@@ -306,16 +307,15 @@ class SendScreen extends UIScreen {
             });
         });
 
-
         this.populateData(env);
-        this.populateGasEstimate(env, 2);
+        this.populateGasEstimate(env);
         clearInterval(this.feeTm);
         this.addFeeInterval(env);
     }
 
     addFeeInterval(env) {
         if (this.chosenFee != 'custom') {
-            this.feeTm = setInterval(() => this.populateGasEstimate(env, 3), 30000);
+            this.feeTm = setInterval(() => this.populateGasEstimate(env), 30000);
         }
     }
 
@@ -357,7 +357,7 @@ class SendScreen extends UIScreen {
         this.el.querySelector('.transaction__pop-up__div .transaction__checkout__time').innerHTML = likeTime ? likeTime : 'Unkown Sec';
     }
 
-    async populateGasEstimate(env, i) {
+    async populateGasEstimate(env) {
 
         
 
@@ -518,14 +518,19 @@ class SendScreen extends UIScreen {
         if (activeTrans.hasOwnProperty('data') && activeTrans.data.hasOwnProperty('data') && activeTrans.data.data && activeTrans.data.data.length > 0 && activeTrans.data.hasOwnProperty('to')) {
             let chain = this.keyless.getCurrentChain();
             
+            this.isContract = true
+
             const rpcURL = chain.chain.rpcURL;
-            decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to);
-            this.tokenValue = decodedData.value;
-            this.isToken = true;
+            decodedData = await decodeInput(activeTrans.data.data, rpcURL, activeTrans.data.to, chain);
+
+            this.tokenValue = decodedData?.value;
+            this.isToken = decodedData ? true : false;
             
             this.decodedData = decodedData;
             toAddress = decodedData?.recepient;
         }
+
+        toAddress = toAddress ? toAddress : activeTrans.data.to;
 
         const tokenName = this.isToken ? decodedData?.tokenSymbol : nativeToken.toUpperCase();
         const tokenLogo = this.isToken ? this.keyless.kctrl.getTokenIcon({ tokenAddress: activeTrans.data.to }) : this.keyless.kctrl.getTokenIcon(nativeToken);
@@ -568,7 +573,7 @@ class SendScreen extends UIScreen {
         const amtSend = this.keyless.kctrl.web3.utils.fromWei(amt.toString(), 'ether');
         if (this.isToken) {
             this.amt = this.tokenValue;
-            this.el.querySelector('.transaction__send .transaction_amount').value = (this.amt).toFixed(parseInt(this.decodedData.decimals));
+            this.el.querySelector('.transaction__send .transaction_amount').value = (this.amt).toFixed(parseInt(this.decodedData.decimals)).replace(/\.?0+$/, "");
 
             if (parseFloat(this.tokenBalance) < (parseFloat(this.amt) || parseFloat(this.balance) < parseInt(this.feeETH))) {
                 this.el.querySelector('.transaction__send').classList.add('low-balance');
@@ -578,7 +583,16 @@ class SendScreen extends UIScreen {
 
             this.amountUSD = formatMoney(await this.keyless.kctrl.getTokenBalanceInUSD(this.amt, this.decodedData.tokenSymbol,env));
             this.el.querySelector('.transaction__send .balance-usd').innerHTML = '$' + this.amountUSD;
-        } else {
+        } else if(this.isContract) {
+            this.el.querySelector('.transaction__send .transaction__send__flex').style.paddingTop = "10px"
+            this.el.querySelector('.transaction__send .transaction__send__flex').style.overflow = "hidden"
+            this.el.querySelector('.transaction__send .transaction_amount').style.display = "none"
+            this.el.querySelector('.transaction__send #send_name').innerHTML = 'Contract execution';
+            let val = Web3.utils.fromWei((Web3.utils.hexToNumber(trans.data.value.toString())).toString(), "ether")
+            this.el.querySelector('.transaction__send .balance-usd').innerHTML = `${val}`;
+            this.el.querySelector('#send_icon').src = tokenIcon;
+            this.el.querySelector('.transaction__send').classList.remove('low-balance');
+        }  else {
             this.amt = amtSend;
             this.el.querySelector('.transaction__send .transaction_amount').value = this.amt;
             if (parseFloat(this.balance) < (parseFloat(this.amt) + parseInt(this.feeETH))) {
