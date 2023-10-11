@@ -72,3 +72,7 @@
 
 * Update keyless to accept complete raw transaction having data from dapp
 * UI update according to incoming transaction from dapp
+
+### 1.3.2 (2023-10-11)
+
+* update sendscreen to display value of the incoming raw transaction
