@@ -130,11 +130,25 @@
       margin-top: 14px;
       height: 136px;
 
+      &__inner_balance_usd{
+        width: 80%;
+        .balance-usd {
+          color: #d30f0f;
+          text-overflow: ellipsis;
+          width: 100%;
+          overflow: hidden;
+        }
+      }
+      
+
       &.low-balance {
         border-color: #832121;
         .transaction_amount,
         .balance-usd {
           color: #d30f0f;
+          text-overflow: ellipsis;
+          width: 100%;
+          overflow: hidden;
         }
       }
 
@@ -154,7 +168,6 @@
         img {
           width: 38px;
           position: relative;
-          bottom: 6px;
         }
         div {
           margin-left: 10px;

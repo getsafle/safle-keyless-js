@@ -76,3 +76,11 @@
 ### 1.3.2 (2023-10-11)
 
 * update sendscreen to display value of the incoming raw transaction
+
+### 1.4.0 (2023-10-13)
+
+* Gas estimation for contract execution
+* Gas fee estimation for polygon transaction
+* Convert input gas from dapp from wei to gwei, and set gas for building raw transaction
+* Updated blockchain explorer urls
+* For contract calls display data hex of incomming transaction from dapp on send screen
