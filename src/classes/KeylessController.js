@@ -375,11 +375,12 @@ class KeylessController {
             if (data && data.length) {
                 const chain = this.keylessInstance.getCurrentChain();
                 const trans = this.activeTransaction;
+                this.isContract = true;
 
                 if (((trans.data?.maxFeePerGas && trans.data?.maxPriorityFeePerGas) || trans.data?.gasPrice) && (trans.data?.gas || trans.data?.gasLimit )) { 
                     return trans.data.gas || trans.data.gasLimit
                 }
-                else{
+                else {
 
                     let chain = this.keylessInstance.getCurrentChain();
 
@@ -387,20 +388,26 @@ class KeylessController {
 
                     const decodedData = await safleHelpers.decodeInput(data, rpcURL, to, chain);
 
-                    const decimals = parseInt(decodedData?.decimals);
-
+                    this.isToken = decodedData ? true : false;
                     let gas;
 
-                    try {
-                        const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
-                        const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
-                        gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
-                    } catch (e) {
-                        gas = 21000;
+                    if (this.isToken) {
+                        const decimals = parseInt(decodedData?.decimals);
+                        try {
+                            const contractInstance = new this.web3.eth.Contract(erc20ABI, to);
+                            const tokenValue = decodedData.value * Math.pow(10, decimals ? decimals : 0);
+                            gas = await contractInstance.methods.transfer(decodedData.recepient, tokenValue.toString()).estimateGas({ from });
+                        } catch (e) {
+                            gas = 21000;
+                        }
+
+                        return parseInt(gas);
                     }
+                    else if (this.isContract) {
+                        gas = await this.web3.eth.estimateGas({ to, from, value, data})
 
-                    return parseInt(gas);
-
+                        return parseInt(gas);
+                    }
                 }
                 
             }
