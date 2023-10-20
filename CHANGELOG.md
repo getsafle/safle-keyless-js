@@ -61,3 +61,7 @@
 * Added keyless function for user management.
 
 * Added event listeners to manage live connection between dApp and keyless widget
+
+### 2.0.0 (2023-10-20)
+
+* Merged migration upgrade into main branch for widget integration 
