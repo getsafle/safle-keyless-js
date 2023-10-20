@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "ethereumjs-util": "7.1.5",
+    "ethereumjs-util": "5.2.0",
     "penpal": "6.2.2",
     "web3-provider-engine": "16.0.1"
   },

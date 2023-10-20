@@ -1,4 +1,5 @@
 import { Query } from './query';
+import * as ethereumjsUtil from 'ethereumjs-util';
 
 const { addHexPrefix, stripHexPrefix, BN } = require('ethereumjs-util');
 const SIMPLE_GAS_COST = '0x5208'; // Hex for 21000, cost of a simple send.
