@@ -102,14 +102,6 @@ export default class WidgetManager {
               }
 
             }
-            // if (res.sucess && this.iframe) {
-            //   console.log("inside if");
-            //   if (
-            //     res.message !== "getAccounts is called and found addresses" ||
-            //     (res.loginSuccess && res.isFirstLogin)
-            //   )
-            //     this.iframe.style.display = "none";
-            // }
             if (res.loginSuccess && res.isFirstLogin) {
               this._onLogin(res.data[0], `${Number(res.currentChain.chainId)}`);
             }
