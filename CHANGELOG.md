@@ -65,3 +65,7 @@
 ### 2.0.0 (2023-10-20)
 
 * Merged migration upgrade into main branch for widget integration 
+
+### 2.0.1 (2023-10-26)
+
+* Close widget on cross icon click and UI fixes.
