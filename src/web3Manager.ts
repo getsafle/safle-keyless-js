@@ -202,7 +202,7 @@ export default class Web3Manager {
               cb(error, result.resp.addresses);
             } else {
               error = result.error;
-              cb(error, result.resp.addresses);
+              cb(error, result.error?.message);
             }
           });
         },
@@ -217,10 +217,10 @@ export default class Web3Manager {
             let error: any = null;
             if (result.success) {
               this._signature = result.resp.sign_resp;
-              cb(error, result.resp.sign_resp);
+              cb(error, result.resp?.sign_resp);
             } else {
               error = result.error;
-              cb(error, result.resp.sign_resp);
+              cb(error, result.error?.message);
             }
           });
         },
