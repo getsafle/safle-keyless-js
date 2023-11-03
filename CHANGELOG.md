@@ -69,3 +69,9 @@
 ### 2.0.1 (2023-10-26)
 
 * Close widget on cross icon click and UI fixes.
+
+### 2.0.2 (2023-11-03)
+
+* Goto dashboard on successful transaction.
+
+* Handle widget closing on transaction complete

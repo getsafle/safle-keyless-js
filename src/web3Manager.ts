@@ -212,12 +212,12 @@ export default class Web3Manager {
           console.log("signMessageHooked", widgetCommunication);
           const params = { ...msgParams, messageStandard: "signMessage" };
           widgetCommunication.signData(params).then((result: any) => {
-            this._sendHideWidget();
             console.log(result);
             let error: any = null;
             if (result.success) {
               this._signature = result.resp.sign_resp;
-              cb(error, result.resp?.sign_resp);
+            // this._sendHideWidget();
+            cb(error, result.resp?.sign_resp);
             } else {
               error = result.error;
               cb(error, result.error?.message);
@@ -235,12 +235,12 @@ export default class Web3Manager {
           widgetCommunication
             .processTransaction(msgParams)
             .then((result: any) => {
-              this._sendHideWidget();
               console.log(result);
               let error: any = null;
               if (result.success) {
                 //this._signature = result.resp.sign_resp;
-                cb(error, result.resp);
+              // this._sendHideWidget();
+              cb(error, result.resp);
               } else {
                 error = result.error;
                 cb(error, result.resp);
@@ -254,9 +254,9 @@ export default class Web3Manager {
             txParams
           );
           cb(error, result);
-          setTimeout(() => {
-            this._sendHideWidget();
-          }, 5000);
+          // setTimeout(() => {
+          //   this._sendHideWidget();
+          // }, 5000);
         },
         estimateGas: async (txParams: any, cb: ProviderCallback) => {
           const gas = await getTxGas(query, txParams);

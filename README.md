@@ -42,26 +42,40 @@ npm install --save @getsafle/safle-keyless-js
 Import the package into your project using,
 
 ```js
-import { getNetworks, KeylessWeb3 } from '@getsafle/safle-keyless-js';
+import Keyless from "@getsafle/safle-keyless-js";
 ```
 
 ## **Functions**
-
-> Get the list of supported chains and networks
-
-```js
-const networks = await getNetworks();
-```
 
 > Initialising
 
 Initialise the constructor using,
 
 ```js
-const keyless = new KeylessWeb3({ blockchain });
+let keyless = new Keyless("mumbaitestnet");
 ```
 
-`blockchain` - An array of objects containing supported blockchains from `getNetworks()`.
+`mumbaitestnet` - The name of the network supported in keyless. Default is ethereum mainnet with the name `mainnet`
+
+> Once the constructor is intialized, call `init()` to initialize login.
+
+```js
+    await keyless2.init(true);
+```
+
+> Use `onLogin()` to manage the state of the dApp when the user is loggedIn from Keyless.
+
+```js
+    keyless.onLogin((userAddress, chainDetails) => {
+        // Any function you want to call to manage the state
+    });
+```
+
+> Once the user is loggedIn, update the chain details in Keyless object 
+
+```js
+      keyless = await keyless.updateWeb3(chainDetails);
+```
 
 > Initialize web3 instance
 
@@ -73,32 +87,10 @@ const w3 = new Web3(keyless.provider);
 
 > Check the Keyless class connection to a dApp
 
-The following function verifies whether the sdk is connected to the provider or not:
-
-```js
-keyless.isConnected();
-```
-
 The following function disconnects Web3 from Keyless. It returns true/false if disconnected:
 
 ```js
 keyless.disconnect();
-```
-
-> Initialize the login widget
-
-To initialize the login screen, you have to use the following function:
-
-```js
-keyless.login();
-```
-
-Event handlers for login status
-
-```js
-w3.currentProvider.on('connect', () => {} );
-w3.currentProvider.on('disconnect', () => {} );
-w3.currentProvider.on('login successful', () => {} );
 ```
 
 > Chain/Account Selection
@@ -115,18 +107,6 @@ To get the selected account, you can use the web3 functions
 
 ```js
 const accounts = await w3.eth.getAccounts();
-```
-
-Event handler for chain selection
-
-```js
-w3.currentProvider.on('chainChanged', () => {} );
-```
-
-Event handler for account selection
-
-```js
-w3.currentProvider.on('accountsChanged', () => {} );
 ```
 
 > Open Dashboard
