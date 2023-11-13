@@ -88,21 +88,25 @@ export default class WidgetManager {
           parentMethod: (res: any) => {
             console.log("Parent method called!", res);
             //parseResult(res);
-            if(res.disconnetKeyless&& this.iframe){
-              console.log("disconnecting keyless")
+            if (res.disconnetKeyless && this.iframe) {
+              console.log("disconnecting keyless");
               this.iframe.style.display = "none";
               document.body.removeChild(this.iframe);
             }
-            if(res.closeWidget && this.iframe) {
-              console.log("closing widget")
-              if(res.resp.isConnected) {
+            if (res.closeWidget && this.iframe) {
+              console.log("closing widget");
+              if (res.resp.isConnected) {
                 this.iframe.style.display = "none";
               } else {
-                 document.body.removeChild(this.iframe);
+                document.body.removeChild(this.iframe);
               }
-
             }
             if (res.loginSuccess && res.isFirstLogin) {
+              console.log(
+                "IN WIDGET MANAGER ",
+                res.data[0],
+                `${Number(res.currentChain.chainId)}`
+              );
               this._onLogin(res.data[0], `${Number(res.currentChain.chainId)}`);
             }
             if (res.isLogout) {

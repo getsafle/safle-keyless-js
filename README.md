@@ -60,7 +60,7 @@ let keyless = new Keyless("mumbaitestnet");
 > Once the constructor is intialized, call `init()` to initialize login.
 
 ```js
-    await keyless2.init(true);
+    await keyless.init(true);
 ```
 
 > Use `onLogin()` to manage the state of the dApp when the user is loggedIn from Keyless.
