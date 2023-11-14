@@ -75,3 +75,7 @@
 * Goto dashboard on successful transaction.
 
 * Handle widget closing on transaction complete
+
+### 2.0.3 (2023-11-13)
+
+* Connection error fixes and reload page fixes
