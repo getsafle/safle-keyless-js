@@ -79,3 +79,7 @@
 ### 2.0.3 (2023-11-13)
 
 * Connection error fixes and reload page fixes
+
+### 2.0.4 (2023-12-11)
+
+* Undefined error fixes
