@@ -1,0 +1,30 @@
+import { ISDKConfig, IWidget } from "./interfaces";
+import Web3Manager from "./web3Manager";
+import WidgetManager from "./widgetManager";
+export default class Keyless {
+    private _widgetManagerInstance?;
+    private _web3ManagerInstance?;
+    private _config?;
+    constructor(network: string);
+    private _getWidgetCommunication;
+    private _sendShowWidget;
+    private _sendHideWidget;
+    get _widgetManager(): WidgetManager;
+    get config(): ISDKConfig;
+    private _clearProviderSession;
+    get _web3Manager(): Web3Manager;
+    get web3Provider(): any;
+    get provider(): any;
+    getWidget(): Promise<IWidget>;
+    showWidget(): Promise<void>;
+    hideWidget(): Promise<void>;
+    init(state: boolean): Promise<void>;
+    updateWeb3(chainId: any): Promise<this>;
+    selectChain(): Promise<void>;
+    getCurrentNetworkTokens(): Promise<any>;
+    disconnect(): Promise<void>;
+    openDashboard(): void;
+    destroyOnLogout(): void;
+    onLogin(callback: (walletAddress: string, chainId: any) => void): void;
+    onLogout(callback: () => void): void;
+}
