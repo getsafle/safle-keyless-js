@@ -83,3 +83,7 @@
 ### 2.0.4 (2023-12-11)
 
 * Undefined error fixes
+
+### 2.0.5 (2023-12-11)
+
+* Build updates
