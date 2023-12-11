@@ -197,9 +197,9 @@ export default class Web3Manager {
             console.log(result);
             let error: any = null;
             if (result.success) {
-              this._selectedAddress = result.resp.addresses[0];
+              this._selectedAddress = result.resp?.addresses[0];
               this._widgetManagerInstance?.hideIframe();
-              cb(error, result.resp.addresses);
+              cb(error, result.resp?.addresses);
             } else {
               error = result.error;
               cb(error, result.error?.message);
@@ -215,7 +215,7 @@ export default class Web3Manager {
             console.log(result);
             let error: any = null;
             if (result.success) {
-              this._signature = result.resp.sign_resp;
+              this._signature = result.resp?.sign_resp;
             // this._sendHideWidget();
             cb(error, result.resp?.sign_resp);
             } else {
