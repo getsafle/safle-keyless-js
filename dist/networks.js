@@ -12,35 +12,35 @@ function networkAdapter(network) {
 exports.networkAdapter = networkAdapter;
 const networks = {
     mainnet: {
-        nodeUrl: "https://mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "1",
     },
     goerlitestnet: {
-        nodeUrl: "https://goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "420",
     },
     polygonmainnet: {
-        nodeUrl: "https://polygon-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "137",
     },
     mumbaitestnet: {
-        nodeUrl: "https://polygon-mumbai.infura.io/v3/814228beb1ff4d5991988329e57c349c",
+        nodeUrl: "https://polygon-mumbai.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "80001",
     },
     optimism: {
-        nodeUrl: "https://polygon-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "10",
     },
     optimismtestnet: {
-        nodeUrl: "https://optimism-goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://optimism-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "420",
     },
     arbitrum: {
-        nodeUrl: "https://arbitrum-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://arbitrum-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "42161",
     },
     arbitrumtestnet: {
-        nodeUrl: "https://arbitrum-goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://arbitrum-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "421613",
     },
     velas: {
@@ -52,7 +52,7 @@ const networks = {
         chainId: "111",
     },
     mantle: {
-        nodeUrl: "http://rpc.mantle.xyz/",
+        nodeUrl: "https://rpc.ankr.com/mantle",
         chainId: "5000",
     },
     mantletestnet: {
@@ -68,35 +68,35 @@ const networks = {
         chainId: "97",
     },
     "1": {
-        nodeUrl: "https://mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "1",
     },
     "5": {
-        nodeUrl: "https://goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "5",
     },
     "137": {
-        nodeUrl: "https://polygon-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "137",
     },
     "80001": {
-        nodeUrl: "https://polygon-mumbai.infura.io/v3/814228beb1ff4d5991988329e57c349c",
+        nodeUrl: "https://polygon-mumbai.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "80001",
     },
     "10": {
-        nodeUrl: "https://optimism-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://optimism-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "10",
     },
     "420": {
-        nodeUrl: "https://optimism-goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://optimism-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "420",
     },
     "42161": {
-        nodeUrl: "https://arbitrum-mainnet.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://arbitrum-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "42161",
     },
     "421613": {
-        nodeUrl: "https://arbitrum-goerli.infura.io/v3/8faaf4fcbdcc4dd0bee8c87eb4b0315b",
+        nodeUrl: "https://arbitrum-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "421613",
     },
     "106": {
@@ -108,7 +108,7 @@ const networks = {
         chainId: "111",
     },
     "5000": {
-        nodeUrl: "http://rpc.mantle.xyz/",
+        nodeUrl: "https://rpc.ankr.com/mantle",
         chainId: "5000",
     },
     "5001": {
