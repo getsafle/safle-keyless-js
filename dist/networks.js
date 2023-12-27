@@ -52,7 +52,7 @@ const networks = {
         chainId: "111",
     },
     mantle: {
-        nodeUrl: "http://rpc.mantle.xyz/",
+        nodeUrl: "https://rpc.ankr.com/mantle",
         chainId: "5000",
     },
     mantletestnet: {
@@ -80,7 +80,7 @@ const networks = {
         chainId: "137",
     },
     "80001": {
-        nodeUrl: "https://polygon-mumbai.infura.io/v3/814228beb1ff4d5991988329e57c349c",
+        nodeUrl: "https://polygon-mumbai.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
         chainId: "80001",
     },
     "10": {
@@ -108,7 +108,7 @@ const networks = {
         chainId: "111",
     },
     "5000": {
-        nodeUrl: "http://rpc.mantle.xyz/",
+        nodeUrl: "https://rpc.ankr.com/mantle",
         chainId: "5000",
     },
     "5001": {
