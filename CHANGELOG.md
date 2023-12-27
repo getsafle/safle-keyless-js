@@ -91,3 +91,7 @@
 ### 2.0.6 (2023-12-22)
 
 * Updated RPC URL's
+
+### 2.0.7 (2023-12-27)
+
+* Widget border fixed
