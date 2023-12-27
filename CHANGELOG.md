@@ -95,3 +95,7 @@
 ### 2.0.7 (2023-12-27)
 
 * Widget border fixed
+
+### 2.0.8 (2023-12-27)
+
+* Fixed Widget URL
