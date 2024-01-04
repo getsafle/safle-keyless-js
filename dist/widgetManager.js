@@ -100,8 +100,8 @@ class WidgetManager {
             this.iframe.style.width = "360px";
             this.iframe.style.right = "10px";
             this.iframe.style.top = "10px";
-            this.iframe.style.position = "absolute";
             this.iframe.style.borderRadius = "20px";
+            this.iframe.style.position = "absolute";
             document.body.appendChild(this.iframe);
             try {
                 const connection = Penpal.connectToChild({
