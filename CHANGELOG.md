@@ -99,3 +99,8 @@
 ### 2.0.8 (2023-12-27)
 
 * Fixed Widget URL
+
+### 2.0.9 (2024-04-01)
+
+* Added widget border radius 
+* Updated Mantle RPC URL
