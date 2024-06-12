@@ -104,3 +104,7 @@
 
 * Added widget border radius 
 * Updated Mantle RPC URL
+
+### 2.0.10 (2024-06-12)
+
+* Devops changes
