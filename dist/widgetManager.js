@@ -35,7 +35,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Penpal = __importStar(require("penpal"));
 const styles_1 = require("./styles");
 const onWindowLoad_1 = require("./utils/onWindowLoad");
-const WIDGET_URL = "https://safle-keyless-core.netlify.app/";
+const WIDGET_URL = "https://test-keyless-core.getsafle.com/";
 const KEYLESS_CONTAINER_CLASS = "safle_keyless-container";
 const KEYLESS_IFRAME_CLASS = "safle_keyless-widget-frame";
 class WidgetManager {
