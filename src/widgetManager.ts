@@ -3,7 +3,7 @@ import { IConnectionMethods, ISDKConfig, IWidget } from "./interfaces";
 import { styles } from "./styles";
 import { onWindowLoad } from "./utils/onWindowLoad";
 
-const WIDGET_URL = "https://safle-keyless-core.netlify.app/";
+const WIDGET_URL = "https://test-safle-keyless-core.getsafle.com/";
 const KEYLESS_CONTAINER_CLASS = "safle_keyless-container";
 const KEYLESS_IFRAME_CLASS = "safle_keyless-widget-frame";
 
