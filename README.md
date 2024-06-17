@@ -52,10 +52,10 @@ import Keyless from "@getsafle/safle-keyless-js";
 Initialise the constructor using,
 
 ```js
-let keyless = new Keyless("mumbaitestnet");
+let keyless = new Keyless("polygontestnet");
 ```
 
-`mumbaitestnet` - The name of the network supported in keyless. Default is ethereum mainnet with the name `mainnet`
+`polygontestnet` - The name of the network supported in keyless. Default is ethereum mainnet with the name `mainnet`
 
 > Once the constructor is intialized, call `init()` to initialize login.
 

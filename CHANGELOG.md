@@ -112,3 +112,7 @@
 ### 2.0.11 (2024-06-12)
 
 * URL updates
+
+### 2.0.12 (2024-06-17)
+
+* Updated network config

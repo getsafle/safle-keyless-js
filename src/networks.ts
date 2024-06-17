@@ -11,43 +11,43 @@ export function networkAdapter(network: string | INetwork) {
 }
 
 const networks: { [key: string]: INetwork } = {
-  mainnet: {
-    nodeUrl: "https://mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+  ethereum: {
+    nodeUrl: "https://mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "1",
   },
-  goerlitestnet: {
-    nodeUrl: "https://goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "420",
+  ethereumtestnet: {
+    nodeUrl: "https://sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "11155111",
   },
-  polygonmainnet: {
+  polygon: {
     nodeUrl:
-      "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://polygon-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "137",
   },
-  mumbaitestnet: {
+  polygontestnet: {
     nodeUrl:
-      "https://polygon-mumbai.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "80001",
+      "https://polygon-amoy.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "80002",
   },
   optimism: {
     nodeUrl:
-      "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://optimism-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "10",
   },
   optimismtestnet: {
     nodeUrl:
-      "https://optimism-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "420",
+      "https://optimism-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "11155420",
   },
   arbitrum: {
     nodeUrl:
-      "https://arbitrum-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://arbitrum-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "42161",
   },
   arbitrumtestnet: {
     nodeUrl:
-      "https://arbitrum-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "421613",
+      "https://arbitrum-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "421614",
   },
   velas: {
     nodeUrl: "https://evmexplorer.velas.com/rpc",
@@ -58,58 +58,58 @@ const networks: { [key: string]: INetwork } = {
     chainId: "111",
   },
   mantle: {
-    nodeUrl: "https://rpc.ankr.com/mantle",
+    nodeUrl: "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5000",
   },
   mantletestnet: {
-    nodeUrl: "https://rpc.testnet.mantle.xyz",
-    chainId: "5001",
+    nodeUrl: "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "5003",
   },
   bsc: {
-    nodeUrl: "https://bsc-dataseed.binance.org",
+    nodeUrl: "https://rpc.ankr.com/bsc",
     chainId: "56",
   },
   bsctestnet: {
-    nodeUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+    nodeUrl: "https://bsc-testnet-rpc.publicnode.com",
     chainId: "97",
   },
   "1": {
-    nodeUrl: "https://mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+    nodeUrl: "https://mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "1",
   },
-  "5": {
-    nodeUrl: "https://goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "5",
+  "11155111" : {
+    nodeUrl: "https://sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "11155111",
   },
   "137": {
     nodeUrl:
-      "https://polygon-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://polygon-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "137",
   },
-  "80001": {
+  "80002" : {
     nodeUrl:
-      "https://polygon-mumbai.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "80001",
+      "https://polygon-amoy.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "80002",
   },
   "10": {
     nodeUrl:
-      "https://optimism-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://optimism-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "10",
   },
-  "420": {
+  "11155420" : {
     nodeUrl:
-      "https://optimism-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "420",
+      "https://optimism-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "11155420",
   },
   "42161": {
     nodeUrl:
-      "https://arbitrum-mainnet.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
+      "https://arbitrum-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "42161",
   },
-  "421613": {
+  "421614" : {
     nodeUrl:
-      "https://arbitrum-goerli.infura.io/v3/eff77f64ebfd4153b083c7867ccf115d",
-    chainId: "421613",
+      "https://arbitrum-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "421614",
   },
   "106": {
     nodeUrl: "https://evmexplorer.velas.com/rpc",
@@ -120,19 +120,19 @@ const networks: { [key: string]: INetwork } = {
     chainId: "111",
   },
   "5000": {
-    nodeUrl: "https://rpc.ankr.com/mantle",
+    nodeUrl: "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5000",
   },
-  "5001": {
-    nodeUrl: "https://rpc.testnet.mantle.xyz",
-    chainId: "5001",
+  "5003": {
+    nodeUrl: "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    chainId: "5003",
   },
   "56": {
-    nodeUrl: "https://bsc-dataseed.binance.org",
+    nodeUrl: "https://rpc.ankr.com/bsc",
     chainId: "56",
   },
   "97": {
-    nodeUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+    nodeUrl: "https://bsc-testnet-rpc.publicnode.com",
     chainId: "97",
   },
 };
