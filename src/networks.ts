@@ -1,12 +1,10 @@
 import { INetwork } from "./interfaces";
 
 export function networkAdapter(network: string | INetwork) {
-  console.log("NETWORK", network);
   const networkObj =
     typeof network === "string"
       ? Object.assign({}, networks[network])
       : network;
-  console.log("NetworkObj", networkObj);
   return networkObj.nodeUrl;
 }
 
@@ -58,11 +56,13 @@ const networks: { [key: string]: INetwork } = {
     chainId: "111",
   },
   mantle: {
-    nodeUrl: "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    nodeUrl:
+      "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5000",
   },
   mantletestnet: {
-    nodeUrl: "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    nodeUrl:
+      "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5003",
   },
   bsc: {
@@ -77,7 +77,7 @@ const networks: { [key: string]: INetwork } = {
     nodeUrl: "https://mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "1",
   },
-  "11155111" : {
+  "11155111": {
     nodeUrl: "https://sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "11155111",
   },
@@ -86,7 +86,7 @@ const networks: { [key: string]: INetwork } = {
       "https://polygon-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "137",
   },
-  "80002" : {
+  "80002": {
     nodeUrl:
       "https://polygon-amoy.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "80002",
@@ -96,7 +96,7 @@ const networks: { [key: string]: INetwork } = {
       "https://optimism-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "10",
   },
-  "11155420" : {
+  "11155420": {
     nodeUrl:
       "https://optimism-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "11155420",
@@ -106,7 +106,7 @@ const networks: { [key: string]: INetwork } = {
       "https://arbitrum-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "42161",
   },
-  "421614" : {
+  "421614": {
     nodeUrl:
       "https://arbitrum-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "421614",
@@ -120,11 +120,13 @@ const networks: { [key: string]: INetwork } = {
     chainId: "111",
   },
   "5000": {
-    nodeUrl: "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    nodeUrl:
+      "https://mantle-mainnet.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5000",
   },
   "5003": {
-    nodeUrl: "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
+    nodeUrl:
+      "https://mantle-sepolia.infura.io/v3/2c3f34885f064b28a4af2c1dd5c8751d",
     chainId: "5003",
   },
   "56": {

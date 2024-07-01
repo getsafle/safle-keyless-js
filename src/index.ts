@@ -65,18 +65,14 @@ export default class Keyless {
   // private
 
   get _web3Manager() {
-    console.log("_web3Manager", this._web3ManagerInstance);
     return this._web3ManagerInstance!;
   }
 
   get web3Provider() {
-    console.log("web3Provider");
-    console.log("web3Provider", this._web3Manager.provider);
     return this._web3Manager.provider;
   }
 
   get provider() {
-    console.log("provider");
     return this.web3Provider;
   }
 

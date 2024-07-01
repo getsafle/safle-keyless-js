@@ -30,7 +30,6 @@ export default class Web3Manager {
     private _sendHideWidget: () => void,
     private rpc: string
   ) {
-    console.log("rpc", rpc);
     this.rpcUrl = this.setNetwork(rpc);
     this.provider = this._initProvider();
   }
@@ -42,20 +41,17 @@ export default class Web3Manager {
   async selectChain(): Promise<void> {
     this._sendShowWidget();
     const widgetCommunication = await this._getWidgetCommunication();
-    console.log("selectChain", widgetCommunication);
     await widgetCommunication.selectChain();
   }
 
   async disconnetKeyless(): Promise<void> {
     const widgetCommunication = await this._getWidgetCommunication();
-    console.log("disconnetKeyless", widgetCommunication);
     await widgetCommunication.disconnetKeyless();
   }
 
   async getUserTokens(): Promise<any> {
     try {
       const widgetCommunication = await this._getWidgetCommunication();
-      console.log("getUserTokens", widgetCommunication);
       const res = await widgetCommunication.getUserTokens();
       if (res.success) {
         return res.resp;
@@ -63,14 +59,12 @@ export default class Web3Manager {
         return "Unable to fetch user tokens";
       }
     } catch (e: any) {
-      console.log(e);
       return e.message;
     }
   }
 
   private setNetwork(network: string) {
     const newNetwork = networkAdapter(network);
-    console.log("newNetwork", newNetwork);
     return newNetwork;
   }
 
@@ -112,7 +106,6 @@ export default class Web3Manager {
       }
 
       let result: any = null;
-      console.log("Method", payload.method);
       switch (payload.method) {
         case "eth_request":
 
@@ -192,9 +185,7 @@ export default class Web3Manager {
       new HookedWalletSubprovider({
         getAccounts: async (cb: ProviderCallback) => {
           const widgetCommunication = await this._getWidgetCommunication();
-          console.log("getAccounts:HookedWallet", widgetCommunication);
           widgetCommunication.getAccounts().then((result: any) => {
-            console.log(result);
             let error: any = null;
             if (result?.success) {
               this._selectedAddress = result?.resp?.addresses[0];
@@ -209,10 +200,8 @@ export default class Web3Manager {
         signMessage: async (msgParams: any, cb: ProviderCallback) => {
           this._sendShowWidget();
           const widgetCommunication = await this._getWidgetCommunication();
-          console.log("signMessageHooked", widgetCommunication);
           const params = { ...msgParams, messageStandard: "signMessage" };
           widgetCommunication.signData(params).then((result: any) => {
-            console.log(result);
             let error: any = null;
             if (result?.success) {
               this._signature = result?.resp?.sign_resp;
@@ -227,7 +216,6 @@ export default class Web3Manager {
         processTransaction: async (msgParams: any, cb: ProviderCallback) => {
           this._sendShowWidget();
           const widgetCommunication = await this._getWidgetCommunication();
-          console.log("signMessageHooked", widgetCommunication);
           const params = {
             ...msgParams,
             messageStandard: "processTransaction",
@@ -235,7 +223,6 @@ export default class Web3Manager {
           widgetCommunication
             .processTransaction(msgParams)
             .then((result: any) => {
-              console.log(result);
               let error: any = null;
               if (result?.success) {
                 //this._signature = result?.resp.sign_resp;
@@ -270,7 +257,6 @@ export default class Web3Manager {
 
     // data source
     if (this.rpcUrl) {
-      console.log("RPCURL", this.rpcUrl);
       this.engine.addProvider(
         new RpcSubprovider({
           // rpcUrl: 'https://polygon-mumbai.infura.io/v3/814228beb1ff4d5991988329e57c349c',
@@ -279,7 +265,6 @@ export default class Web3Manager {
       );
     } else {
       // Handle RPCURL not found.
-      console.log("RPC->else", this.rpcUrl);
     }
 
     this.engine.enable = () =>
@@ -315,7 +300,6 @@ export default class Web3Manager {
     });
 
     this.engine.start();
-    console.log(this.engine);
     return this.engine;
   }
 
