@@ -196,13 +196,13 @@ export default class Web3Manager {
           widgetCommunication.getAccounts().then((result: any) => {
             console.log(result);
             let error: any = null;
-            if (result.success) {
-              this._selectedAddress = result.resp?.addresses[0];
+            if (result?.success) {
+              this._selectedAddress = result?.resp?.addresses[0];
               this._widgetManagerInstance?.hideIframe();
-              cb(error, result.resp?.addresses);
+              cb(error, result?.resp?.addresses);
             } else {
-              error = result.error;
-              cb(error, result.error?.message);
+              error = result?.error;
+              cb(error, result?.error?.message);
             }
           });
         },
@@ -214,13 +214,13 @@ export default class Web3Manager {
           widgetCommunication.signData(params).then((result: any) => {
             console.log(result);
             let error: any = null;
-            if (result.success) {
-              this._signature = result.resp?.sign_resp;
-            // this._sendHideWidget();
-            cb(error, result.resp?.sign_resp);
+            if (result?.success) {
+              this._signature = result?.resp?.sign_resp;
+              // this._sendHideWidget();
+              cb(error, result?.resp?.sign_resp);
             } else {
-              error = result.error;
-              cb(error, result.error?.message);
+              error = result?.error;
+              // cb(error, result?.error?.message);
             }
           });
         },
@@ -237,13 +237,13 @@ export default class Web3Manager {
             .then((result: any) => {
               console.log(result);
               let error: any = null;
-              if (result.success) {
-                //this._signature = result.resp.sign_resp;
-              // this._sendHideWidget();
-              cb(error, result.resp);
+              if (result?.success) {
+                //this._signature = result?.resp.sign_resp;
+                // this._sendHideWidget();
+                cb(error, result?.resp);
               } else {
-                error = result.error;
-                cb(error, result.resp);
+                error = result?.error;
+                // cb(error, result?.resp);
               }
             });
         },
